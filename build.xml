@@ -1,0 +1,71 @@
+<project name="adrian-common" basedir="." default="all">
+
+  <property name="compile-into" location="build-tmp/java-classes"/>
+  <property name="distributable-zip-into" location="build-tmp/distributable-zip-expanded"/>
+
+  <!-- from http://ccollins.wordpress.com/2008/01/30/getting-subversion-revision-in-ant/ -->
+  <!-- and http://www.boplicity.net/confluence/display/maven/Retrieve+Subversion+revision+number+with+Ant -->
+  <target name="find_revision" description="Sets property 'revision.number' to the head svn revision">
+    <echo>Finding Subversion revision number...</echo>
+    <exec executable="svn" outputproperty="svn.log.output">
+        <arg line="log . -q"/>
+    </exec>
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    <propertyregex property="revision.number" input="${svn.log.output}" select="\1">
+        <regexp pattern="r([0-9]*)"/>
+    </propertyregex>
+    <echo>Will use Subversion revision r${revision.number}</echo>
+  </target>
+
+  <target name="create-jar" depends="find_revision">
+    <delete dir="${compile-into}"/> <!-- force a clean compile -->
+    <mkdir dir="${compile-into}"/>
+    <javac srcdir="src" destdir="${compile-into}" debug="on">
+ <!-- <classpath>
+        <fileset dir=".">
+          <include name="java-lib/*.jar"/>
+          <include name="java-lib-compile/*.jar"/>
+        </fileset>
+      </classpath>  -->
+    </javac>
+    <copy todir="${compile-into}">
+      <fileset dir="src">
+        <include name="**/*.properties"/>
+        <include name="**/*.java"/>
+      </fileset>
+    </copy>
+    <jar jarfile="adrian-common-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
+  </target>
+  
+  <target name="mailtemplate-zip" depends="find_revision">
+    <delete dir="${distributable-zip-into}"/>
+    <mkdir dir="${distributable-zip-into}"/>
+    <delete dir="${compile-into}"/> <!-- force a clean compile -->
+    <mkdir dir="${compile-into}"/>
+    <copy todir="${distributable-zip-into}/java-src">
+      <fileset dir="src">
+        <include name="com/databasesandlife/mailtemplate/**/*.java"/>
+      </fileset>
+    </copy>
+    <javac srcdir="${distributable-zip-into}/java-src" destdir="${compile-into}" debug="on">
+<!--  <classpath>
+        <fileset dir=".">
+          <include name="java-lib/*.jar"/>
+          <include name="java-lib-compile/*.jar"/>
+        </fileset>
+      </classpath>  -->
+    </javac>
+    <copy todir="${compile-into}">
+      <fileset dir="${distributable-zip-into}/java-src"/>
+    </copy>
+    <jar jarfile="${distributable-zip-into}/databasesandlife-mailtemplate-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
+    <copy todir="${distributable-zip-into}" file="distributable-zip-files/LICENSE-lgpl-3.0.txt"/>
+    <copy todir="${distributable-zip-into}">
+      <fileset dir="distributable-zip-files/mailtemplate"/>
+    </copy>
+    <zip destfile="databasesandlife-mailtemplate-src.zip" basedir="${distributable-zip-into}"/>
+  </target>
+  
+  <target name="all" depends="create-jar,mailtemplate-zip"/>
+  
+</project>
