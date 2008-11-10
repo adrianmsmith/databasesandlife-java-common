@@ -3,17 +3,15 @@
   <property name="compile-into" location="build-tmp/java-classes"/>
   <property name="distributable-zip-into" location="build-tmp/distributable-zip-expanded"/>
 
-  <!-- from http://ccollins.wordpress.com/2008/01/30/getting-subversion-revision-in-ant/ -->
-  <!-- and http://www.boplicity.net/confluence/display/maven/Retrieve+Subversion+revision+number+with+Ant -->
   <target name="find_revision" description="Sets property 'revision.number' to the head svn revision">
     <echo>Finding Subversion revision number...</echo>
     <exec executable="svn" outputproperty="svn.log.output">
-        <arg line="log . -q"/>
+      <arg line="log -q ."/>
     </exec>
-    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-    <propertyregex property="revision.number" input="${svn.log.output}" select="\1">
-        <regexp pattern="r([0-9]*)"/>
-    </propertyregex>
+    <exec executable="perl" inputstring="${svn.log.output}" outputproperty="revision.number">
+      <arg value="-e"/>
+      <arg value="while (&lt;>) { if (/^r(\d+)/) { print $1; exit; } }"/>
+    </exec>
     <echo>Will use Subversion revision r${revision.number}</echo>
   </target>
 
@@ -37,10 +35,10 @@
     <jar jarfile="adrian-common-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
   </target>
   
-  <target name="mailtemplate-zip" depends="find_revision">
+<!--  <target name="mailtemplate-zip" depends="find_revision">
     <delete dir="${distributable-zip-into}"/>
     <mkdir dir="${distributable-zip-into}"/>
-    <delete dir="${compile-into}"/> <!-- force a clean compile -->
+    <delete dir="${compile-into}"/>
     <mkdir dir="${compile-into}"/>
     <copy todir="${distributable-zip-into}/java-src">
       <fileset dir="src">
@@ -48,12 +46,12 @@
       </fileset>
     </copy>
     <javac srcdir="${distributable-zip-into}/java-src" destdir="${compile-into}" debug="on">
-<!--  <classpath>
+     <classpath>
         <fileset dir=".">
           <include name="java-lib/*.jar"/>
           <include name="java-lib-compile/*.jar"/>
         </fileset>
-      </classpath>  -->
+      </classpath>
     </javac>
     <copy todir="${compile-into}">
       <fileset dir="${distributable-zip-into}/java-src"/>
@@ -64,8 +62,8 @@
       <fileset dir="distributable-zip-files/mailtemplate"/>
     </copy>
     <zip destfile="databasesandlife-mailtemplate-src.zip" basedir="${distributable-zip-into}"/>
-  </target>
+  </target>  -->
   
-  <target name="all" depends="create-jar,mailtemplate-zip"/>
+  <target name="all" depends="create-jar"/>
   
 </project>

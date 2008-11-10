@@ -1,5 +1,6 @@
 package com.databasesandlife;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,8 +31,8 @@ import java.util.NoSuchElementException;
  * This means that an object of this type can be created then used hours later; the ResultSet will not have timed out, as the 
  * statement is executed only briefly before the results are needed.
  * <p>
- * The PreparedStatement can also be closed at the end of the iteration if desired (if this is the only code which will be using
- * that statement) or can be left open (if other code will use it).
+ * The PreparedStatement, and the associated Connection, can also be closed at the end of the iteration if desired
+ * (if this is the only code which will be using that statement) or can be left open (if other code will use it).
  * <p>
  * Usage:
  * <pre>
@@ -62,20 +63,24 @@ import java.util.NoSuchElementException;
 public abstract class ResultSetIterator<T> implements Iterator<T> {
     
     protected enum State {
-                                            BEFORE_EXECUTE,
-        /** nextObject != null */           RETURN_RESULTS,
-        /** statement, resultSet closed */  FINISHED
+                                   BEFORE_EXECUTE,
+        /** nextObject != null */  RETURN_RESULTS,
+        /** resultSet closed */    FINISHED
     };
+    
+    public enum CloseStrategy {
+        CLOSE_NOTHING, CLOSE_STATEMENT, /** Closes statement and connection */ CLOSE_CONNCETION
+    }
     
     protected State state = State.BEFORE_EXECUTE;
     protected final PreparedStatement statement;
-    protected final boolean shouldCloseStatement;
+    protected final CloseStrategy closeStrategy;
     protected ResultSet resultSet;
     protected T nextObject;
     
-    public ResultSetIterator(PreparedStatement statement, boolean shouldCloseStatement) {
+    public ResultSetIterator(PreparedStatement statement, CloseStrategy closeStrategy) {
         this.statement = statement;
-        this.shouldCloseStatement = shouldCloseStatement;
+        this.closeStrategy = closeStrategy;
     }
     
     protected synchronized void stateTransitionToReturnResults() {
@@ -97,7 +102,12 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
         try {
             if (state != State.RETURN_RESULTS) return;
             resultSet.close();
-            if (shouldCloseStatement) statement.close();
+            Connection connection = statement.getConnection();
+            switch (closeStrategy) {
+                case CLOSE_NOTHING: break;
+                case CLOSE_STATEMENT: statement.close(); break;
+                case CLOSE_CONNCETION: connection.close(); connection.close(); break;
+            }
             state = State.FINISHED;
         }
         catch (SQLException e) { throw new RuntimeException(e); }
