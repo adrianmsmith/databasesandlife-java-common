@@ -69,7 +69,8 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
     };
     
     public enum CloseStrategy {
-        CLOSE_NOTHING, CLOSE_STATEMENT, /** Closes statement and connection */ CLOSE_CONNCETION
+        CLOSE_NOTHING, CLOSE_STATEMENT, /** Closes statement and connection */ CLOSE_CONNECTION
+    
     }
     
     protected State state = State.BEFORE_EXECUTE;
@@ -106,7 +107,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
             switch (closeStrategy) {
                 case CLOSE_NOTHING: break;
                 case CLOSE_STATEMENT: statement.close(); break;
-                case CLOSE_CONNCETION: connection.close(); connection.close(); break;
+                case CLOSE_CONNECTION: statement.close(); connection.close(); break;
             }
             state = State.FINISHED;
         }
