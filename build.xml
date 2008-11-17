@@ -5,8 +5,17 @@
 
   <target name="find_revision" description="Sets property 'revision.number' to the head svn revision">
     <echo>Finding Subversion revision number...</echo>
+    <exec executable="svn" outputproperty="svn.info.output">
+      <arg line="info"/>
+    </exec>
+    <exec executable="perl" inputstring="${svn.info.output}" outputproperty="svn.url">
+      <arg value="-e"/>
+      <arg value="while (&lt;>) { if (/URL: (.+)/) { print $1; exit; } }"/>
+    </exec>
+    <echo>Using SVN URL: ${svn.url}</echo>
+
     <exec executable="svn" outputproperty="svn.log.output">
-      <arg line="log -q ."/>
+      <arg line="log -q ${svn.url}"/>
     </exec>
     <exec executable="perl" inputstring="${svn.log.output}" outputproperty="revision.number">
       <arg value="-e"/>
