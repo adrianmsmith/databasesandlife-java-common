@@ -74,12 +74,14 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
     }
     
     protected State state = State.BEFORE_EXECUTE;
+    protected final String sqlForLog;
     protected final PreparedStatement statement;
     protected final CloseStrategy closeStrategy;
     protected ResultSet resultSet;
     protected T nextObject;
     
-    public ResultSetIterator(PreparedStatement statement, CloseStrategy closeStrategy) {
+    public ResultSetIterator(String sqlForLog, PreparedStatement statement, CloseStrategy closeStrategy) {
+        this.sqlForLog = sqlForLog;
         this.statement = statement;
         this.closeStrategy = closeStrategy;
     }
@@ -92,7 +94,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
             afterQueryExecuted();
             next(); // load "nextObject" attribute; can stateTransitionToFinished 
         }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (SQLException e) { throw new RuntimeException(sqlForLog, e); }
     }
     
     /** Can be overridden to do things just after the ResultSet has been executed but before any rows have been read.
@@ -111,7 +113,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
             }
             state = State.FINISHED;
         }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (SQLException e) { throw new RuntimeException(sqlForLog, e); }
     }
     
     /**
@@ -140,7 +142,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
             else stateTransitionToFinished();
             return result;
         }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (SQLException e) { throw new RuntimeException(sqlForLog, e); }
     }
 
     public void remove() {
