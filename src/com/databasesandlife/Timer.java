@@ -1,19 +1,21 @@
 package com.databasesandlife;
 
 /**
- *
+ * Times a calculation.
  *
  * @author Adrian Smith
  */
 public class Timer {
 
-    public static long measureWallclockMilliseconds(Runnable task, long minimumMillis) {
-        long start = System.currentTimeMillis();
+    public static long measureWallclockMilliseconds(Runnable task, long minimumDurationMillis) {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + minimumDurationMillis;
         int iterations = 0;
-        do {
-            task.run();
+        while (System.currentTimeMillis() < endTime) {
             iterations++;
-        } while (System.currentTimeMillis() < start + minimumMillis);
-        return (System.currentTimeMillis() - start) / iterations;
+            task.run();
+        }
+        long duration = System.currentTimeMillis() - endTime;
+        return duration / iterations;
     }
 }
