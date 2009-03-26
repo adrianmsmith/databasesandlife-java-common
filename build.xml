@@ -24,7 +24,7 @@
     <echo>Will use Subversion revision r${revision.number}</echo>
   </target>
 
-  <target name="create-jar" depends="find_revision">
+  <target name="create-databasesandlife-common-jar" depends="find_revision">
     <delete dir="${compile-into}"/> <!-- force a clean compile -->
     <mkdir dir="${compile-into}"/>
     <javac srcdir="src" destdir="${compile-into}" debug="on">
@@ -41,6 +41,7 @@
         <include name="**/*.java"/>
       </fileset>
     </copy>
+    <delete> <fileset dir="." includes="adrian-common-incl-src-r*.jar"/> </delete> 
     <jar jarfile="adrian-common-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
   </target>
   
@@ -73,6 +74,6 @@
     <zip destfile="databasesandlife-mailtemplate-src.zip" basedir="${distributable-zip-into}"/>
   </target>  -->
   
-  <target name="all" depends="create-jar"/>
+  <target name="all" depends="create-databasesandlife-common-jar"/>
   
 </project>
