@@ -11,7 +11,7 @@ public class Timer {
         long millis;
         int iterPerSecond;
 
-        public String toString() { return String.format("%.3f seconds (%d per second)", millis/1000.0, iterPerSecond); }
+        public String toString() { return String.format("%.3f seconds (%,d per second)", millis/1000.0, iterPerSecond); }
     }
 
     public static TimerResult measureWallclockMilliseconds(Runnable task, long minimumDurationMillis) {
