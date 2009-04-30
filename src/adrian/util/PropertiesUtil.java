@@ -15,11 +15,10 @@ public class PropertiesUtil {
 
     /** Same as splitToArray but returns a Vector.
       * @see #splitToArray
-      * @return a Vector of Properties objects
       * @deprecated use splitToArray instead, this provides type-safety */
-    public static Vector splitToVector(Properties p, String prefix) {
+    public static Vector<Properties> splitToVector(Properties p, String prefix) {
         if ( ! prefix.equals("")) prefix += ".";
-        Vector propertiesForIndex = new Vector();
+        Vector<Properties> propertiesForIndex = new Vector<Properties>();
         for (Enumeration e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (! key.startsWith(prefix)) continue; // wrong prefix
@@ -45,7 +44,7 @@ public class PropertiesUtil {
       * @see #splitToVector
       * @return a Vector of Properties objects */
     public static Properties[] splitToArray(Properties p, String prefix) {
-        Vector vec = splitToVector(p, prefix);
+        Vector<Properties> vec = splitToVector(p, prefix);
         return (Properties[]) vec.toArray(new Properties[0]);
     }
 

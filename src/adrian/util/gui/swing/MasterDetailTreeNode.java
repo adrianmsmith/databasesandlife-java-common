@@ -265,7 +265,7 @@ implements TreeNode, java.io.Serializable {
     }
 
     public TreePath newTreePath() {
-        Vector path = new Vector();
+        Vector<MasterDetailTreeNode> path = new Vector<MasterDetailTreeNode>();
         MasterDetailTreeNode n = this;
         while (n != null) {
             path.insertElementAt(n, 0);
@@ -377,7 +377,7 @@ implements TreeNode, java.io.Serializable {
     // javax.swing.tree.TreeNode API
     // -----------------------------------------------------------------------
     
-    public Enumeration children() { return new Vector(Arrays.asList(getChildren())).elements(); }    
+    public Enumeration children() { return new Vector<MasterDetailTreeNode>(Arrays.asList(getChildren())).elements(); }
     public TreeNode getChildAt(int param) { return getChildren()[param]; }
     public int getChildCount() { return getChildren().length; }
     public TreeNode getParent() { return parent; }
