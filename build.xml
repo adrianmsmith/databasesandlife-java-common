@@ -36,12 +36,11 @@
     <delete dir="${compile-into}"/> <!-- force a clean compile -->
     <mkdir dir="${compile-into}"/>
     <javac srcdir="src" destdir="${compile-into}" debug="on">
- <!-- <classpath>
+       <classpath>
         <fileset dir=".">
-          <include name="java-lib/*.jar"/>
-          <include name="java-lib-compile/*.jar"/>
+          <include name="lib-compile/*.jar"/>
         </fileset>
-      </classpath>  -->
+      </classpath> 
     </javac>
     <copy todir="${compile-into}">
       <fileset dir="src">
