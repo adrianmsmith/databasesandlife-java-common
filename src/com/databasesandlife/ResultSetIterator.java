@@ -50,27 +50,28 @@ import java.util.NoSuchElementException;
  *         ResultSet.CONCUR_READ_ONLY);
  *     stat.setFetchSize(Integer.MIN_VALUE);
  *     boolean shouldClosePreparedStatement = truel
- *     return new MyDocResultSetIterator(stat, shouldClosePreparedStatement);
+ *     return new MyDocResultSetIterator("...", stat, shouldClosePreparedStatement);
  * }
  * </pre>
  * This code is released under the <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a>.
  * It is tested using Java 6 with MySQL 5.0 and the JDBC driver "MySQL Connector" 5.1.15.
  * 
  * @see <a href="http://www.databasesandlife.com/reading-row-by-row-into-java-from-mysql/">Reading row-by-row into Java from MySQL</a>
- * @author Adrian Smith &lt;adrian.m.smith@gmail.com&gt;
+ * @author Adrian Smith &lt;adrian.m.smith@gmail.com>
  * @version $Revision$
  */
 public abstract class ResultSetIterator<T> implements Iterator<T> {
     
     protected enum State {
-                                   BEFORE_EXECUTE,
-        /** nextObject != null */  RETURN_RESULTS,
-        /** resultSet closed */    FINISHED
+                                                BEFORE_EXECUTE,
+                      /** nextObject != null */ RETURN_RESULTS,
+                        /** resultSet closed */ FINISHED
     };
     
     public enum CloseStrategy {
-        CLOSE_NOTHING, CLOSE_STATEMENT, /** Closes statement and connection */ CLOSE_CONNECTION
-    
+                                                CLOSE_NOTHING,
+                                                CLOSE_STATEMENT,
+         /** Closes statement and connection */ CLOSE_CONNECTION
     }
     
     protected State state = State.BEFORE_EXECUTE;
@@ -79,7 +80,10 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
     protected final CloseStrategy closeStrategy;
     protected ResultSet resultSet;
     protected T nextObject;
-    
+
+    /**
+     * @param sqlForLog What SQL was executed? This is only used to populate the text of Exceptions
+     */
     public ResultSetIterator(String sqlForLog, PreparedStatement statement, CloseStrategy closeStrategy) {
         this.sqlForLog = sqlForLog;
         this.statement = statement;
@@ -97,8 +101,10 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
         catch (SQLException e) { throw new RuntimeException(sqlForLog, e); }
     }
     
-    /** Can be overridden to do things just after the ResultSet has been executed but before any rows have been read.
-      * For example process metadata. */
+    /**
+     * Can be overridden to do things just after the ResultSet has been executed but before any rows have been read.
+     * For example process metadata.
+     */
     protected void afterQueryExecuted() throws SQLException { }
     
     protected synchronized void stateTransitionToFinished() {

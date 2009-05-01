@@ -6,7 +6,7 @@ import javax.swing.table.*;
  * If you have a table model which is too slow, you can wrap it in 
  * a CachingTableModel.
  *
- * @version $Id$
+ * @version $Id: CachingTableModel.java 377 2005-11-20 17:02:11Z adrian $
  */
 
 public class CachingTableModel 

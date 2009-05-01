@@ -1,7 +1,7 @@
 package com.databasesandlife;
 
+import com.databasesandlife.testutil.DatabaseConnection;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +16,7 @@ public class ResultSetIteratorTest extends TestCase {
     Connection connection = null;
     
     public class I extends ResultSetIterator<Integer> {
-        public I(PreparedStatement s) { super(s, true); }
+        public I(PreparedStatement s) { super("", s, CloseStrategy.CLOSE_STATEMENT); }
         @Override protected Integer newObjectForRow(ResultSet r) throws SQLException {
             return r.getInt("intCol");
         }
@@ -24,20 +24,11 @@ public class ResultSetIteratorTest extends TestCase {
     
     public ResultSetIteratorTest(String testName) {
         super(testName);
-    }            
-    
-    @Override
-    public void setUp() throws Exception {
-        new com.mysql.jdbc.Driver();
-        String conUrl = "jdbc:mysql://localhost/tender_lucene_data?user=root"+
-                "&password=piyrwqetuo&useUnicode=true&characterEncoding=UTF-8";
-        connection = DriverManager.getConnection(conUrl);
     }
     
     @Override
-    public void tearDown() throws Exception {
-        if (connection != null)
-            connection.prepareStatement("DROP TABLE IF EXISTS ResultSetIteratorTest").execute();
+    public void setUp() throws Exception {
+        connection = DatabaseConnection.getConnection();
     }
     
     public void test() throws Exception {

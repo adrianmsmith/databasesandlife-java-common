@@ -1,3 +1,11 @@
+<!-- TODO: javadoc
+
+-public -link http://java.sun.com/j2se/1.5.0/docs/api -link https://www.hibernate.org/hib_docs/v3/api -stylesheetfile C:\Adrian\data\dev\common\java\javadoc.css
+  & @author @revision tags
+
+-->
+
+
 <project name="adrian-common" basedir="." default="all">
 
   <property name="compile-into" location="build-tmp/java-classes"/>

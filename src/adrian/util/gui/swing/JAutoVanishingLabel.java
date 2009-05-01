@@ -9,7 +9,7 @@ import javax.swing.*;
  * setVanishingText to set the text. After 5 seconds of the method being
  * called, the text disappears.
  * 
- * @version $Id$
+ * @version $Id: JAutoVanishingLabel.java 438 2006-03-15 18:59:06Z adrian $
  */
 
 public class JAutoVanishingLabel
