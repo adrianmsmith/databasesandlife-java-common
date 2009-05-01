@@ -45,8 +45,8 @@ public class InsertOrFetcher {
             // Create new object for insertion
             T newObject = cl.newInstance();
             for (Entry<String, Object> e : domainKey.entrySet()) {
-                if ( ! properties.containsKey(e.getKey()))
-                    throw new RuntimeException("Class '"+cl+"' appears not to have a setter for property '"+e.getKey()+"'");
+                if ( ! properties.containsKey(e.getKey())) throw new RuntimeException(
+                    "Class '"+cl+"' appears not to have a public getter/setter for property '"+e.getKey()+"'");
                 properties.get(e.getKey()).getWriteMethod().invoke(newObject, e.getValue());
             }
 
@@ -58,7 +58,7 @@ public class InsertOrFetcher {
                 tx.commit();
             }
             catch (ConstraintViolationException e) { }    // Object already exists, continue to "fetch" below
-            finally { newSession.close(); }    // Leave tx handing around: tx.commit -> error, tx.rollback -> error
+            finally { newSession.close(); }    // Don't close tx: after Exception: tx.commit() -> error, tx.rollback() -> error
 
             // Create fetch parameters
             Criteria select = s.createCriteria(cl);
@@ -67,9 +67,9 @@ public class InsertOrFetcher {
                 select.add(Restrictions.eq(e.getKey(), e.getValue()));
 
             // Fetch & return object (it must exist if insert failed)
-            T result = (T) select.uniqueResult();
+            T result = cl.cast(select.uniqueResult());
             if (result == null) throw new RuntimeException("INSERT was successful or caused constraint exception, " +
-                    "but SELECT didn't find object -- possibly unique constraint wrongly defined?");
+                "but SELECT didn't find object -- possibly unique constraint wrongly defined?");
 
             return result;
         }

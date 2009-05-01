@@ -36,7 +36,8 @@
     <delete dir="${compile-into}"/> <!-- force a clean compile -->
     <mkdir dir="${compile-into}"/>
     <javac srcdir="src" destdir="${compile-into}" debug="on">
-       <classpath>
+<compilerarg value="-Xlint:unchecked"/>
+      <classpath>
         <fileset dir=".">
           <include name="lib-compile/*.jar"/>
         </fileset>
