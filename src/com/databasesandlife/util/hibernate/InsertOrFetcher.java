@@ -96,9 +96,11 @@ public class InsertOrFetcher {
 
     /**
      * See class documentation.
-     * @param cl        The type of Hibernate-managed to be inserted/fetched
-     * @param s         Hibernate session with active transaction
-     * @return          See class documentation
+     * @param cl                 The type of Hibernate-managed to be inserted/fetched
+     * @param s                  Hibernate session with active transaction
+     * @param objectForInsertion Not managed by Hibernate yet
+     * @param domainKey          Which attributes of objectForInsertion should be used for the WHERE to re-find the object
+     * @return                   See class documentation
      */
     public static <T> T load(Class<T> cl, Session s, T objectForInsertion, Collection<String> domainKey) {
         try {
