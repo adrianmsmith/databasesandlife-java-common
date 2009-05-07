@@ -9,14 +9,19 @@ public class GetBytesFromUrlProcess {
         public String contentType;
         public byte[] byteArray;
     }
-    
-    public byte[] readBytesFromInputStream(InputStream iStream)
+
+    public void copyBytesFromInputToOutputStream(OutputStream oStream, InputStream iStream)
     throws IOException {
-        ByteArrayOutputStream oStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[10000];
         int bytesRead;
         while ((bytesRead = iStream.read(buffer)) >= 0)
            oStream.write(buffer, 0, bytesRead);
+    }
+    
+    public byte[] readBytesFromInputStream(InputStream iStream)
+    throws IOException {
+        ByteArrayOutputStream oStream = new ByteArrayOutputStream();
+        copyBytesFromInputToOutputStream(oStream, iStream);
         return oStream.toByteArray();
     }
     

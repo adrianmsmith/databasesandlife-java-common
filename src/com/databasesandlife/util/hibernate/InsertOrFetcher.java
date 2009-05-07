@@ -3,6 +3,7 @@ package com.databasesandlife.util.hibernate;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,16 +94,6 @@ Session and returned.</p>
  */
 public class InsertOrFetcher {
 
-    protected static Map<String, PropertyDescriptor> getProperties(Class<?> cl) {
-        try {
-            Map<String, PropertyDescriptor> result = new HashMap<String, PropertyDescriptor>();
-            for (PropertyDescriptor p : Introspector.getBeanInfo(cl).getPropertyDescriptors())
-                result.put(p.getName(), p);
-            return result;
-        }
-        catch (java.beans.IntrospectionException e) { throw new RuntimeException(e); }
-    }
-
     /**
      * See class documentation.
      * @param cl        The type of Hibernate-managed to be inserted/fetched
@@ -111,8 +102,6 @@ public class InsertOrFetcher {
      */
     public static <T> T load(Class<T> cl, Session s, T objectForInsertion, Collection<String> domainKey) {
         try {
-            Map<String, PropertyDescriptor> properties = getProperties(cl);
-
             // Insert object & catch exception if fail
             Session newSession = s.getSessionFactory().openSession();
             try {
@@ -127,10 +116,14 @@ public class InsertOrFetcher {
             Criteria select = s.createCriteria(cl);
             select.setLockMode(LockMode.UPGRADE);
             for (String attr : domainKey) {
-                if ( ! properties.containsKey(attr)) throw new RuntimeException(
-                    "Class '"+cl+"' appears not to have a public getter/setter for property '"+attr+"'");
-                Object value = properties.get(attr).getReadMethod().invoke(objectForInsertion);
-                select.add(Restrictions.eq(attr, value));
+                try {
+                    String methodName = "get" + attr.substring(0, 1).toUpperCase() + attr.substring(1);
+                    Method method = cl.getMethod(methodName);
+                    Object value = method.invoke(objectForInsertion);
+                    select.add(Restrictions.eq(attr, value));
+                }
+                catch (NoSuchMethodException e) { throw new RuntimeException(
+                    "Class '"+cl+"' has no public getter for property '"+attr+"'"); }
             }
 
             // Fetch & return object (it must exist if insert failed)
