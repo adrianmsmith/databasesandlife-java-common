@@ -1,9 +1,13 @@
 package com.databasesandlife.util.hibernate.testutil;
 
 public class PersistentObject {
-    protected Long id;
+    protected Long id = null;
     protected String key1, key2;
-    protected String data;
+    protected String data = "x";
+
+    public PersistentObject() { }
+
+    public PersistentObject(String k1, String k2) { key1=k1; key2=k2; }
 
     public Long getId() {
         return id;

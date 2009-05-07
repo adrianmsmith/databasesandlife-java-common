@@ -6,8 +6,8 @@ import com.databasesandlife.util.hibernate.testutil.PersistentObject;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Collection;
 import junit.framework.TestCase;
 import org.hibernate.Session;
 
@@ -33,23 +33,23 @@ public class InsertOrFetcherTest extends TestCase {
 
         Session s = HibernateSessionFactory.getSessionFactory().openSession();
 
-        Map<String, Object> key = new HashMap<String, Object>();
-        key.put("key1", "foo");
-        key.put("key2", "bar");
+        PersistentObject prototype = new PersistentObject("foo", "bar");
+        Collection<String> key = Arrays.asList("key1", "key2");
 
-        PersistentObject obj = InsertOrFetcher.load(PersistentObject.class, s, key);
+        PersistentObject obj = InsertOrFetcher.load(PersistentObject.class, s, prototype, key);
         assertNotNull(obj);
         assertEquals(1, count(connection)); // really exists in database
 
-        PersistentObject objSame = InsertOrFetcher.load(PersistentObject.class, s, key);
+        PersistentObject objSame = InsertOrFetcher.load(PersistentObject.class, s, prototype, key);
         assertNotNull(objSame);
         assertEquals(1, count(connection)); // didn't do another INSERT
-        assertEquals(obj.getId(), objSame.getId());   // returned same object
+        assertSame(obj, objSame);   // returned same object instance
 
-        key.put("key2", "different");
-        PersistentObject objDifferent = InsertOrFetcher.load(PersistentObject.class, s, key);
+        prototype.setKey2("different");
+        PersistentObject objDifferent = InsertOrFetcher.load(PersistentObject.class, s, prototype, key);
         assertNotNull(objDifferent);
         assertEquals(2, count(connection)); // did do another INSERT
+        assertNotSame(obj, objDifferent);  // return different object
         assertNotSame(obj.getId(), objDifferent.getId());  // return different object
     }
 }
