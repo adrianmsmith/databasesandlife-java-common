@@ -8,11 +8,11 @@ import java.sql.SQLException;
  * @author Adrian Smith
  */
 public class DatabaseConnection {
-    
-    public static String getHostname() { return "localhost"; }
-    public static String getDatabaseName() { return "databasesandlife_common"; }
-    public static String getUsername() { return "root"; }
-    public static String getPassword() { return "root"; }
+
+    public static String getHostname()      { return System.getProperty("db.hostname", "localhost"); }
+    public static String getDatabaseName()  { return System.getProperty("db.name", "databasesandlife_common"); }
+    public static String getUsername()      { return System.getProperty("db.username", "root"); }
+    public static String getPassword()      { return System.getProperty("db.password", "root"); }
 
     public static String getJdbcUrl() {
         return "jdbc:mysql://" + getHostname() + "/" + getDatabaseName() + "?user=" + getUsername() +
@@ -26,5 +26,4 @@ public class DatabaseConnection {
         }
         catch (SQLException e) { throw new RuntimeException(e); }
     }
-
 }
