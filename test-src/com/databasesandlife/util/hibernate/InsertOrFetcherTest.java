@@ -1,6 +1,6 @@
 package com.databasesandlife.util.hibernate;
 
-import com.databasesandlife.testutil.DatabaseConnection;
+import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
 import com.databasesandlife.util.hibernate.testutil.HibernateSessionFactory;
 import com.databasesandlife.util.hibernate.testutil.PersistentObject;
 import java.sql.Connection;

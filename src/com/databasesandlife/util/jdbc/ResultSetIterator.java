@@ -1,4 +1,4 @@
-package com.databasesandlife;
+package com.databasesandlife.util.jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

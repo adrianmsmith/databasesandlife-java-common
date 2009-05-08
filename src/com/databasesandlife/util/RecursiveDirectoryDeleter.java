@@ -1,4 +1,4 @@
-package adrian.util;
+package com.databasesandlife.util;
 
 import java.io.File;
 

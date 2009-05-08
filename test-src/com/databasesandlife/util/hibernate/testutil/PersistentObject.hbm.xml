@@ -1,10 +1,12 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.databasesandlife.util.hibernate.testutil">
-    <class name="PersistentObject" table="persistent_object">
-        <id name="id" column="id"><generator class="native"/></id>
-        <property name="key1"/>
-        <property name="key2"/>
-        <property name="data"/>
-    </class>
+  <class name="PersistentObject" table="persistent_object">
+    <id column="id" name="id">
+      <generator class="native"/>
+    </id>
+    <property name="key1"/>
+    <property name="key2"/>
+    <property name="data"/>
+  </class>
 </hibernate-mapping>

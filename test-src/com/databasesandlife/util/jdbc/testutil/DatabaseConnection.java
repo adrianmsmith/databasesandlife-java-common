@@ -1,4 +1,4 @@
-package com.databasesandlife.testutil;
+package com.databasesandlife.util.jdbc.testutil;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

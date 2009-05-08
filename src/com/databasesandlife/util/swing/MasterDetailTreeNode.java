@@ -1,4 +1,4 @@
-package adrian.util.gui.swing;
+package com.databasesandlife.util.swing;
 
 import java.awt.*;
 import java.awt.datatransfer.*;

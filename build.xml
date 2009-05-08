@@ -9,9 +9,9 @@
 <project name="adrian-common" basedir="." default="all">
 
   <property name="compile-into" location="build-tmp/java-classes"/>
-  <property name="distributable-zip-into" location="build-tmp/distributable-zip-expanded"/>
+  <property name="javadoc-into" location="build-tmp/javadoc"/>
 
-  <target name="find_revision" description="Sets property 'revision.number' to the head svn revision">
+  <target name="find-revision" description="Sets property 'revision.number' to the head svn revision">
     <echo>Finding Subversion revision number...</echo>
     <exec executable="svn" outputproperty="svn.info.output">
       <arg line="info"/>
@@ -32,15 +32,13 @@
     <echo>Will use Subversion revision r${revision.number}</echo>
   </target>
 
-  <target name="create-databasesandlife-common-jar" depends="find_revision">
+  <target name="create-jar" depends="find-revision">
     <delete dir="${compile-into}"/> <!-- force a clean compile -->
     <mkdir dir="${compile-into}"/>
-    <javac srcdir="src" destdir="${compile-into}" debug="on">
+    <javac srcdir="src" destdir="${compile-into}" debug="on" deprecation="on">
       <compilerarg value="-Xlint:unchecked"/>
       <classpath>
-        <fileset dir=".">
-          <include name="lib-compile/*.jar"/>
-        </fileset>
+        <fileset dir="lib-compile" includes="*.jar"/>
       </classpath> 
     </javac>
     <copy todir="${compile-into}">
@@ -52,36 +50,21 @@
     <delete> <fileset dir="." includes="adrian-common-incl-src-r*.jar"/> </delete> 
     <jar jarfile="adrian-common-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
   </target>
-  
-<!--  <target name="mailtemplate-zip" depends="find_revision">
-    <delete dir="${distributable-zip-into}"/>
-    <mkdir dir="${distributable-zip-into}"/>
-    <delete dir="${compile-into}"/>
-    <mkdir dir="${compile-into}"/>
-    <copy todir="${distributable-zip-into}/java-src">
-      <fileset dir="src">
-        <include name="com/databasesandlife/mailtemplate/**/*.java"/>
-      </fileset>
-    </copy>
-    <javac srcdir="${distributable-zip-into}/java-src" destdir="${compile-into}" debug="on">
-     <classpath>
-        <fileset dir=".">
-          <include name="java-lib/*.jar"/>
-          <include name="java-lib-compile/*.jar"/>
-        </fileset>
+
+  <target name="create-javadoc">
+    <javadoc
+        sourcepath="src"
+        destdir="${javadoc-into}"
+        author="true"
+        version="true"
+        access="public"
+        stylesheetfile="javadoc.css">
+      <link href="http://java.sun.com/j2se/1.5.0/docs/api"/>
+      <link href="https://www.hibernate.org/hib_docs/v3/api"/>
+      <classpath>
+        <fileset dir="lib-compile" includes="*.jar"/>
       </classpath>
-    </javac>
-    <copy todir="${compile-into}">
-      <fileset dir="${distributable-zip-into}/java-src"/>
-    </copy>
-    <jar jarfile="${distributable-zip-into}/databasesandlife-mailtemplate-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
-    <copy todir="${distributable-zip-into}" file="distributable-zip-files/LICENSE-lgpl-3.0.txt"/>
-    <copy todir="${distributable-zip-into}">
-      <fileset dir="distributable-zip-files/mailtemplate"/>
-    </copy>
-    <zip destfile="databasesandlife-mailtemplate-src.zip" basedir="${distributable-zip-into}"/>
-  </target>  -->
-  
-  <target name="all" depends="create-databasesandlife-common-jar"/>
+    </javadoc>
+  </target>
   
 </project>

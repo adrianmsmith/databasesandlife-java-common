@@ -1,6 +1,7 @@
-package com.databasesandlife;
+package com.databasesandlife.util.jdbc;
 
-import com.databasesandlife.testutil.DatabaseConnection;
+import com.databasesandlife.util.jdbc.ResultSetIterator;
+import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

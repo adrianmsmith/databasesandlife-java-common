@@ -1,5 +1,6 @@
-package adrian.util;
+package com.databasesandlife.util;
 
+import com.databasesandlife.util.CompositeIterator;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;

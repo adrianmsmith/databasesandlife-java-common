@@ -1,4 +1,4 @@
-package com.databasesandlife;
+package com.databasesandlife.util;
 
 /**
  * Times a calculation.

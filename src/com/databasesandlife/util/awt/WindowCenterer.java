@@ -1,4 +1,4 @@
-package adrian.util.gui.awt;
+package com.databasesandlife.util.awt;
 
 import java.awt.*;
 
