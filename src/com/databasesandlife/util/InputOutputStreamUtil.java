@@ -34,7 +34,7 @@ public class InputOutputStreamUtil {
            oStream.write(buffer, 0, charsRead);
         return oStream.toString();
     }
-    
+
     public Response readBytesFromUrl(URL url) {
         try {
             Response r = new Response();
@@ -46,5 +46,16 @@ public class InputOutputStreamUtil {
             return r;
         }
         catch (IOException e) { throw new RuntimeException(e); }
+    }
+    
+    public void writeStringToFileUtf8(File f, String str)
+    throws IOException {
+        FileOutputStream o = new FileOutputStream(f);
+        try {
+            OutputStreamWriter w = new OutputStreamWriter(o, "UTF-8");
+            w.write(str, 0, str.length());
+            w.close();
+        }
+        finally { o.close(); }
     }
 }

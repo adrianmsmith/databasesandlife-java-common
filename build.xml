@@ -6,7 +6,7 @@
 -->
 
 
-<project name="adrian-common" basedir="." default="all">
+<project name="databasesandlife-util" basedir="." default="all">
 
   <property name="compile-into" location="build-tmp/java-classes"/>
   <property name="javadoc-into" location="build-tmp/javadoc"/>
@@ -47,8 +47,8 @@
         <include name="**/*.java"/>
       </fileset>
     </copy>
-    <delete> <fileset dir="." includes="adrian-common-incl-src-r*.jar"/> </delete> 
-    <jar jarfile="adrian-common-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
+    <delete> <fileset dir="." includes="databasesandlife-util-incl-src-r*.jar"/> </delete>
+    <jar jarfile="databasesandlife-util-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
   </target>
 
   <target name="create-javadoc">
