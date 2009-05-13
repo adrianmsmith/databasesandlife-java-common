@@ -5,8 +5,8 @@
     <id column="id" name="id">
       <generator class="native"/>
     </id>
-    <property name="key1"/>
-    <property name="key2"/>
-    <property name="data"/>
+    <property name="key1" not-null="true"/>
+    <property name="key2" not-null="true"/>
+    <property name="data" not-null="true"/>
   </class>
 </hibernate-mapping>

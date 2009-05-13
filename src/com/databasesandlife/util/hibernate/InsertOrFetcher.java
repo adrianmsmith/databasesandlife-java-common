@@ -1,12 +1,8 @@
 package com.databasesandlife.util.hibernate;
 
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.Transaction;
@@ -42,7 +38,7 @@ newObj.setCount(0);
 
 Collection&lt;String> uniqueIdentifier = Arrays.asList("day");
 
-DailyLog todaysLog = <b>InsertOrFetcher.load</b>(
+DailyLog todaysLog = <b>InsertOrFetcher.loadAndLock</b>(
    DailyLog.class, s, newObj, uniqueIdentifier);
 todaysLog.incrementCount();
 </pre>
@@ -55,8 +51,6 @@ fetched and returned.</p>
         <li>never null,</li>
         <li>always already exists in the database by the time this call ends</li>
         <li>associated with the passed Hibernate Session (i.e. is "persistent" in Hibernate Session terminology)</li>
-        <li>locked in the database (with "select for update") so that it can be updated without interference from other
-        sessions</li>
 </ul>
 <p>The database table backing <i>DailyLog</i> must have not only a primary key constraint defined, but in addition <b>another
 constraint</b> which will make sure that only one row per <i>day</i> can be created. The decision about if the object already
@@ -65,6 +59,9 @@ exists or if it needs to be inserted is taken by attempting an insert and seeing
 
 <p>To insert the object, a new blank object is created, i.e. <i>MyObject</i> must support a parameterless constuctor. All the
 fields present in the <i>key</i> map are set, and the object is inserted.</p>
+
+<p>The method <i>loadAndLock</i> locks the object when returning it (with "select for update"), intended for read/write access;
+the method <i>load</i> loads the object without locking it, intended for read-only access.</p>
 
 <h3>Strategy</h3>
 
@@ -94,28 +91,23 @@ Session and returned.</p>
  */
 public class InsertOrFetcher {
 
-    /**
-     * See class documentation.
-     * @param cl                 The type of Hibernate-managed to be inserted/fetched
-     * @param s                  Hibernate session with active transaction
-     * @param objectForInsertion Not managed by Hibernate yet
-     * @param domainKey          Which attributes of objectForInsertion should be used for the WHERE to re-find the object
-     * @return                   See class documentation
-     */
-    public static <T> T load(Class<T> cl, Session s, T objectForInsertion, Collection<String> domainKey) {
+    protected static <T> T load(Class<T> cl, Session mainSession, T objectForInsertion, Collection<String> domainKey, LockMode l) {
         try {
             // Insert object & catch exception if fail
-            Session newSession = s.getSessionFactory().openSession();
+            Session newSession = mainSession.getSessionFactory().openSession();
             try {
                 Transaction tx = newSession.beginTransaction();
-                newSession.save(objectForInsertion);
-                tx.commit();
+                try {
+                    newSession.save(objectForInsertion);
+                    tx.commit();
+                }
+                finally { if (tx.isActive()) tx.rollback(); }
             }
             catch (ConstraintViolationException e) { }    // Object already exists, continue to "fetch" below
-            finally { newSession.close(); }    // Don't close tx: after Exception: tx.commit() -> error, tx.rollback() -> error
+            finally { newSession.close(); }
 
             // Create fetch parameters
-            Criteria select = s.createCriteria(cl);
+            Criteria select = mainSession.createCriteria(cl);
             select.setLockMode(LockMode.UPGRADE);
             for (String attr : domainKey) {
                 try {
@@ -137,5 +129,29 @@ public class InsertOrFetcher {
         }
         catch (IllegalAccessException e) { throw new RuntimeException(e); }
         catch (InvocationTargetException e) { throw new RuntimeException(e); }
+    }
+
+    /**
+     * See class documentation.
+     * @param cl                 The type of Hibernate-managed to be inserted/fetched
+     * @param mainSession        Hibernate session with active transaction
+     * @param objectForInsertion Not managed by Hibernate yet
+     * @param domainKey          Which attributes of objectForInsertion should be used for the WHERE to re-find the object
+     * @return                   See class documentation
+     */
+    public static <T> T load(Class<T> cl, Session mainSession, T objectForInsertion, Collection<String> domainKey) {
+        return load(cl, mainSession, objectForInsertion, domainKey, LockMode.READ);
+    }
+
+    /**
+     * See class documentation.
+     * @param cl                 The type of Hibernate-managed to be inserted/fetched
+     * @param mainSession        Hibernate session with active transaction
+     * @param objectForInsertion Not managed by Hibernate yet
+     * @param domainKey          Which attributes of objectForInsertion should be used for the WHERE to re-find the object
+     * @return                   See class documentation
+     */
+    public static <T> T loadAndLock(Class<T> cl, Session mainSession, T objectForInsertion, Collection<String> domainKey) {
+        return load(cl, mainSession, objectForInsertion, domainKey, LockMode.UPGRADE);
     }
 }

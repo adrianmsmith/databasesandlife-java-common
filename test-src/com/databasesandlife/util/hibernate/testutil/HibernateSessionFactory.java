@@ -14,6 +14,7 @@ public class HibernateSessionFactory {
             configuration = new Configuration();
             configuration.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
             configuration.setProperty("hibernate.dialect",                 "org.hibernate.dialect.MySQLDialect");
+            configuration.setProperty("hibernate.cache.provider_class",    "org.hibernate.cache.NoCacheProvider");
             configuration.setProperty("hibernate.show_sql",                "true");
             configuration.setProperty("hibernate.connection.url",          DatabaseConnection.getJdbcUrl());
             configuration.setProperty("hibernate.connection.username",     DatabaseConnection.getUsername());

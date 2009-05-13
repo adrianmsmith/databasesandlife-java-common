@@ -27,13 +27,13 @@ public class InsertOrFetcherTest extends TestCase {
         Connection connection = DatabaseConnection.getConnection();
         connection.prepareStatement("DROP TABLE IF EXISTS persistent_object").execute();
         connection.prepareStatement("CREATE TABLE persistent_object(" +
-                "id INT PRIMARY KEY AUTO_INCREMENT, key1 VARCHAR(20), key2 VARCHAR(20), data VARCHAR(20)," +
-                "CONSTRAINT u UNIQUE (key1, key2))").execute();
+                "id INT PRIMARY KEY AUTO_INCREMENT, key1 VARCHAR(100), key2 VARCHAR(100), data VARCHAR(20)," +
+                "CONSTRAINT u UNIQUE (key1, key2)) ENGINE=InnoDB").execute();
         assertEquals(0, count(connection));
 
         Session s = HibernateSessionFactory.getSessionFactory().openSession();
 
-        PersistentObject prototype = new PersistentObject("foo", "bar");
+        PersistentObject prototype = new PersistentObject("jkdfjkfgjkfgfggd", "dfjjjjfgjgjfg");
         Collection<String> key = Arrays.asList("key1", "key2");
 
         PersistentObject obj = InsertOrFetcher.load(PersistentObject.class, s, prototype, key);
