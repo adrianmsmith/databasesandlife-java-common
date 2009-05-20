@@ -61,6 +61,7 @@
         stylesheetfile="javadoc.css">
       <link href="http://java.sun.com/j2se/1.5.0/docs/api"/>
       <link href="https://www.hibernate.org/hib_docs/v3/api"/>
+      <link href="http://google-web-toolkit.googlecode.com/svn/javadoc/1.6"/>
       <classpath>
         <fileset dir="lib-compile" includes="*.jar"/>
       </classpath>
