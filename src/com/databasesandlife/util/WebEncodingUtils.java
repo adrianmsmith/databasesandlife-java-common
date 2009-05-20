@@ -11,5 +11,4 @@ public class WebEncodingUtils {
         x = x.replaceAll("<", "&lt;");
         return x;
     }
-
 }
