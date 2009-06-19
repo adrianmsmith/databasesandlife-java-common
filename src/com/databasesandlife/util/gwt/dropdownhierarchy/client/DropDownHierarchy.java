@@ -2,8 +2,8 @@ package com.databasesandlife.util.gwt.dropdownhierarchy.client;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import java.util.Vector;
 
@@ -50,7 +50,7 @@ import java.util.Vector;
  * @version $Revision$
  * @author Adrian Smith &lt;adrian.m.smith@gmail.com&gt;
  */
-public class DropDownHierarchy<L,N> extends SimplePanel {
+public class DropDownHierarchy<L,N> extends Composite {
 
     // ------------------------------------------------------------------------------------------------------------
     // Interfaces, that the client must implement
@@ -71,22 +71,31 @@ public class DropDownHierarchy<L,N> extends SimplePanel {
 
     public interface ChangeListener<L,N> {
         /** The implementation does not need to call hier.setSelected(newId) with the new node */
-        public void onChange(N newId, LeafNode<L,N> newSelected);
+        public void onDropDownHierarchyChange(DropDownHierarchy<L,N> source, N newId, LeafNode<L,N> newSelected);
+    }
+
+    // ------------------------------------------------------------------------------------------------------------
+    // Exceptions
+    // ------------------------------------------------------------------------------------------------------------
+
+    public static class NodeNotFoundException extends RuntimeException {
+        public NodeNotFoundException(String nodeId) { super(nodeId); }
     }
 
     // ------------------------------------------------------------------------------------------------------------
     // Attributes
     // ------------------------------------------------------------------------------------------------------------
 
-    NonLeafNode<L,N> rootNode;
-    L lang;
+    final NonLeafNode<L,N> rootNode;
+    final L lang;
     ChangeListener<L,N> changeListener = null;
+    final VerticalPanel container = new VerticalPanel();
 
     // ------------------------------------------------------------------------------------------------------------
     // Constructors & Methods
     // ------------------------------------------------------------------------------------------------------------
 
-    protected LeafNode<L,N> findLeafForId(NonLeafNode<L,N> node, N id) {
+    protected LeafNode<L,N> findLeafForId(NonLeafNode<L,N> node, N id) throws NodeNotFoundException {
         for (Node<L,N> child : node.getChildren()) {
             if (child instanceof LeafNode)
                 if (((LeafNode<L,N>) child).getId().equals(id)) return (LeafNode<L,N>) child;
@@ -95,10 +104,10 @@ public class DropDownHierarchy<L,N> extends SimplePanel {
                 if (result != null) return result;
             }
         }
-        return null;
+        throw new NodeNotFoundException("" + id);
     }
 
-    protected LeafNode<L,N> findAnyLeafNodeUnder(Node<L,N> parent) {
+    protected static <L,N> LeafNode<L,N> findAnyLeafNodeUnder(Node<L,N> parent) {
         if (parent instanceof LeafNode)    return (LeafNode<L,N>) parent;
         if (parent instanceof NonLeafNode) return findAnyLeafNodeUnder(((NonLeafNode<L,N>) parent).getChildren()[0]);
         throw new RuntimeException();
@@ -110,10 +119,20 @@ public class DropDownHierarchy<L,N> extends SimplePanel {
         else return isChildOf(child.getParent(), potentialParent);
     }
 
-    public DropDownHierarchy(NonLeafNode<L,N> rootNode, L lang, N selectedNodeId) {
+    public DropDownHierarchy(NonLeafNode<L,N> rootNode, L lang, N selectedNodeId) throws NodeNotFoundException {
         this.rootNode = rootNode;
         this.lang = lang;
         setSelected(selectedNodeId);
+        initWidget(container);
+    }
+
+    public static <L,N> DropDownHierarchy<L,N> newIgnoreNotFound(NonLeafNode<L,N> rootNode, L lang, N selectedNodeId) {
+        try {
+            return new DropDownHierarchy<L,N>(rootNode, lang, selectedNodeId);
+        }
+        catch (NodeNotFoundException e) {
+            return new DropDownHierarchy<L,N>(rootNode, lang, findAnyLeafNodeUnder(rootNode).getId());
+        }
     }
 
     /**
@@ -129,13 +148,13 @@ public class DropDownHierarchy<L,N> extends SimplePanel {
      * Updates the user-interface to reflect the newly selected node.
      * The change listener is not called.
      */
-    public void setSelected(N newSelectedNodeId) {
+    public void setSelected(N newSelectedNodeId) throws NodeNotFoundException {
         LeafNode<L,N> selectedNode = findLeafForId(rootNode, newSelectedNodeId);
 
         Vector<NonLeafNode<L,N>> fromRootToLeaf = new Vector<NonLeafNode<L,N>>();
         for (NonLeafNode<L,N> n = selectedNode.getParent(); n != null; n = n.getParent()) fromRootToLeaf.add(0, n);
 
-        VerticalPanel container = new VerticalPanel();
+        container.clear();
         for (NonLeafNode<L,N> n : fromRootToLeaf) {
             final ListBox dropdown = new ListBox();
 
@@ -154,13 +173,12 @@ public class DropDownHierarchy<L,N> extends SimplePanel {
                     Node<L,N> selectedAtThisLevel = children[dropdown.getSelectedIndex()];
                     LeafNode<L,N> leafNodeForNewOption = findAnyLeafNodeUnder(selectedAtThisLevel);
                     setSelected(leafNodeForNewOption.getId());
-                    if (changeListener != null) changeListener.onChange(leafNodeForNewOption.getId(), leafNodeForNewOption);
+                    if (changeListener != null) changeListener.onDropDownHierarchyChange(DropDownHierarchy.this,
+                        leafNodeForNewOption.getId(), leafNodeForNewOption);
                 }
             });
 
             container.add(dropdown);
         }
-
-        setWidget(container);
     }
 }

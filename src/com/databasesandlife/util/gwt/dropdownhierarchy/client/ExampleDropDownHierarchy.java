@@ -56,6 +56,7 @@ public class ExampleDropDownHierarchy {
         b.setParent(root);
         a.setParent(root);
 
-        return new DropDownHierarchy<String, String>(root, "x", "d");
+        try { return new DropDownHierarchy<String, String>(root, "x", "d"); }
+        catch (DropDownHierarchy.NodeNotFoundException e) { throw new RuntimeException(e); } // can never happen
     }
 }
