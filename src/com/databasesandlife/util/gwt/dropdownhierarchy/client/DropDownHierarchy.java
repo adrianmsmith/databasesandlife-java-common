@@ -151,11 +151,11 @@ public class DropDownHierarchy<L,N> extends Composite {
     public void setSelected(N newSelectedNodeId) throws NodeNotFoundException {
         LeafNode<L,N> selectedNode = findLeafForId(rootNode, newSelectedNodeId);
 
-        Vector<NonLeafNode<L,N>> fromRootToLeaf = new Vector<NonLeafNode<L,N>>();
+        final Vector<NonLeafNode<L,N>> fromRootToLeaf = new Vector<NonLeafNode<L,N>>();
         for (NonLeafNode<L,N> n = selectedNode.getParent(); n != null; n = n.getParent()) fromRootToLeaf.add(0, n);
 
         container.clear();
-        for (NonLeafNode<L,N> n : fromRootToLeaf) {
+        for (final NonLeafNode<L,N> n : fromRootToLeaf) {
             final ListBox dropdown = new ListBox();
 
             final Node<L,N>[] children = n.getChildren();
@@ -173,6 +173,7 @@ public class DropDownHierarchy<L,N> extends Composite {
                     Node<L,N> selectedAtThisLevel = children[dropdown.getSelectedIndex()];
                     LeafNode<L,N> leafNodeForNewOption = findAnyLeafNodeUnder(selectedAtThisLevel);
                     setSelected(leafNodeForNewOption.getId());
+                    ((ListBox) container.getWidget(fromRootToLeaf.indexOf(n))).setFocus(true);
                     if (changeListener != null) changeListener.onDropDownHierarchyChange(DropDownHierarchy.this,
                         leafNodeForNewOption.getId(), leafNodeForNewOption);
                 }
