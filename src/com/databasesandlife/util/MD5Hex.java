@@ -43,8 +43,10 @@ public class MD5Hex {
             byte messageDigest[] = algorithm.digest();
 
             StringBuffer hexString = new StringBuffer();
-            for (int i=0;i<messageDigest.length;i++)
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            for (int i=0;i<messageDigest.length;i++) {
+                String x = "0" + Integer.toHexString(0xFF & messageDigest[i]);
+                hexString.append(x.substring(x.length() - 2));
+            }
             return hexString.toString();
         }
         catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); }
