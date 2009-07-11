@@ -52,6 +52,7 @@ public class MD5Hex {
         catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); }
     }
 
+    /** @param stuff UTF-8 bytes are used */
     public static String md5(String stuff) {
         try {
             return md5(stuff.getBytes("UTF-8"));
@@ -59,6 +60,7 @@ public class MD5Hex {
         catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
     }
 
+    /** @param stuff ASCII bytes are used */
     public static String md5(StringBuilder stuff) {
         return md5(bytesFromStringBuilder(stuff));
     }
