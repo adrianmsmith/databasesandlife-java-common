@@ -11,4 +11,7 @@ public class WebEncodingUtils {
         x = x.replaceAll("<", "&lt;");
         return x;
     }
+
+    // For GET parameters:
+    // See http://java.sun.com/j2se/1.4.2/docs/api/java/net/URLEncoder.html
 }

@@ -58,4 +58,8 @@ public class InputOutputStreamUtil {
         }
         finally { o.close(); }
     }
+
+    public void writeBytesToOutputStream(OutputStream out, byte[] src) throws IOException {
+        copyBytesFromInputToOutputStream(out, new ByteArrayInputStream(src));
+    }
 }
