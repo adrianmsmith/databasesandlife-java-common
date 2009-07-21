@@ -91,7 +91,7 @@ Session and returned.</p>
  */
 public class InsertOrFetcher {
 
-    protected static <T> T load(Class<T> cl, Session mainSession, T objectForInsertion, Collection<String> domainKey, LockMode l) {
+    protected static <T> T load(Class<T> cl, Session mainSession, T objectForInsertion, Collection<String> domainKey, LockMode lk) {
         try {
             // Insert object & catch exception if fail
             Session newSession = mainSession.getSessionFactory().openSession();
@@ -108,7 +108,7 @@ public class InsertOrFetcher {
 
             // Create fetch parameters
             Criteria select = mainSession.createCriteria(cl);
-            select.setLockMode(LockMode.UPGRADE);
+            select.setLockMode(lk);
             for (String attr : domainKey) {
                 try {
                     String methodName = "get" + attr.substring(0, 1).toUpperCase() + attr.substring(1);

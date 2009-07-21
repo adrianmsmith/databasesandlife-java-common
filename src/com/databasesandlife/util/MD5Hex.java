@@ -30,8 +30,10 @@ public class MD5Hex {
 
     public static String bytesToHex(byte[] bytes) {
         StringBuffer hexString = new StringBuffer();
-        for (int i=0;i<bytes.length;i++)
-            hexString.append(Integer.toHexString(0xFF & bytes[i]));
+        for (int i=0;i<bytes.length;i++) {
+            String x = "0" + Integer.toHexString(0xFF & bytes[i]);
+            hexString.append(x.substring(x.length() - 2));
+        }
         return hexString.toString();
     }
 
@@ -40,14 +42,8 @@ public class MD5Hex {
             MessageDigest algorithm = MessageDigest.getInstance("MD5");
             algorithm.reset();
             algorithm.update(stuff);
-            byte messageDigest[] = algorithm.digest();
-
-            StringBuffer hexString = new StringBuffer();
-            for (int i=0;i<messageDigest.length;i++) {
-                String x = "0" + Integer.toHexString(0xFF & messageDigest[i]);
-                hexString.append(x.substring(x.length() - 2));
-            }
-            return hexString.toString();
+            byte[] messageDigest = algorithm.digest();
+            return bytesToHex(messageDigest);
         }
         catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); }
     }
