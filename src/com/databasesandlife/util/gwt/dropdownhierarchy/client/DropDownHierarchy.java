@@ -99,10 +99,9 @@ public class DropDownHierarchy<L,N> extends Composite {
         for (Node<L,N> child : node.getChildren()) {
             if (child instanceof LeafNode)
                 if (((LeafNode<L,N>) child).getId().equals(id)) return (LeafNode<L,N>) child;
-            if (child instanceof NonLeafNode) {
-                LeafNode<L,N> result = findLeafForId((NonLeafNode<L,N>) child, id);
-                if (result != null) return result;
-            }
+            if (child instanceof NonLeafNode)
+                try { return findLeafForId((NonLeafNode<L,N>) child, id); }
+                catch (NodeNotFoundException e) { }
         }
         throw new NodeNotFoundException("" + id);
     }
