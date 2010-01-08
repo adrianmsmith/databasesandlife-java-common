@@ -18,7 +18,7 @@ public class StringsFileTest extends TestCase {
         StringInFile b = str.newString("foo\u20E0bar");
         assertEquals("abc",    a.toString());
         assertEquals("foo\u20E0bar", b.toString());
-        try { a.append("x"); fail(); } catch (StringsFile.StringCannotBeAppended e) { }
+        try { a.append("x"); fail(); } catch (StringsFile.StringCannotBeAppendedException e) { }
         b.append("joe");
         assertEquals("foo\u20E0barjoe", b.toString());
     }

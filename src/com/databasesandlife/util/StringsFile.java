@@ -21,7 +21,7 @@ public class StringsFile {
 
     RandomAccessFile file;
 
-    public class StringCannotBeAppended extends RuntimeException { StringCannotBeAppended() { } }
+    public class StringCannotBeAppendedException extends RuntimeException { StringCannotBeAppendedException() { } }
 
     public class StringInFile {
         protected long offset;
@@ -52,10 +52,10 @@ public class StringsFile {
         catch (IOException e) { throw new RuntimeException(e); }
     }
 
-    /** @throws StringCannotBeAppended if string is not at end of file */
-    public synchronized void appendToString(StringInFile s, String suffix) throws StringCannotBeAppended {
+    /** @throws StringCannotBeAppendedException if string is not at end of file */
+    public synchronized void appendToString(StringInFile s, String suffix) throws StringCannotBeAppendedException {
         try {
-            if (s.offset + s.byteLength != file.length()) throw new StringCannotBeAppended();
+            if (s.offset + s.byteLength != file.length()) throw new StringCannotBeAppendedException();
             file.seek(file.length());
             byte[] suffixBytes = suffix.getBytes("UTF-8");
             file.write(suffixBytes);
