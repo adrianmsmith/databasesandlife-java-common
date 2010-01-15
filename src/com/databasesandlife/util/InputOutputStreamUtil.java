@@ -5,12 +5,12 @@ import java.net.*;
 
 public class InputOutputStreamUtil {
     
-    public class Response {
+    public static class Response {
         public String contentType;
         public byte[] byteArray;
     }
 
-    public void copyBytesFromInputToOutputStream(OutputStream oStream, InputStream iStream)
+    public static void copyBytesFromInputToOutputStream(OutputStream oStream, InputStream iStream)
     throws IOException {
         byte[] buffer = new byte[10000];
         int bytesRead;
@@ -18,14 +18,14 @@ public class InputOutputStreamUtil {
            oStream.write(buffer, 0, bytesRead);
     }
     
-    public byte[] readBytesFromInputStream(InputStream iStream)
+    public static byte[] readBytesFromInputStream(InputStream iStream)
     throws IOException {
         ByteArrayOutputStream oStream = new ByteArrayOutputStream();
         copyBytesFromInputToOutputStream(oStream, iStream);
         return oStream.toByteArray();
     }
     
-    public String readStringFromReader(Reader iStream)
+    public static String readStringFromReader(Reader iStream)
     throws IOException {
         CharArrayWriter oStream = new CharArrayWriter();
         char[] buffer = new char[10000];
@@ -35,7 +35,7 @@ public class InputOutputStreamUtil {
         return oStream.toString();
     }
 
-    public Response readBytesFromUrl(URL url) {
+    public static Response readBytesFromUrl(URL url) {
         try {
             Response r = new Response();
             URLConnection conn = url.openConnection();
@@ -48,7 +48,7 @@ public class InputOutputStreamUtil {
         catch (IOException e) { throw new RuntimeException(e); }
     }
     
-    public void writeStringToFileUtf8(File f, String str)
+    public static void writeStringToFileUtf8(File f, String str)
     throws IOException {
         FileOutputStream o = new FileOutputStream(f);
         try {
@@ -59,7 +59,7 @@ public class InputOutputStreamUtil {
         finally { o.close(); }
     }
 
-    public void writeBytesToOutputStream(OutputStream out, byte[] src) throws IOException {
+    public static void writeBytesToOutputStream(OutputStream out, byte[] src) throws IOException {
         copyBytesFromInputToOutputStream(out, new ByteArrayInputStream(src));
     }
 }
