@@ -31,10 +31,18 @@ public class StringsFile {
         public void append(String x) { appendToString(this, x); }
     }
 
+    public StringsFile(File stringsFile) {
+        try {
+            file = new RandomAccessFile(stringsFile, "rw");
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
+    }
+
     public StringsFile() {
         try {
-            File f = File.createTempFile("StringsFile-", ".dat");
-            file = new RandomAccessFile(f, "rw");
+            File stringsFile = File.createTempFile("StringsFile-", ".dat");
+            stringsFile.deleteOnExit();
+            file = new RandomAccessFile(stringsFile, "rw");
         }
         catch (IOException e) { throw new RuntimeException(e); }
     }

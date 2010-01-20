@@ -1,5 +1,10 @@
 package com.databasesandlife.util;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -59,5 +64,32 @@ public class MD5Hex {
     /** @param stuff ASCII bytes are used */
     public static String md5(StringBuilder stuff) {
         return md5(bytesFromStringBuilder(stuff));
+    }
+
+    /** @param stuff client must close this input stream */
+    public static String md5(InputStream stuff) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[8192];
+            int read = 0;
+            while( (read = stuff.read(buffer)) > 0) digest.update(buffer, 0, read);
+            return bytesToHex(digest.digest());        
+        }
+        catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); }
+    }
+
+    public static String md5(File stuff) {
+       try {
+            FileInputStream fileStr = new FileInputStream(stuff);
+            try {
+                BufferedInputStream str = new BufferedInputStream(fileStr);
+                try {
+                    return MD5Hex.md5(str);
+                }
+                finally { str.close(); }
+            }
+            finally { fileStr.close(); }
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
     }
 }
