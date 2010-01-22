@@ -9,7 +9,7 @@ import com.databasesandlife.util.gwt.dropdownhierarchy.client.DropDownHierarchy.
  */
 public class ExampleDropDownHierarchy {
 
-    static abstract class ExampleNode implements Node<String,String> {
+    static abstract class ExampleNode implements Node<String> {
         String displayName;
         ExampleNonLeafNode parent;
 
@@ -17,10 +17,10 @@ public class ExampleDropDownHierarchy {
         void setParent(ExampleNonLeafNode p) { parent = p; }
 
         @Override public ExampleNonLeafNode getParent() { return parent; }
-        @Override public String getDisplayNameForLanguage(String lang) { return displayName; }
+        @Override public String getDisplayName() { return displayName; }
     }
 
-    static class ExampleLeafNode extends ExampleNode implements LeafNode<String,String> {
+    static class ExampleLeafNode extends ExampleNode implements LeafNode<String> {
         String id;
         
         public ExampleLeafNode(String n, String i) { super(n); id=i; }
@@ -28,7 +28,7 @@ public class ExampleDropDownHierarchy {
         public String getId() { return id; }
     }
 
-    static class ExampleNonLeafNode extends ExampleNode implements NonLeafNode<String,String> {
+    static class ExampleNonLeafNode extends ExampleNode implements NonLeafNode<String> {
         ExampleNode[] children;
         
         ExampleNonLeafNode(String n, ExampleNode[] c) { super(n); children=c; }
@@ -36,7 +36,7 @@ public class ExampleDropDownHierarchy {
         public ExampleNode[] getChildren() { return children; }
     }
 
-    public static DropDownHierarchy<String, String> createExample() {
+    public static DropDownHierarchy<String> createExample() {
         // root
         //   --> A    (leaf)
         //   --> B
@@ -56,7 +56,7 @@ public class ExampleDropDownHierarchy {
         b.setParent(root);
         a.setParent(root);
 
-        try { return new DropDownHierarchy<String, String>(root, "x", "d"); }
+        try { return new DropDownHierarchy<String>(root, "d"); }
         catch (DropDownHierarchy.NodeNotFoundException e) { throw new RuntimeException(e); } // can never happen
     }
 }

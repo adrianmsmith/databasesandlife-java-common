@@ -27,51 +27,53 @@ import java.util.Vector;
 
 <ul>
    <li>Changing the top drop-down to A would select the leaf node A, and the second drop-down would disappear.
-   <li>Thereafter, selecting B from the single (top) drop-down would select C (the first leaf node accessible under B) and display two drop-downs: the first displaying B (parent node) and the second displaying C (the selected leaf node).
+   <li>Thereafter, selecting B from the single (top) drop-down would select C (the first leaf node accessible under B) and display
+ two drop-downs: the first displaying B (parent node) and the second displaying C (the selected leaf node).
 </ul>
 
-<p>The interfaces {@link Node Node}, {@link LeafNode LeafNode} and {@link NonLeafNode NonLeafNode} must be implemented by the application program. They have methods such as getParent and getChildren etc.</p>
+<p>The interfaces {@link Node Node}, {@link LeafNode LeafNode} and {@link NonLeafNode NonLeafNode} must be implemented
+ by the application program. They have methods such as getParent and getChildren etc.</p>
 
 <p>The application should register a {@link ChangeListener ChangeListener} with the object to be notified when the user makes a selection.</p>
 
-<p>The display texts of the nodes can be language-specific. Languages can be identified by arbitrary objects (e.g. Strings, Locales, etc.) The DropDownHierarchy takes a language object to its constructor. The Node interface requires node objects provide the method {@link Node#getDisplayNameForLanguage getDisplayNameForLanguage}. The LANG_ID generic parameter specifies what sort of objects identify the language.</p>
+<p>A node has an <b>identity</b>. For example, in the above example the nodes are objects, but the client may request that
+ node with an internal String id, "D", be selected. In this case "D" is the identity of the node. The identity may be any object type;
+ The NODE_ID generic parameter specifies what type identifies nodes.</p>
 
-<p>A node has an <b>identity</b>. For example, in the above example the nodes are objects, but the client may request that node with an internal String id, "D", be selected. In this case "D" is the identity of the node. The identity may be any object type; The NODE_ID generic parameter specifies what type identifies nodes.</p>
-
-<p>A DropDownHierarchy is a GWT widget which may be included in any GWT application. Make sure that the source is available to the GWT compiler (the source is included in the databasesandlife-util.jar) and add the following line to the application's GWT XML file:</p>
+<p>A DropDownHierarchy is a GWT widget which may be included in any GWT application. Make sure that the source is available to the
+ GWT compiler (the source is included in the databasesandlife-util.jar) and add the following line to the application's GWT XML file:</p>
 
 <pre>
   &lt;inherits name="com.databasesandlife.util.gwt.dropdownhierarchy.DropdownHierarchy"/&gt;
 </pre>
 
-@param <L> Language Identifier
 @param <N> Node Identifier
 
  * @version $Revision$
  * @author Adrian Smith &lt;adrian.m.smith@gmail.com&gt;
  */
-public class DropDownHierarchy<L,N> extends Composite {
+public class DropDownHierarchy<N> extends Composite {
 
     // ------------------------------------------------------------------------------------------------------------
     // Interfaces, that the client must implement
     // ------------------------------------------------------------------------------------------------------------
 
-    public interface Node<L,N> {
-        public NonLeafNode<L,N> getParent();
-        public String getDisplayNameForLanguage(L lang);
+    public interface Node<N> {
+        public NonLeafNode<N> getParent();
+        public String getDisplayName();
     }
 
-    public interface LeafNode<L,N> extends Node<L,N> {
+    public interface LeafNode<N> extends Node<N> {
         N getId();
     }
 
-    public interface NonLeafNode<L,N> extends Node<L,N> {
-        public Node<L,N>[] getChildren();
+    public interface NonLeafNode<N> extends Node<N> {
+        public Node<N>[] getChildren();
     }
 
-    public interface ChangeListener<L,N> {
+    public interface ChangeListener<N> {
         /** The implementation does not need to call hier.setSelected(newId) with the new node */
-        public void onDropDownHierarchyChange(DropDownHierarchy<L,N> source, N newId, LeafNode<L,N> newSelected);
+        public void onDropDownHierarchyChange(DropDownHierarchy<N> source, N newId, LeafNode<N> newSelected);
     }
 
     // ------------------------------------------------------------------------------------------------------------
@@ -86,51 +88,49 @@ public class DropDownHierarchy<L,N> extends Composite {
     // Attributes
     // ------------------------------------------------------------------------------------------------------------
 
-    final NonLeafNode<L,N> rootNode;
-    final L lang;
-    ChangeListener<L,N> changeListener = null;
+    final NonLeafNode<N> rootNode;
+    ChangeListener<N> changeListener = null;
     final VerticalPanel container = new VerticalPanel();
 
     // ------------------------------------------------------------------------------------------------------------
     // Constructors & Methods
     // ------------------------------------------------------------------------------------------------------------
 
-    protected LeafNode<L,N> findLeafForId(NonLeafNode<L,N> node, N id) throws NodeNotFoundException {
-        for (Node<L,N> child : node.getChildren()) {
+    protected LeafNode<N> findLeafForId(NonLeafNode<N> node, N id) throws NodeNotFoundException {
+        for (Node<N> child : node.getChildren()) {
             if (child instanceof LeafNode)
-                if (((LeafNode<L,N>) child).getId().equals(id)) return (LeafNode<L,N>) child;
+                if (((LeafNode<N>) child).getId().equals(id)) return (LeafNode<N>) child;
             if (child instanceof NonLeafNode)
-                try { return findLeafForId((NonLeafNode<L,N>) child, id); }
+                try { return findLeafForId((NonLeafNode<N>) child, id); }
                 catch (NodeNotFoundException e) { }
         }
         throw new NodeNotFoundException("" + id);
     }
 
-    protected static <L,N> LeafNode<L,N> findAnyLeafNodeUnder(Node<L,N> parent) {
-        if (parent instanceof LeafNode)    return (LeafNode<L,N>) parent;
-        if (parent instanceof NonLeafNode) return findAnyLeafNodeUnder(((NonLeafNode<L,N>) parent).getChildren()[0]);
+    protected static <N> LeafNode<N> findAnyLeafNodeUnder(Node<N> parent) {
+        if (parent instanceof LeafNode)    return (LeafNode<N>) parent;
+        if (parent instanceof NonLeafNode) return findAnyLeafNodeUnder(((NonLeafNode<N>) parent).getChildren()[0]);
         throw new RuntimeException();
     }
 
-    protected boolean isChildOf(Node<L,N> child, Node<L,N> potentialParent) {
+    protected boolean isChildOf(Node<N> child, Node<N> potentialParent) {
         if (potentialParent.equals(child)) return true;
         else if (child.getParent() == null) return false;
         else return isChildOf(child.getParent(), potentialParent);
     }
 
-    public DropDownHierarchy(NonLeafNode<L,N> rootNode, L lang, N selectedNodeId) throws NodeNotFoundException {
+    public DropDownHierarchy(NonLeafNode<N> rootNode, N selectedNodeId) throws NodeNotFoundException {
         this.rootNode = rootNode;
-        this.lang = lang;
         setSelected(selectedNodeId);
         initWidget(container);
     }
 
-    public static <L,N> DropDownHierarchy<L,N> newIgnoreNotFound(NonLeafNode<L,N> rootNode, L lang, N selectedNodeId) {
+    public static <N> DropDownHierarchy<N> newIgnoreNotFound(NonLeafNode<N> rootNode, N selectedNodeId) {
         try {
-            return new DropDownHierarchy<L,N>(rootNode, lang, selectedNodeId);
+            return new DropDownHierarchy<N>(rootNode, selectedNodeId);
         }
         catch (NodeNotFoundException e) {
-            return new DropDownHierarchy<L,N>(rootNode, lang, findAnyLeafNodeUnder(rootNode).getId());
+            return new DropDownHierarchy<N>(rootNode, findAnyLeafNodeUnder(rootNode).getId());
         }
     }
 
@@ -138,7 +138,7 @@ public class DropDownHierarchy<L,N> extends Composite {
      * When the user makes a selection, this change listener should be called.
      * Any previous change listener is deleted.
      */
-    public void setChangeListener(ChangeListener<L,N> c) {
+    public void setChangeListener(ChangeListener<N> c) {
         changeListener = c;
     }
 
@@ -148,20 +148,20 @@ public class DropDownHierarchy<L,N> extends Composite {
      * The change listener is not called.
      */
     public void setSelected(N newSelectedNodeId) throws NodeNotFoundException {
-        LeafNode<L,N> selectedNode = findLeafForId(rootNode, newSelectedNodeId);
+        LeafNode<N> selectedNode = findLeafForId(rootNode, newSelectedNodeId);
 
-        final Vector<NonLeafNode<L,N>> fromRootToLeaf = new Vector<NonLeafNode<L,N>>();
-        for (NonLeafNode<L,N> n = selectedNode.getParent(); n != null; n = n.getParent()) fromRootToLeaf.add(0, n);
+        final Vector<NonLeafNode<N>> fromRootToLeaf = new Vector<NonLeafNode<N>>();
+        for (NonLeafNode<N> n = selectedNode.getParent(); n != null; n = n.getParent()) fromRootToLeaf.add(0, n);
 
         container.clear();
-        for (final NonLeafNode<L,N> n : fromRootToLeaf) {
+        for (final NonLeafNode<N> n : fromRootToLeaf) {
             final ListBox dropdown = new ListBox();
 
-            final Node<L,N>[] children = n.getChildren();
+            final Node<N>[] children = n.getChildren();
             int selectedIndex = -1;
             for (int idx = 0; idx < children.length; idx++) {
-                Node<L,N> optionNode = children[idx];
-                dropdown.addItem(optionNode.getDisplayNameForLanguage(lang));
+                Node<N> optionNode = children[idx];
+                dropdown.addItem(optionNode.getDisplayName());
                 if (isChildOf(selectedNode, optionNode)) selectedIndex = idx;
             }
             assert selectedIndex != -1;
@@ -169,8 +169,8 @@ public class DropDownHierarchy<L,N> extends Composite {
 
             dropdown.addChangeHandler(new ChangeHandler() {
                 public void onChange(ChangeEvent event) {
-                    Node<L,N> selectedAtThisLevel = children[dropdown.getSelectedIndex()];
-                    LeafNode<L,N> leafNodeForNewOption = findAnyLeafNodeUnder(selectedAtThisLevel);
+                    Node<N> selectedAtThisLevel = children[dropdown.getSelectedIndex()];
+                    LeafNode<N> leafNodeForNewOption = findAnyLeafNodeUnder(selectedAtThisLevel);
                     setSelected(leafNodeForNewOption.getId());
                     ((ListBox) container.getWidget(fromRootToLeaf.indexOf(n))).setFocus(true);
                     if (changeListener != null) changeListener.onDropDownHierarchyChange(DropDownHierarchy.this,
