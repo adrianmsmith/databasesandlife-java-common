@@ -98,7 +98,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
             afterQueryExecuted();
             next(); // load "nextObject" attribute; can stateTransitionToFinished 
         }
-        catch (SQLException e) { throw new RuntimeException(sqlForLog, e); }
+        catch (SQLException e) { throw new RuntimeException(sqlForLog + ": " + e.getMessage(), e); }
     }
     
     /**
@@ -119,7 +119,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
             }
             state = State.FINISHED;
         }
-        catch (SQLException e) { throw new RuntimeException(sqlForLog, e); }
+        catch (SQLException e) { throw new RuntimeException(sqlForLog + ": " + e.getMessage(), e); }
     }
     
     /**
@@ -148,7 +148,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T> {
             else stateTransitionToFinished();
             return result;
         }
-        catch (SQLException e) { throw new RuntimeException(sqlForLog, e); }
+        catch (SQLException e) { throw new RuntimeException(sqlForLog + ": " + e.getMessage(), e); }
     }
 
     public void remove() {
