@@ -79,4 +79,13 @@ public class DomParser {
                 resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
         return resultList.get(0);
     }
+
+    /** @param subNodeName can be "*" */
+    protected static Element getOptionalSingleSubElement(Element node, String subNodeName) throws ConfigurationException {
+        List<Element> resultList = getSubElements(node, subNodeName);
+        if (resultList.size() == 0) return null;
+        else if (resultList.size() == 1) return resultList.get(0);
+        else throw new ConfigurationException("<" + node.getNodeName() + ">: found " +
+                resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
+    }
 }
