@@ -1,7 +1,7 @@
 package com.databasesandlife.util.gwtsafe;
 
 /**
- * Indicates that in some way a configuration file loaded by DomParser is incorect.
+ * Indicates that in some way a configuration file loaded by DomParser is incorrect.
  * @author Adrian Smith
  */
 public class ConfigurationException extends Exception {
