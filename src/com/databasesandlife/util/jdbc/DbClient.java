@@ -11,8 +11,8 @@ import java.util.Map;
 /**
  * Example usage:
  * <pre>
- *   Class.forName(com.mysql.jdbc.Driver).newInstance();
- *   DbClient db = new DbClient("jdbc:mysql://hostname/dbName?username=x&password=x&useUnicode=true&characterEncoding=UTF-8");
+ *   try { new com.mysql.jdbc.Driver(); } catch (SQLException e) { throw new RuntimeException(); }
+ *   DbClient db = new DbClient("jdbc:mysql://hostname/dbName?user=x&password=x&useUnicode=true&characterEncoding=UTF-8");
  *   db.doSqlAction("DELETE FROM x WHERE id=?", new Object[] { 9 }");
  *   // doSqlQuery, doSqlInsert
  *   db.commit();
