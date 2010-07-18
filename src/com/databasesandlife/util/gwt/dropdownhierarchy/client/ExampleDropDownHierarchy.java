@@ -16,8 +16,8 @@ public class ExampleDropDownHierarchy {
         ExampleNode(String n) { displayName = n; }
         void setParent(ExampleNonLeafNode p) { parent = p; }
 
-        @Override public ExampleNonLeafNode getParent() { return parent; }
-        @Override public String getDisplayName() { return displayName; }
+        public ExampleNonLeafNode getParent() { return parent; }
+        public String getDisplayName() { return displayName; }
     }
 
     static class ExampleLeafNode extends ExampleNode implements LeafNode<String> {
