@@ -12,7 +12,7 @@ public class DatabaseConnection {
     public static String getHostname()      { return System.getProperty("db.hostname", "localhost"); }
     public static String getDatabaseName()  { return System.getProperty("db.name", "databasesandlife_common"); }
     public static String getUsername()      { return System.getProperty("db.username", "root"); }
-    public static String getPassword()      { return System.getProperty("db.password", "root"); }
+    public static String getPassword()      { return System.getProperty("db.password", ""); }
 
     public static String getJdbcUrl() {
         return "jdbc:mysql://" + getHostname() + "/" + getDatabaseName() + "?user=" + getUsername() +
