@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,10 @@ public class DbClient {
     
     protected Connection connection;	// null means already committed
     protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
+    
+    public static class UniqueConstraintViolation extends RuntimeException {
+        UniqueConstraintViolation(String msg, Throwable t) { super(msg, t); }
+    }
     
     public DbClient(String jdbcUrl) {
     	try {
@@ -68,6 +73,8 @@ public class DbClient {
                     ps.setInt(i+1, ((Integer) args[i]).intValue());
                 else if (args[i] instanceof Long)
                     ps.setLong(i+1, ((Long) args[i]).longValue());
+                else if (args[i] instanceof Double)
+                    ps.setDouble(i+1, ((Double) args[i]).doubleValue());
                 else if (args[i] instanceof java.util.Date)
                     ps.setTimestamp(i+1,
                         new java.sql.Timestamp(((java.util.Date) args[i]).getTime()));
@@ -114,6 +121,8 @@ public class DbClient {
         try {
             PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
             ps.executeUpdate();  // returns int = row count processed; we ignore
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new UniqueConstraintViolation(getExceptionText(sql, args), e);
         } catch (SQLException e) {
             throw new RuntimeException("database error ("+
                 getExceptionText(sql, args)+")", e);
@@ -132,12 +141,12 @@ public class DbClient {
     	catch (SQLException e) { throw new RuntimeException(e); }
     }
     
-    public long doSqlInsert(String sql, Object[] args) {
+    public long doSqlInsert(String sql, Object... args) {
     	doSqlAction(sql, args);
     	return getLastInsertId();
     }
     
-    public long doInsertMap(String table, Map<String, ?> cols) {
+    public long doSqlInsertMap(String table, Map<String, ?> cols) {
         StringBuilder keys = new StringBuilder();
         StringBuilder questionMarks = new StringBuilder();
         List<Object> values = new ArrayList<Object>();
