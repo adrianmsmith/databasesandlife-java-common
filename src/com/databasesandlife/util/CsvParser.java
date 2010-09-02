@@ -47,7 +47,7 @@ public class CsvParser {
         void processCsvLine(Map<String, String> line);
     }
 
-    public class MalformedCsvException extends RuntimeException {
+    public class MalformedCsvException extends Exception {  // checked ex. because it's always possible CSV invalid, must handle it
         public MalformedCsvException(String msg) { super(msg); }
     }
 

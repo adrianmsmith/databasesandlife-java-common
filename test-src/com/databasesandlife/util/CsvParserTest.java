@@ -11,7 +11,7 @@ import com.databasesandlife.util.CsvParser.MalformedCsvException;
 
 public class CsvParserTest extends TestCase {
 
-    public void testParse() {
+    public void testParse() throws MalformedCsvException {
         CsvParser parser = new CsvParser();
         parser.setDesiredFields("A", "B", "C");
         parser.setNonEmptyFields("A");

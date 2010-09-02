@@ -5,8 +5,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Example usage:
@@ -132,6 +135,20 @@ public class DbClient {
     public long doSqlInsert(String sql, Object[] args) {
     	doSqlAction(sql, args);
     	return getLastInsertId();
+    }
+    
+    public long doInsertMap(String table, Map<String, ?> cols) {
+        StringBuilder keys = new StringBuilder();
+        StringBuilder questionMarks = new StringBuilder();
+        List<Object> values = new ArrayList<Object>();
+        for (Entry<String, ?> c : cols.entrySet()) {
+            if (keys.length() > 0) { keys.append(", "); questionMarks.append(", "); }
+            keys.append(c.getKey());
+            questionMarks.append("?");
+            values.add(c.getValue());
+        }
+        
+        return doSqlInsert("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
     }
     
     protected void closeConnection() {
