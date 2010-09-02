@@ -17,7 +17,7 @@ import com.databasesandlife.util.gwtsafe.ConfigurationException;
  */
 public class DomParser {
 
-	/** @param elementName can be "*" */
+    /** @param elementName can be "*" */
     protected static List<Element> getSubElements(Node container, String elementName) {
         Vector<Element> result = new Vector<Element>();
         NodeList children = container.getChildNodes();

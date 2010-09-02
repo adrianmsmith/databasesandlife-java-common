@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 
 public class DbClient {
     
-    protected Connection connection;	// null means already committed
+    protected Connection connection;    // null means already committed
     protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
     
     public static class UniqueConstraintViolation extends RuntimeException {
@@ -33,22 +33,22 @@ public class DbClient {
     }
     
     public DbClient(String jdbcUrl) {
-    	try {
-    		connection = DriverManager.getConnection(jdbcUrl);
-    		connection.setAutoCommit(false);
-    	} catch (SQLException e) {
-    		throw new RuntimeException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, connection is NOT OK", e);
-    	}
+        try {
+            connection = DriverManager.getConnection(jdbcUrl);
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new RuntimeException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, connection is NOT OK", e);
+        }
     }
     
     protected Connection getConnection() {
-    	if (connection == null) throw new IllegalStateException("connection already committed or rolledback");
-    	return connection;
+        if (connection == null) throw new IllegalStateException("connection already committed or rolledback");
+        return connection;
     }
     
     protected PreparedStatement getPreparedStatement(String sql) {
-    	Connection c = getConnection(); // throws if already committed/rolledback
-    	
+        Connection c = getConnection(); // throws if already committed/rolledback
+        
         PreparedStatement ps = (PreparedStatement) preparedStatements.get(sql);
         if (ps != null) return ps;
         
@@ -130,20 +130,20 @@ public class DbClient {
     }
 
     protected long getLastInsertId() {
-    	ResultSet autoIncrRS = doSqlQuery("select LAST_INSERT_ID() AS id");
-    	try {
-	    	try {
-	    		if ( ! autoIncrRS.next()) throw new RuntimeException("unreachable");
-	    		return autoIncrRS.getLong("id");
-	    	}
-	    	finally { autoIncrRS.close(); }
-    	}
-    	catch (SQLException e) { throw new RuntimeException(e); }
+        ResultSet autoIncrRS = doSqlQuery("select LAST_INSERT_ID() AS id");
+        try {
+            try {
+                if ( ! autoIncrRS.next()) throw new RuntimeException("unreachable");
+                return autoIncrRS.getLong("id");
+            }
+            finally { autoIncrRS.close(); }
+        }
+        catch (SQLException e) { throw new RuntimeException(e); }
     }
     
     public long doSqlInsert(String sql, Object... args) {
-    	doSqlAction(sql, args);
-    	return getLastInsertId();
+        doSqlAction(sql, args);
+        return getLastInsertId();
     }
     
     public long doSqlInsertMap(String table, Map<String, ?> cols) {
@@ -161,28 +161,28 @@ public class DbClient {
     }
     
     protected void closeConnection() {
-    	try {
-	    	for (PreparedStatement p : preparedStatements.values()) p.close();
-	    	connection.close();
-	    	connection = null;
-    	}
-    	catch (SQLException e) {  }  // ignore errors on closing
+        try {
+            for (PreparedStatement p : preparedStatements.values()) p.close();
+            connection.close();
+            connection = null;
+        }
+        catch (SQLException e) {  }  // ignore errors on closing
     }
     
     public void rollback() {
-    	try {
-	    	getConnection().rollback();
-	    	closeConnection();
-    	}
-    	catch (SQLException e) { throw new RuntimeException("Can't rollback", e); }
+        try {
+            getConnection().rollback();
+            closeConnection();
+        }
+        catch (SQLException e) { throw new RuntimeException("Can't rollback", e); }
    }
     
     public void commit() {
-    	try {
-	    	getConnection().commit();
-	    	closeConnection();
-		}
-		catch (SQLException e) { throw new RuntimeException("Can't commit", e); }
+        try {
+            getConnection().commit();
+            closeConnection();
+        }
+        catch (SQLException e) { throw new RuntimeException("Can't commit", e); }
     }
     
     public void rollbackIfConnectionStillOpen() {
