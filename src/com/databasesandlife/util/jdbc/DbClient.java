@@ -184,4 +184,8 @@ public class DbClient {
 		}
 		catch (SQLException e) { throw new RuntimeException("Can't commit", e); }
     }
+    
+    public void rollbackIfConnectionStillOpen() {
+        if (connection != null) rollback();
+    }
 }
