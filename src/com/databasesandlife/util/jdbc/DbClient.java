@@ -13,14 +13,28 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Example usage:
+ * Represents a connection to a database.
+ * 
+ * <p>
+ * Upon creating an object, a connection is made to the database, and a transaction is started.
+ * Upon executing {@see #commit()} or {@see #rollback()} the connection is closed.
+ * Although opening a connection each time is not as efficient as using a connection pool, this class is extremely simple,
+ * which has advantages both in terms or reliability, maintainability and also speed. (For example, C3P0 has &gt; 50 KLOC).
+ * Opening a connection to MySQL is fast.
+ * </p> 
+ * 
+ * <p>Example usage:
  * <pre>
- *   try { new com.mysql.jdbc.Driver(); } catch (SQLException e) { throw new RuntimeException(); }
  *   DbClient db = new DbClient("jdbc:mysql://hostname/dbName?user=x&password=x&useUnicode=true&characterEncoding=UTF-8");
- *   db.doSqlAction("DELETE FROM x WHERE id=?", new Object[] { 9 }");
- *   // doSqlQuery, doSqlInsert
- *   db.commit();
- * </pre>
+ *   try {
+ *      db.doSqlAction("DELETE FROM x WHERE id=?", 9);
+ *      db.commit();
+ *   }
+ *   finally {
+ *      db.rollbackIfConnectionStillOpen(); 
+ *   }</pre></p>
+ * 
+ * <p>Currently only MySQL is supported.</p>
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
@@ -35,8 +49,10 @@ public class DbClient {
         UniqueConstraintViolation(String msg, Throwable t) { super(msg, t); }
     }
     
+    /** Create an object, connect to the database, and start a transaction */
     public DbClient(String jdbcUrl) {
         try {
+            new com.mysql.jdbc.Driver();   // load the MySQL classes so that getConnection works
             connection = DriverManager.getConnection(jdbcUrl);
             connection.setAutoCommit(false);
         } catch (SQLException e) {
