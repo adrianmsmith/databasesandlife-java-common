@@ -6,7 +6,8 @@ import java.util.NoSuchElementException;
 /**
  * Takes an array of iterators, and returns their results one after another.
  * 
- * @author Adrian Smith &lt;adrian.m.smith@gmail.com&gt;
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 public class CompositeIterator<T> implements Iterator<T> {
     

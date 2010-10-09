@@ -6,12 +6,11 @@
 -->
 
 
-<project name="databasesandlife-util" basedir="." default="all">
+<project name="databasesandlife-util" basedir=".">
 
   <property name="compile-into" location="build-tmp/java-classes"/>
-  <property name="javadoc-into" location="build-tmp/javadoc"/>
 
-  <target name="find-revision" description="Sets property 'revision.number' to the head svn revision">
+  <target name="find-revision">
     <echo>Finding Subversion revision number...</echo>
     <exec executable="svn" outputproperty="svn.info.output">
       <arg line="info"/>
@@ -32,7 +31,7 @@
     <echo>Will use Subversion revision r${revision.number}</echo>
   </target>
 
-  <target name="create-jar" depends="find-revision">
+  <target name="create-jar" depends="find-revision" description="Creates 'databasesandlife-util-incl-src-rNNN.jar'">
     <delete dir="${compile-into}"/> <!-- force a clean compile -->
     <mkdir dir="${compile-into}"/>
     <javac srcdir="src" destdir="${compile-into}" debug="on" deprecation="on">
@@ -51,10 +50,10 @@
     <jar jarfile="databasesandlife-util-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
   </target>
 
-  <target name="create-javadoc">
+  <target name="create-javadoc" description="Create Javadoc into 'javadoc' directory">
     <javadoc
         sourcepath="src"
-        destdir="${javadoc-into}"
+        destdir="javadoc"
         author="true"
         version="true"
         access="public"
@@ -66,6 +65,32 @@
         <fileset dir="lib-compile" includes="*.jar"/>
       </classpath>
     </javadoc>
+  </target>
+
+  <target name="create-zip" depends="create-jar" description="Creates 'databasesandlife-java-util.zip' for deployment on website">
+    <zip destfile="databasesandlife-java-util.zip">
+      <fileset dir="zip-contents"/>
+      <zipfileset dir="src" prefix="src"/>
+      <zipfileset dir="lib-compile" prefix="lib"/>
+      <fileset dir="." includes="databasesandlife-util-incl-src-r${revision.number}.jar"/>
+    </zip>
+  </target>
+
+  <target name="upload-to-blog" depends="create-javadoc,create-zip" description="Uploads Javadoc and ZIP to databaseandlife.com">
+    <exec executable="lftp">
+      <arg value="-e"/>
+      <arg value="mput databasesandlife-java-util.zip -O www.databasesandlife.com/blog-attachments/"/> 
+      <arg value="-u"/>
+      <arg value="107ftp1,hwgfos"/>
+      <arg value="e10106-ftp.services.easyname.eu"/>
+    </exec>
+    <exec executable="lftp">
+      <arg value="-e"/>
+      <arg value="mirror --reverse --delete javadoc www.databasesandlife.com/blog-attachments/databasesandlife-util-javadoc"/>
+      <arg value="-u"/>
+      <arg value="107ftp1,hwgfos"/>
+      <arg value="e10106-ftp.services.easyname.eu"/>
+    </exec>
   </target>
   
 </project>

@@ -53,11 +53,12 @@ import java.util.NoSuchElementException;
  *     return new MyDocResultSetIterator("...", stat, shouldClosePreparedStatement);
  * }
  * </pre>
- * This code is released under the <a href="http://www.gnu.org/licenses/lgpl.html">LGPL</a>.
- * It is tested using Java 6 with MySQL 5.0 and the JDBC driver "MySQL Connector" 5.1.15.
- * 
- * @see <a href="http://www.databasesandlife.com/reading-row-by-row-into-java-from-mysql/">Reading row-by-row into Java from MySQL</a>
- * @author Adrian Smith &lt;adrian.m.smith@gmail.com>
+ * <p>
+ * See <a href="http://www.databasesandlife.com/reading-row-by-row-into-java-from-mysql/">Reading row-by-row into Java from MySQL</a>.
+ * <p>
+ * This code has beem tested using Java 6 with MySQL 5.0 and the JDBC driver "MySQL Connector" 5.1.15.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
 public abstract class ResultSetIterator<T> implements Iterator<T> {

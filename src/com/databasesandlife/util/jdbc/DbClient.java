@@ -21,6 +21,9 @@ import java.util.Map.Entry;
  *   // doSqlQuery, doSqlInsert
  *   db.commit();
  * </pre>
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision: 1960 $
  */
 
 public class DbClient {

@@ -49,8 +49,8 @@ import java.util.Vector;
 
 @param <N> Node Identifier
 
- * @version $Revision$
- * @author Adrian Smith &lt;adrian.m.smith@gmail.com&gt;
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision: 1960 $
  */
 public class DropDownHierarchy<N> extends Composite {
 

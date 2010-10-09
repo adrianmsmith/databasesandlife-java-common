@@ -8,8 +8,9 @@ import javax.swing.*;
  * The same as a JLabel but the text disappears after a while. Use the method
  * setVanishingText to set the text. After 5 seconds of the method being
  * called, the text disappears.
- * 
- * @version $Id: JAutoVanishingLabel.java 438 2006-03-15 18:59:06Z adrian $
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 
 public class JAutoVanishingLabel

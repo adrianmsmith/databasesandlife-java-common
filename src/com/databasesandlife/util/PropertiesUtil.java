@@ -2,11 +2,14 @@ package com.databasesandlife.util;
 
 import java.util.*;
 
-/** Utility class for manipulating Properties objects, as if they were
-  * hierarchical objects. Lists can be created with .0. .1., etc, and key/value
-  * pairs can also be constructed.
-  * @author Adrian Smith &lt;adrian.smith@ucpag.com&gt;
-  */
+/**
+ * Utility class for manipulating Properties objects, as if they were
+ * hierarchical objects. Lists can be created with .0. .1., etc, and key/value
+ * pairs can also be constructed.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 
 public class PropertiesUtil {
 

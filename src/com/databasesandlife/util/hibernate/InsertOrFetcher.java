@@ -85,8 +85,9 @@ Session and returned.</p>
 
 <p>This may have performance penalties, however it is the only way to ensure correct behavior.</p>
 
- * @see <a href="http://www.databasesandlife.com/unique-constraints">Programming with unique constraints</a>
- * @author Adrian Smith &lt;adrian.m.smith@gmail.com>
+ * See <a href="http://www.databasesandlife.com/unique-constraints">Programming with unique constraints</a>.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
 public class InsertOrFetcher {
