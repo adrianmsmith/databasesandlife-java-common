@@ -91,7 +91,7 @@ public class DbClient {
         return ps;
     }
     
-    protected String getExceptionText(String sql, Object[] args) {
+    public static String getSqlForLog(String sql, Object[] args) {
         String result = "sql=(" + sql + "), args=(";
         for (int i=0; i<args.length; i++) {
             String comma = (i == 0) ? "" : ",";
@@ -112,7 +112,7 @@ public class DbClient {
             return ps.executeQuery();
         } catch (SQLException e) {
             throw new RuntimeException("database error ("+
-                getExceptionText(sql, args)+")", e);
+                getSqlForLog(sql, args)+")", e);
         }
     }
     
@@ -122,10 +122,10 @@ public class DbClient {
             PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
             ps.executeUpdate();  // returns int = row count processed; we ignore
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw new UniqueConstraintViolation(getExceptionText(sql, args), e);
+            throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
         } catch (SQLException e) {
             throw new RuntimeException("database error ("+
-                getExceptionText(sql, args)+")", e);
+                getSqlForLog(sql, args)+")", e);
         }
     }
 
