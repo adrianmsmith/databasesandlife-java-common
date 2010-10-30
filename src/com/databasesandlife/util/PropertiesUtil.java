@@ -22,7 +22,7 @@ public class PropertiesUtil {
     public static Vector<Properties> splitToVector(Properties p, String prefix) {
         if ( ! prefix.equals("")) prefix += ".";
         Vector<Properties> propertiesForIndex = new Vector<Properties>();
-        for (Enumeration e = p.keys(); e.hasMoreElements();  ) {
+        for (Enumeration<?> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (! key.startsWith(prefix)) continue; // wrong prefix
             String indexAndSubKey = key.substring(prefix.length());
@@ -33,7 +33,7 @@ public class PropertiesUtil {
             while (index >= propertiesForIndex.size())
                 propertiesForIndex.add(new Properties());
             Properties propsThisIndex =
-                (Properties) propertiesForIndex.elementAt(index);
+                propertiesForIndex.elementAt(index);
             String subKey = indexAndSubKey.substring(dotAfterIndex+1);
             String value = p.getProperty(key);
             propsThisIndex.setProperty(subKey, value);
@@ -48,7 +48,7 @@ public class PropertiesUtil {
       * @return a Vector of Properties objects */
     public static Properties[] splitToArray(Properties p, String prefix) {
         Vector<Properties> vec = splitToVector(p, prefix);
-        return (Properties[]) vec.toArray(new Properties[0]);
+        return vec.toArray(new Properties[0]);
     }
 
     /** Takes a prefix like "rules" and then finds "rules.name.key", puts
@@ -68,7 +68,7 @@ public class PropertiesUtil {
             int dotAfterName = nameAndSubKey.indexOf('.');
             if (dotAfterName == -1) continue; // seems to have no "."
             String name = nameAndSubKey.substring(0, dotAfterName);
-            Properties propsThisName = (Properties) propertiesForName.get(name);
+            Properties propsThisName = propertiesForName.get(name);
             if (propsThisName == null)
                 propertiesForName.put(name, propsThisName = new Properties());
             String subKey = nameAndSubKey.substring(dotAfterName+1);
