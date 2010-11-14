@@ -131,7 +131,7 @@ public class DbClient {
             return ps.executeQuery();
         } catch (SQLException e) {
             throw new RuntimeException("database error ("+
-                getSqlForLog(sql, args)+")", e);
+                getSqlForLog(sql, args)+"): " + e.getMessage(), e);
         }
     }
     
@@ -144,7 +144,7 @@ public class DbClient {
             throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
         } catch (SQLException e) {
             throw new RuntimeException("database error ("+
-                getSqlForLog(sql, args)+")", e);
+                getSqlForLog(sql, args)+"): " + e.getMessage(), e);
         }
     }
 
@@ -193,7 +193,7 @@ public class DbClient {
             getConnection().rollback();
             closeConnection();
         }
-        catch (SQLException e) { throw new RuntimeException("Can't rollback", e); }
+        catch (SQLException e) { throw new RuntimeException("Can't rollback: " + e.getMessage(), e); }
    }
     
     public void commit() {
@@ -201,7 +201,7 @@ public class DbClient {
             getConnection().commit();
             closeConnection();
         }
-        catch (SQLException e) { throw new RuntimeException("Can't commit", e); }
+        catch (SQLException e) { throw new RuntimeException("Can't commit: " + e.getMessage(), e); }
     }
     
     public void rollbackIfConnectionStillOpen() {
