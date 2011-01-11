@@ -1,5 +1,7 @@
 package com.databasesandlife.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,9 +21,6 @@ public class WebEncodingUtils {
         return x;
     }
 
-    // For GET parameters:
-    // See http://java.sun.com/j2se/1.4.2/docs/api/java/net/URLEncoder.html
-
 	@SuppressWarnings("unchecked")
     public static Map<String, String> getHttpRequestParameterMap(HttpServletRequest request) {
 		Map<String, String> result = new HashMap<String, String>();
@@ -29,5 +28,22 @@ public class WebEncodingUtils {
 			result.put(paramEntry.getKey(), paramEntry.getValue()[0]);
 		return result;
 	}
-    
+
+	/** @return "a=b&c=d" */
+    public static CharSequence encodeGetParameters(Map<String, String> params) {
+        try {
+            StringBuilder result = new StringBuilder();
+            for (Entry<String, String> entry : params.entrySet()) {
+                if (result.length() > 0) result.append("&");
+                result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                result.append("=");
+                result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            }
+            return result;
+        }
+        catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
+    }
+	
+    // For GET parameters:
+    // See http://java.sun.com/j2se/1.4.2/docs/api/java/net/URLEncoder.html
 }
