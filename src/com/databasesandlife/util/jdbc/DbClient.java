@@ -46,7 +46,7 @@ public class DbClient {
     protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
     
     public static class UniqueConstraintViolation extends RuntimeException {
-        UniqueConstraintViolation(String msg, Throwable t) { super(msg, t); }
+        UniqueConstraintViolation(String msg, Throwable t) { super(msg+": "+t.getMessage(), t); }
     }
     
     /** Create an object, connect to the database, and start a transaction */
@@ -56,7 +56,8 @@ public class DbClient {
             connection = DriverManager.getConnection(jdbcUrl);
             connection.setAutoCommit(false);
         } catch (SQLException e) {
-            throw new RuntimeException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, connection is NOT OK", e);
+            throw new RuntimeException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
+                "connection is NOT OK: "+e.getMessage(), e);
         }
     }
     
@@ -101,10 +102,10 @@ public class DbClient {
                     ps.setBytes(i+1, (byte[]) args[i]);
                 } else 
                     throw new RuntimeException("DBClient: sql='"+sql+
-                    "': unexpected type for argument "+i+": "+args[i].getClass());
+                        "': unexpected type for argument "+i+": "+args[i].getClass());
             } catch (SQLException e) {
                 throw new RuntimeException("DBClient: sql='"+sql+
-                "': unexpected error setting argument "+i, e);
+                    "': unexpected error setting argument "+i+": "+e.getMessage(), e);
             }
         }
         return ps;
