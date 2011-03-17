@@ -1,4 +1,3 @@
-
 package com.databasesandlife.util.swing;
 
 import java.awt.*;
