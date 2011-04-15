@@ -1,4 +1,16 @@
-To develop:
+To develop / Eclips
+
+- Download Java 1.5 or higher
+- Download Eclipse
+- Create new project
+- Link "src"
+- Delete old "src"
+- Link "src-junit"
+- Build path -> Add library -> Junit
+- Add all external JARs, in both "lib-compile" and "lib-test"
+- Run "src-junit" 'as JUNIT'
+
+To develop / Netbeans
 
 - Download Java 1.5 or higher
 - Download Netbeans 6.0 or higher
