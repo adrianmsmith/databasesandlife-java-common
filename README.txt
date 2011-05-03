@@ -6,7 +6,7 @@ To develop / Eclips
 - Link "src"
 - Delete old "src"
 - Link "src-junit"
-- Build path -> Add library -> Junit
+- Build path -> Add library -> Junit 3
 - Add all external JARs, in both "lib-compile" and "lib-test"
 - Run "src-junit" 'as JUNIT'
 
