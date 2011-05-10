@@ -140,6 +140,7 @@ public class OutOfHeapTemporaryStorage {
             StringWriter str = new StringWriter();
             
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty("omit-xml-declaration","yes");
             transformer.transform(new DOMSource(element), new StreamResult(str));
             
             xml.stringRepresentation.append(str.toString());

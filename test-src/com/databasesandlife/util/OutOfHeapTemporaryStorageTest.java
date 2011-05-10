@@ -15,9 +15,9 @@ import com.databasesandlife.util.OutOfHeapTemporaryStorage.OutOfHeapXml;
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
-public class OutOfHeapTemporaryFileStorage extends TestCase {
+public class OutOfHeapTemporaryStorageTest extends TestCase {
     
-    public OutOfHeapTemporaryFileStorage(String testName) {
+    public OutOfHeapTemporaryStorageTest(String testName) {
         super(testName);
     }
 
