@@ -74,7 +74,7 @@ public class DomParser {
     }
 
     /** @param subNodeName can be "*" */
-    protected static Element getMandatorySingleSubElement(Element node, String subNodeName) throws ConfigurationException {
+    protected static Element getMandatorySingleSubElement(Node node, String subNodeName) throws ConfigurationException {
         List<Element> resultList = getSubElements(node, subNodeName);
         if (resultList.size() != 1) throw new ConfigurationException("<" + node.getNodeName() + ">: found " +
                 resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
