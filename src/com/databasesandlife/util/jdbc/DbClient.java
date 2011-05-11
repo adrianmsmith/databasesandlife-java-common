@@ -6,11 +6,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TimeZone;
 
 /**
  * Represents a connection to a database.
@@ -95,10 +98,12 @@ public class DbClient {
                     ps.setLong(i+1, ((Long) args[i]).longValue());
                 else if (args[i] instanceof Double)
                     ps.setDouble(i+1, ((Double) args[i]).doubleValue());
-                else if (args[i] instanceof java.util.Date)
-                    ps.setTimestamp(i+1,
-                        new java.sql.Timestamp(((java.util.Date) args[i]).getTime()));
-                else if (args[i] instanceof byte[]) {
+                else if (args[i] instanceof java.util.Date) {
+                    // Can't set Timestamp object directly, see http://bugs.mysql.com/bug.php?id=15604 w.r.t GMT timezone
+                    SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    f.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    ps.setString(i+1, f.format((java.util.Date) args[i]));
+                } else if (args[i] instanceof byte[]) {
                     ps.setBytes(i+1, (byte[]) args[i]);
                 } else 
                     throw new RuntimeException("DBClient: sql='"+sql+
