@@ -64,6 +64,14 @@ public class DomParser {
         return result;
     }
 
+    protected static double parseMandatoryDoubleAttribute(Element node, String attributeName)
+    throws ConfigurationException {
+        String str = getMandatoryAttribute(node, attributeName);
+        try { return Double.parseDouble(str); }
+        catch (NumberFormatException e) { throw new ConfigurationException("<" + node.getNodeName() + " " + attributeName +
+                "='" + str + "'>: couldn't parse decimal attribute"); }
+    }
+
     protected static int parseOptionalIntAttribute(Element node, String attributeName, int defaultValue)
     throws ConfigurationException {
         String str = node.getAttribute(attributeName);
