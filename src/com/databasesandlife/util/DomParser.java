@@ -89,7 +89,10 @@ public class DomParser {
         return resultList.get(0);
     }
 
-    /** @param subNodeName can be "*" */
+    /** 
+     * @param subNodeName can be "*"
+     * @return null if element not found 
+     */
     protected static Element getOptionalSingleSubElement(Element node, String subNodeName) throws ConfigurationException {
         List<Element> resultList = getSubElements(node, subNodeName);
         if (resultList.size() == 0) return null;
