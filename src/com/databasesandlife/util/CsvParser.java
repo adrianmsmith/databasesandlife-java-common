@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.Map;
  *    csvParser.setNonEmptyFields("abc");      // all of these fields must have non-empty values
  *    csvParser.parseAndCallHandler(myHandler, aFile);
  *    csvParser.parseAndCallHandler(myHandler, aReader);
+ *    csvParser.parseAndCallHandler(myHandler, aClass);  // reads "aClass.csv" from classloader
  *    List&lt;Map&lt;String,String>> contents = csvParser.parseToListOfMaps(aFile);</pre>
  * <h3>Glossary</h3>
  * <ul>
@@ -125,6 +127,17 @@ public class CsvParser {
         catch (IOException e) { throw new RuntimeException(f + ": " + e.getMessage(), e); }
         catch (MalformedCsvException e) { throw new MalformedCsvException(f + ": " + e.getMessage()); }
     }
+    
+    public void parseAndCallHandler(CsvLineHandler lineHandler, Class<?> cl) throws MalformedCsvException {
+        try {
+            String name = cl.getName().replaceAll("\\.", "/"); // e.g. "com/offerready/MyClass"
+            InputStream csvStream = cl.getClassLoader().getResourceAsStream(name + ".csv");
+            if (csvStream == null) throw new IllegalArgumentException("No CSV file for class '" + cl.getName() + "'");
+            try { parseAndCallHandler(lineHandler, new BufferedReader(new InputStreamReader(csvStream, charset))); }
+            finally { csvStream.close(); }
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
+    }
 
     public List<Map<String, String>> parseToListOfMaps(BufferedReader r) throws MalformedCsvException {
         ArrayOfMapsLineHandler lineHandler = new ArrayOfMapsLineHandler();
@@ -135,6 +148,12 @@ public class CsvParser {
     public List<Map<String, String>> parseToListOfMaps(File f) throws MalformedCsvException {
         ArrayOfMapsLineHandler lineHandler = new ArrayOfMapsLineHandler();
         parseAndCallHandler(lineHandler, f);
+        return lineHandler.result;
+    }
+
+    public List<Map<String, String>> parseToListOfMaps(Class<?> cl) throws MalformedCsvException {
+        ArrayOfMapsLineHandler lineHandler = new ArrayOfMapsLineHandler();
+        parseAndCallHandler(lineHandler, cl);
         return lineHandler.result;
     }
 }

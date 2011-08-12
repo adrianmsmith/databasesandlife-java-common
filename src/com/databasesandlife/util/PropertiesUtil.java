@@ -184,7 +184,7 @@ public class PropertiesUtil {
         return result;
     }
     
-    /** @param resourceBundleName name for example "com.ucpag.components.x" where there is a properties file called "x.properties"
+    /** @param resourceBundleName name for example "com.databasesandlife.x" where there is a properties file called "x.properties"
       * in the appropriate directory, and returns a Properties object for that file. */
     public static String getPropertyOrThrow(String resourceBundleName, String key) {
         Properties p = getCachedPropertiesForResourceName(resourceBundleName);
