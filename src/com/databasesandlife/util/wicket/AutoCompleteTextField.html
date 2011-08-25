@@ -2,57 +2,13 @@
   <wicket:head>
     <wicket:link>
       <link type="text/css" href="jquery-1.8.10-redmond/css/redmond/jquery-ui-1.8.10.custom.css" rel="stylesheet" />
+      <script type="text/javascript" src="AutoCompleteTextField.js"></script>
       <script type="text/javascript" src="jquery-1.8.10-redmond/js/jquery-1.4.4.min.js"></script>
       <script type="text/javascript" src="jquery-1.8.10-redmond/js/jquery-ui-1.8.10.custom.min.js"></script>
     </wicket:link>
   </wicket:head>
   
   <wicket:panel>
-    <script>
-        function autoCompleteTextFieldInit(wicketId, clientSideOptions, separatorForOutput, separatorCharacterClassRegexp) {
-            $(function() {
-                function split( val ) {
-                    return val.split(new RegExp("[" + separatorCharacterClassRegexp + "]+"));
-                }
-                function extractLast( term ) {
-                    return split( term ).pop();
-                }
-
-                $( "#" + wicketId )
-                    // don't navigate away from the field on tab when selecting an item
-                    .bind( "keydown", function( event ) {
-                        if ( event.keyCode === $.ui.keyCode.TAB &&
-                                $( this ).data( "autocomplete" ).menu.active ) {
-                            event.preventDefault();
-                        }
-                    })
-                    .autocomplete({
-                        minLength: 0,
-                        source: function( request, response ) {
-                            // delegate back to autocomplete, but extract the last term
-                            response( $.ui.autocomplete.filter(
-                                clientSideOptions, extractLast( request.term ) ) );
-                        },
-                        focus: function() {
-                            // prevent value inserted on focus
-                            return false;
-                        },
-                        select: function( event, ui ) {
-                            var terms = split( this.value );
-                            // remove the current input
-                            terms.pop();
-                            // add the selected item
-                            terms.push( ui.item.value );
-                            // add placeholder to get the comma-and-space at the end
-                            terms.push( "" );
-                            this.value = terms.join( separatorForOutput );
-                            return false;
-                        }
-                    });
-            });
-        }
-    </script>
-
     <script wicket:id="callInitializerJS">
         var optionsWICKETID = [
             "ActionScript",
