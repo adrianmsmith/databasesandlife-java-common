@@ -9,14 +9,18 @@
   </wicket:head>
   
   <wicket:panel>
+    <a href="to-server-side-data-source" wicket:id="serverSideDataSourceUrl" style="display:none" 
+        id="serverSideDataSourceUrlWICKETID"></a>
+    
     <script wicket:id="callInitializerJS">
-        var optionsWICKETID = [
+        var clientSideOptionsWICKETID = [
             "ActionScript",
             "AppleScript",
         ];
         var separatorForOutputWICKETID = "; ";
         var separatorCharacterClassRegexpWICKETID = "[;,\\s]";
-        autoCompleteTextFieldInit("WICKETID", optionsWICKETID, separatorForOutputWICKETID, separatorCharacterClassRegexpWICKETID);
+        autoCompleteTextFieldInit("WICKETID", clientSideOptionsWICKETID, 
+                separatorForOutputWICKETID, separatorCharacterClassRegexpWICKETID);
     </script>
     
     <input wicket:id="text" class="from-main-tag" id="wicket-id" value="xyx" type="text">

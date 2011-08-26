@@ -1,5 +1,6 @@
 package com.databasesandlife.util.wicket;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -7,44 +8,23 @@ import java.util.regex.Pattern;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.ResourceLink;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.util.resource.IResourceStream;
+import org.apache.wicket.util.resource.StringResourceStream;
 
-//Represents a text-field in Wicket which supports auto-complete.
-//
-//There are two modes of operation:
-// -A mode such as Gmail "to" field, or the old Stackoverflow tags field, where you can type in any number of entries, with a separator. 
-//  Each time you type the separator and start typing a new entry, suggestions will appear. 
-//  You can also type in entries which are not in the suggestions.
-// - A mode such as the Facebook "to" field, where you can only select the suggestions presented.
-//  Each suggestion appears in a box in the field with a "X" button to the right where that entry can be deleted.
-//There are two ways the data for the suggestions may be fetched:
-// - Either all entries are given to the object as a String[], in which case they will be inserted into the HTML page. 
-//   Suggestions are fast, as a server round-trip is not necessary. 
-//   This is not practical if there are 1M entries, as the generated HTML will be too large.
-// - Or a lookup function is provided which can take a substring and can return an ordered String[] of suggestions 
-//   matching that substring, it is advised to return no more than 10 or 50 entries from this function, 
-//   otherwise the HTTP communication will be too large.
-//   This requires a server round-trip each time the user types a character, so is less responsive.
-//Usage:
-//
-//<!-- in HTML -->
-//<input type="text" wicket:id="to">
-//
-//// In Java
-//AutoCompleteTextField to = new AutoCompleteTextField("to");
-//to.setAllowUnknownOptions(true);   // switches from FB to Gmail mode
-//to.setClientSideOptions(new String[] { ... });
-//to.setServerSideDataSource(..); 
-//add(to);
+import com.google.gson.Gson;
 
 public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String[]> {
     
     // Configuration
     protected String[] clientSideOptions = null;
+    protected AutoSuggestDataSource serverSideDataSource = null;
     protected String separatorForOutput = ", ";
     protected String separatorCharacterClassRegexp = ",;\\s";
     
@@ -53,6 +33,11 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     
     // Wicket components
     protected TextField<String> textField;
+    
+    // Data source
+    public interface AutoSuggestDataSource extends Serializable {
+        public String[] suggest(String userEnteredPartialText);
+    }
     
     // ----------------------------------------------------------------------------------------------------------------
     // Configuring
@@ -63,6 +48,10 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
         
         add(new Label("callInitializerJS", new PropertyModel<String>(this, "callInitializerJS")).setEscapeModelStrings(false));
         
+        ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
+        serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + wicketId)));
+        add(serverSideDataSourceUrl);
+        
         textField = new TextField<String>("text", new PropertyModel<String>(this, "text"));
         textField.add(new AttributeModifier("class", new Model<String>("xyz")));
         textField.add(new AttributeModifier("id", new Model<String>(wicketId)));
@@ -70,28 +59,42 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
         add(textField);
     }
 
-    /**
-     * @return     the AutoCompleteTextField
-     */
+    /** @return this */
     public MultipleValueAutoSuggestTextField setClientSideOptions(String[] options) {
         clientSideOptions = options;
         return this; 
     }
     
+    /** @return this */
+    public MultipleValueAutoSuggestTextField setServerSideDataSource(AutoSuggestDataSource dataSource) {
+        serverSideDataSource = dataSource;
+        return this; 
+    }
+    
     /**
-     * @param out  For example ", "
-     * @param ch   For example ",;\\s"
-     * @return     the AutoCompleteTextField
+     * @param separatorForOutput                For example ", "
+     * @param separatorCharacterClassRegexp     For example ",;\\s"
+     * @return                                  this
      */
-    public MultipleValueAutoSuggestTextField setSeparator(String out, String ch) {
-        this.separatorForOutput = out;
-        this.separatorCharacterClassRegexp = ch;
+    public MultipleValueAutoSuggestTextField setSeparator(String separatorForOutput, String separatorCharacterClassRegexp) {
+        this.separatorForOutput = separatorForOutput;
+        this.separatorCharacterClassRegexp = separatorCharacterClassRegexp;
         return this; 
     }
     
     // ----------------------------------------------------------------------------------------------------------------
     // Implementation in Wicket
     // ----------------------------------------------------------------------------------------------------------------
+    
+    /** Is a wicket web resource; can call the data source and return the results in the JSON format needed by JQuery autocomplete */
+    protected class DataSourceJsonWebResource extends WebResource {
+        public IResourceStream getResourceStream() {
+            String userEnteredPartialText = getParameters().getString("term");
+            String[] results = serverSideDataSource.suggest(userEnteredPartialText);
+            String jsonResult = new Gson().toJson(results);
+            return new StringResourceStream(jsonResult, "application/json");
+        }
+    }
     
     @Override protected void onComponentTag(ComponentTag tag) {
         super.onComponentTag(tag);
@@ -108,22 +111,33 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     
     public String getCallInitializerJS() {
         StringBuilder optionsJS = new StringBuilder();
-        for (String tag : clientSideOptions) {
-            if (optionsJS.length() > 0) optionsJS.append(",\n");
-            optionsJS.append(escapeJsString(tag));
+        if (clientSideOptions != null) {
+            for (String tag : clientSideOptions) {
+                if (optionsJS.length() > 0) optionsJS.append(",\n");
+                optionsJS.append(escapeJsString(tag));
+            }
+            optionsJS.insert(0, "[");
+            optionsJS.append("]");
+        } else {
+            optionsJS.append("null");
         }
-
+        
         StringBuilder result = new StringBuilder();  
-        result.append("var options" + getId() + " = [" + optionsJS + "];\n");
+        result.append("var clientSideOptions" + getId() + " = " + optionsJS + ";\n");
         result.append("var separatorForOutput" + getId() + " = " + escapeJsString(separatorForOutput) + ";\n");
         result.append("var separatorCharacterClassRegexp" + getId() + " = " + escapeJsString(separatorCharacterClassRegexp) + ";\n");
         result.append("autoCompleteTextFieldInit('" + getId() + "', " +
-    		"options" + getId() + ", separatorForOutput" + getId() + ", separatorCharacterClassRegexp" + getId() + ");\n");
-        
+    		"clientSideOptions" + getId() + ", separatorForOutput" + getId() + ", separatorCharacterClassRegexp" + getId() + ");\n");
+
         return result.toString();
     }
 
     @Override protected void onBeforeRender() {
+        int dataSourceCount = 0;
+        if (clientSideOptions != null) dataSourceCount ++;
+        if (serverSideDataSource != null) dataSourceCount ++;
+        if (dataSourceCount != 1) throw new RuntimeException("Exactly one of clientSideOptions or serverSideDataSource should be set");
+        
         String[] currentEntryArray = getModelObject();
         StringBuilder result = new StringBuilder();
         for (String currentEntry : currentEntryArray) {

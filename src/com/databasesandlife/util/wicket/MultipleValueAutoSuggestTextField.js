@@ -18,9 +18,18 @@ function autoCompleteTextFieldInit(wicketId, clientSideOptions, separatorForOutp
             .autocomplete({
                 minLength: 0,
                 source: function( request, response ) {
-                    // delegate back to autocomplete, but extract the last term
-                    response( $.ui.autocomplete.filter(
-                        clientSideOptions, extractLast( request.term ) ) );
+                    if (clientSideOptions == null) {
+                        var serverSideUrlLink = document.getElementById("serverSideDataSourceUrl" + wicketId);
+                        var serverSideUrl = serverSideUrlLink.getAttribute("href");
+                        
+                        $.getJSON(serverSideUrl, {
+                            term: extractLast(request.term)
+                        }, response);
+                    } else {
+                        // delegate back to autocomplete, but extract the last term
+                        response( $.ui.autocomplete.filter(
+                            clientSideOptions, extractLast( request.term ) ) );
+                    }
                 },
                 focus: function() {
                     // prevent value inserted on focus
