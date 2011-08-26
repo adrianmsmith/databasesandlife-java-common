@@ -41,7 +41,7 @@ import org.apache.wicket.model.PropertyModel;
 //to.setServerSideDataSource(..); 
 //add(to);
 
-public class AutoCompleteTextField extends FormComponentPanel<String[]> {
+public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String[]> {
     
     // Configuration
     protected String[] clientSideOptions = null;
@@ -58,7 +58,7 @@ public class AutoCompleteTextField extends FormComponentPanel<String[]> {
     // Configuring
     // ----------------------------------------------------------------------------------------------------------------
     
-    public AutoCompleteTextField(String wicketId) {
+    public MultipleValueAutoSuggestTextField(String wicketId) {
         super(wicketId);
         
         add(new Label("callInitializerJS", new PropertyModel<String>(this, "callInitializerJS")).setEscapeModelStrings(false));
@@ -73,7 +73,7 @@ public class AutoCompleteTextField extends FormComponentPanel<String[]> {
     /**
      * @return     the AutoCompleteTextField
      */
-    public AutoCompleteTextField setClientSideOptions(String[] options) {
+    public MultipleValueAutoSuggestTextField setClientSideOptions(String[] options) {
         clientSideOptions = options;
         return this; 
     }
@@ -83,7 +83,7 @@ public class AutoCompleteTextField extends FormComponentPanel<String[]> {
      * @param ch   For example ",;\\s"
      * @return     the AutoCompleteTextField
      */
-    public AutoCompleteTextField setSeparator(String out, String ch) {
+    public MultipleValueAutoSuggestTextField setSeparator(String out, String ch) {
         this.separatorForOutput = out;
         this.separatorCharacterClassRegexp = ch;
         return this; 
