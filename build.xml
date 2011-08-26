@@ -58,9 +58,10 @@
         version="true"
         access="public"
         stylesheetfile="javadoc.css">
-      <link href="http://java.sun.com/j2se/1.5.0/docs/api"/>
-      <link href="https://www.hibernate.org/hib_docs/v3/api"/>
+      <link href="http://download.oracle.com/javase/6/docs/api"/>
+      <link href="http://docs.jboss.org/hibernate/core/3.5/javadocs"/>
       <link href="http://google-web-toolkit.googlecode.com/svn/javadoc/1.6"/>
+      <link href="http://wicket.apache.org/apidocs/1.4"/>
       <classpath>
         <fileset dir="lib-compile" includes="*.jar"/>
       </classpath>

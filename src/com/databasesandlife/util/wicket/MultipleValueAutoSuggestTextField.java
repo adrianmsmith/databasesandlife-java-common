@@ -20,6 +20,37 @@ import org.apache.wicket.util.resource.StringResourceStream;
 
 import com.google.gson.Gson;
 
+/**
+Represents a text-field in Wicket, which allows the user to enter multiple values, and values are suggested from a list of existing values. These values are only suggestions, however, the user may type in other new values, not in the list of existing values. This is ideal for entering tags on a newly created object, where you want the user to use existing tags if appropriate, but also allow the user to create new tags if none of the existing ones are appropriate.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<img src="doc-files/MultipleValueAutoSuggestTextField.png" width=237 height=104></p>
+<p>If new values should not be allowed, for example when selecting from a list of existing languages, see <a href="#">MultipleValueAutoCompleteTextField</a>.</p>
+<p>The list of existing values to be suggested is, by necessity, a set of Strings. The model of the text field is an array of Strings which have been chosen. (It is not possible to display strings to the user, while maintaining a list of IDs corresponding to those strings internally, as the user may enter new strings, and those would have no corresponding IDs.)
+<p>There are two ways the data for the suggestions may be fetched:</p>
+<ul>
+        <li>Either all entries are given to the object as a String[], in which case they will be inserted into the HTML page. Suggestions are fast, as a server round-trip is not necessary. This is not practical if there are 1M entries, as the generated HTML will be too large.</li>
+        <li>Or a lookup function is provided which can take a substring and can return an ordered String[] of suggestions matching that substring, it is advised to return no more than 10 or 50 entries from this function, otherwise the HTTP communication will be too large. This requires a server round-trip each time the user types a character, so is less responsive.</li>
+</ul>
+<p>Usage:</p>
+<pre>
+  &lt;!-- in HTML --&gt;
+  &lt;input type="text" wicket:id="tags" class="my-css-class"&gt;
+  
+  // In Java
+  MultipleValueAutoSuggestTextFi<wbr>eld tagsField =
+      new MultipleValueAutoSuggestTextFi<wbr>eld("tags");
+  tagsField.setClientSideOptions(new String[] { "java", "php" }); // or..
+  tagsField.setServerSideDataSource(new AutoSuggestDataSource() {
+      public String[] suggest(String userEnteredPartialText) {
+          return new String[] { "java", "php" };
+      }
+  });
+  form.add(tagsField);
+</pre>
+The Javascript used by this software is based on the <a href="http://jqueryui.com/demos/autocomplete/#multiple" target="_blank">JQuery autocomplete multiple example</a>.
+
+ * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String[]> {
     
     // Configuration
@@ -53,7 +84,7 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
         add(serverSideDataSourceUrl);
         
         textField = new TextField<String>("text", new PropertyModel<String>(this, "text"));
-        textField.add(new AttributeModifier("class", new Model<String>("xyz")));
+        textField.add(new AttributeModifier("class", new Model<String>("xyz"))); // TODO
         textField.add(new AttributeModifier("id", new Model<String>(wicketId)));
         textField.setConvertEmptyInputStringToNull(false);
         add(textField);

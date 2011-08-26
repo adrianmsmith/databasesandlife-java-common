@@ -20,7 +20,7 @@ import java.util.TimeZone;
  * 
  * <p>
  * Upon creating an object, a connection is made to the database, and a transaction is started.
- * Upon executing {@see #commit()} or {@see #rollback()} the connection is closed.
+ * Upon executing {@link #commit()} or {@link #rollback()} the connection is closed.
  * Although opening a connection each time is not as efficient as using a connection pool, this class is extremely simple,
  * which has advantages both in terms or reliability, maintainability and also speed. (For example, C3P0 has &gt; 50 KLOC).
  * Opening a connection to MySQL is fast.
