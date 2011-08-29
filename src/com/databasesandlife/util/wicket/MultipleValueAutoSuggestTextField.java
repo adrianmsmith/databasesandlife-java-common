@@ -1,6 +1,7 @@
 package com.databasesandlife.util.wicket;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -23,12 +24,12 @@ import com.google.gson.Gson;
 /**
 Represents a text-field in Wicket, which allows the user to enter multiple values, and values are suggested from a list of existing values. These values are only suggestions, however, the user may type in other new values, not in the list of existing values. This is ideal for entering tags on a newly created object, where you want the user to use existing tags if appropriate, but also allow the user to create new tags if none of the existing ones are appropriate.
 <p>&nbsp;&nbsp;&nbsp;&nbsp;<img src="doc-files/MultipleValueAutoSuggestTextField.png" width=237 height=104></p>
-<p>If new values should not be allowed, for example when selecting from a list of existing languages, see <a href="#">MultipleValueAutoCompleteTextField</a>.</p>
-<p>The list of existing values to be suggested is, by necessity, a set of Strings. The model of the text field is an array of Strings which have been chosen. (It is not possible to display strings to the user, while maintaining a list of IDs corresponding to those strings internally, as the user may enter new strings, and those would have no corresponding IDs.)
-<p>There are two ways the data for the suggestions may be fetched:</p>
+<p>If new values should not be allowed, for example when selecting from a list of existing languages, see {@link MultipleValueAutoCompleteTextField}</a>.</p>
+<p>The <strong>model</strong> of the field is an array of Strings which have been chosen. (It is not possible to display strings to the user, while maintaining a list of IDs corresponding to those strings internally, as the user may enter new strings, and those would have no corresponding IDs.)
+<p>The list of values to be suggested is a collection of Strings. There are two ways the these may be fetched:</p>
 <ul>
-        <li>Either all entries are given to the object as a String[], in which case they will be inserted into the HTML page. Suggestions are fast, as a server round-trip is not necessary. This is not practical if there are 1M entries, as the generated HTML will be too large.</li>
-        <li>Or a lookup function is provided which can take a substring and can return an ordered String[] of suggestions matching that substring, it is advised to return no more than 10 or 50 entries from this function, otherwise the HTTP communication will be too large. This requires a server round-trip each time the user types a character, so is less responsive.</li>
+        <li><strong>Client-side</strong> - Either all entries are given to the object as a String[], in which case they will be inserted into the HTML page. Suggestions are fast, as a server round-trip is not necessary. This is not practical if there are 1M entries, as the generated HTML will be too large.</li>
+        <li><strong>Server-side</strong> - Or a lookup function is provided which can take a substring and can return an ordered String[] of suggestions matching that substring, it is advised to return no more than 10 or 50 entries from this function, otherwise the HTTP communication will be too large. This requires a server round-trip each time the user types a character, so is less responsive.</li>
 </ul>
 <p>Usage:</p>
 <pre>
@@ -36,10 +37,10 @@ Represents a text-field in Wicket, which allows the user to enter multiple value
   &lt;input type="text" wicket:id="tags" class="my-css-class"&gt;
   
   // In Java
-  MultipleValueAutoSuggestTextFi<wbr>eld tagsField =
-      new MultipleValueAutoSuggestTextFi<wbr>eld("tags");
-  tagsField.setClientSideOptions(new String[] { "java", "php" }); // or..
-  tagsField.setServerSideDataSource(new AutoSuggestDataSource() {
+  MultipleValueAutoSuggestTextField tagsField =
+      new MultipleValueAutoSuggestTextField("tags");
+  tagsField.<b>setClientSideOptions</b>(new String[] { "java", "php" }); <b>// or..</b>
+  tagsField.<b>setServerSideDataSource</b>(new AutoSuggestDataSource() {
       public String[] suggest(String userEnteredPartialText) {
           return new String[] { "java", "php" };
       }
@@ -60,6 +61,7 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     protected String separatorCharacterClassRegexp = ",;\\s";
     
     // Data currently in the field
+    protected String cssClass;
     protected String text;
     
     // Wicket components
@@ -77,14 +79,16 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     public MultipleValueAutoSuggestTextField(String wicketId) {
         super(wicketId);
         
-        add(new Label("callInitializerJS", new PropertyModel<String>(this, "callInitializerJS")).setEscapeModelStrings(false));
+        add(new JQueryIncluder("jQueryIncluder"));
         
         ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
         serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + wicketId)));
         add(serverSideDataSourceUrl);
         
+        add(new Label("callInitializerJS", new PropertyModel<String>(this, "callInitializerJS")).setEscapeModelStrings(false));
+        
         textField = new TextField<String>("text", new PropertyModel<String>(this, "text"));
-        textField.add(new AttributeModifier("class", new Model<String>("xyz"))); // TODO
+        textField.add(new AttributeModifier("class", true, new PropertyModel<String>(this, "cssClass")));
         textField.add(new AttributeModifier("id", new Model<String>(wicketId)));
         textField.setConvertEmptyInputStringToNull(false);
         add(textField);
@@ -103,8 +107,14 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     }
     
     /**
-     * @param separatorForOutput                For example ", "
-     * @param separatorCharacterClassRegexp     For example ",;\\s"
+     * When the user types multiple options, they will be separated by, for example, ",".
+     * This method sets that separator.
+     *    <p>
+     * There are two places the separator is used: when generating the text field from a list 
+     * of values (<code>separatorForOutput</code>), and when the text field is being parsed into
+     * a list of values (<code>separatorCharacterClassRegexp</code>, which is a regular expression).
+     * @param separatorForOutput                For example <code>", "</code> - plain text
+     * @param separatorCharacterClassRegexp     For example <code>",;\\s"</code> - regular expression
      * @return                                  this
      */
     public MultipleValueAutoSuggestTextField setSeparator(String separatorForOutput, String separatorCharacterClassRegexp) {
@@ -120,16 +130,22 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     /** Is a wicket web resource; can call the data source and return the results in the JSON format needed by JQuery autocomplete */
     protected class DataSourceJsonWebResource extends WebResource {
         public IResourceStream getResourceStream() {
-            String userEnteredPartialText = getParameters().getString("term");
-            String[] results = serverSideDataSource.suggest(userEnteredPartialText);
-            String jsonResult = new Gson().toJson(results);
-            return new StringResourceStream(jsonResult, "application/json");
+            try {
+                String userEnteredPartialText = getParameters().getString("term");
+                String[] results = serverSideDataSource.suggest(userEnteredPartialText);
+                String jsonResult = new Gson().toJson(results);
+                // Wicket always delivers strings as Latin1, yet client always JSON is always UTF-8 therefore client expects UTF-8
+                jsonResult = new String(jsonResult.getBytes("UTF-8"), "ISO-8859-1");
+                return new StringResourceStream(jsonResult, "application/json");
+            }
+            catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
         }
     }
     
     @Override protected void onComponentTag(ComponentTag tag) {
         super.onComponentTag(tag);
         tag.setName("span");  // So that clients can write <input wicket:id="xx"> and we generate <script>, <input> etc.
+        cssClass = tag.getAttribute("class");
     }
     
     /** For example takes <code>abc\def</code> and returns <code>"abc\\def"</code> */
@@ -140,6 +156,7 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
         return "\"" + str + "\"";
     }
     
+    /** Internal method - Do not use */
     public String getCallInitializerJS() {
         StringBuilder optionsJS = new StringBuilder();
         if (clientSideOptions != null) {

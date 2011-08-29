@@ -1,0 +1,24 @@
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd">
+  <wicket:head>
+    <wicket:link>
+      <link rel="stylesheet" type="text/css" href="token-input.css" />
+      <link rel="stylesheet" type="text/css" href="token-input-facebook.css" /> 
+      <link rel="stylesheet" type="text/css" href="token-input-mac.css" /> 
+    </wicket:link>
+  </wicket:head>
+   
+  <wicket:panel>
+    <span wicket:id="jQueryIncluder"></span>
+  
+    <a href="to-server-side-data-source" wicket:id="serverSideDataSourceUrl" style="display:none" 
+      id="serverSideDataSourceUrlWICKETID"></a>    
+  
+    <script type="text/javascript" wicket:id="javascript">
+      $(document).ready(function () {
+        $("#WICKETID").tokenInput("/url/to/your/script/");
+      });
+    </script>
+    
+    <input type="text" wicket:id="textField" id="WICKETID">
+  </wicket:panel>
+</html>

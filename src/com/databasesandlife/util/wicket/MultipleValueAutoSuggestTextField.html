@@ -3,12 +3,12 @@
     <wicket:link>
       <link type="text/css" href="jquery-1.8.10-redmond/css/redmond/jquery-ui-1.8.10.custom.css" rel="stylesheet" />
       <script type="text/javascript" src="MultipleValueAutoSuggestTextField.js"></script>
-      <script type="text/javascript" src="jquery-1.8.10-redmond/js/jquery-1.4.4.min.js"></script>
-      <script type="text/javascript" src="jquery-1.8.10-redmond/js/jquery-ui-1.8.10.custom.min.js"></script>
     </wicket:link>
   </wicket:head>
   
   <wicket:panel>
+    <span wicket:id="jQueryIncluder"></span>
+  
     <a href="to-server-side-data-source" wicket:id="serverSideDataSourceUrl" style="display:none" 
         id="serverSideDataSourceUrlWICKETID"></a>
     
@@ -23,7 +23,7 @@
                 separatorForOutputWICKETID, separatorCharacterClassRegexpWICKETID);
     </script>
     
-    <input wicket:id="text" class="from-main-tag" id="wicket-id" value="xyx" type="text">
+    <input wicket:id="text" id="wicket-id" value="xyx" type="text">
     
   </wicket:panel>
 </html>
