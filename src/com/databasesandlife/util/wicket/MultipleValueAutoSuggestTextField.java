@@ -42,13 +42,13 @@ Represents a text-field in Wicket, which allows the user to enter multiple value
   tagsField.<b>setClientSideOptions</b>(new String[] { "java", "php" }); <b>// or..</b>
   tagsField.<b>setServerSideDataSource</b>(new AutoSuggestDataSource() {
       public String[] suggest(String userEnteredPartialText) {
-          return new String[] { "java", "php" };
+          return new String[] { "java", "php" };
       }
   });
   form.add(tagsField);
 </pre>
 <p>If there is an error about a missing <code>&lt;/span&gt;</code> tag, make sure the <code>&lt;input&gt;</code> tag is closed with a <code>&lt;/input&gt;</code>, even though HTML would not normally require it to be closed. This is a consequence of an implementation issue.
-<p>The Javascript used by this software is based on the <a href="http://jqueryui.com/demos/autocomplete/#multiple" target="_blank">JQuery autocomplete multiple example</a>.</p>
+<p>The Javascript used by this software is based on the <a href="http://jqueryui.com/demos/autocomplete/#multiple" target="_blank">JQuery autocomplete multiple example</a>.</p>
 
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
