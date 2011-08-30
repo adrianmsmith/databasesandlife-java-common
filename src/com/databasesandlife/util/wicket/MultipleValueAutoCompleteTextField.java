@@ -33,7 +33,7 @@ A text-field where the user may enter multiple values, but each value may only b
 <p>Usage:</p>
 <pre>
   &lt;!-- In HTML --&gt;
-  &lt;input type="text" wicket:id="languages"&gt;
+  &lt;input type="text" wicket:id="languages"&gt;&lt;/input&gt;
   
   // In Java
   MultipleValueAutoCompleteTextField f =
@@ -49,8 +49,10 @@ A text-field where the user may enter multiple values, but each value may only b
   });
   form.add(f);
 </pre>
-<p>Warning: This text field is always on a separate line, this is a consequence of the Javascript library used, and seemed to be the case for all other Javascript libraries I saw as well. The solution, in case you want to have the text field on a line with a field name such as "To:", is either to use absolute positioning, or use tables.</p>
-<p>The Javascript software used is <a href="http://loopj.com/jquery-tokeninput/">jQuery Tokeninput</a>.</p>
+<p>By default the values (e.g. "English") are plain text strings. If you want to use HTML effects (e.g. have a few &lt;span&gt;s inside the value, with different styles), then subclass AutoCompleteOption and override {@link AutoCompleteOption#getHtmlDisplayText() getHtmlDisplayText}. Due to the way the JS is programmed, use <code>&lt;font class="x"&gt;</code> as opposed to <code>&lt;span class="x"&gt;</code>.</p>
+<p>The text field is always on a separate line, this is a consequence of the Javascript library used, and seemed to be the case for all other Javascript libraries I saw as well. The solution, in case you want to have the text field on a line with a field name such as "To:", is either to use absolute positioning, or use tables.</p>
+<p>If there is an error about a missing <code>&lt;/span&gt;</code> tag, make sure the <code>&lt;input&gt;</code> tag is closed with a <code>&lt;/input&gt;</code>, even though HTML would not normally require it to be closed. This is a consequence of an implementation issue.
+<p>The Javascript software used is <a href="http://loopj.com/jquery-tokeninput/" target="_blank">jQuery Tokeninput</a>.</p>
 <h3>Bugs</h3>
 <ul>
         <li>Text such as "Loading..." should be localizable</li>

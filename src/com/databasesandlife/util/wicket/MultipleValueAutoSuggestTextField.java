@@ -34,7 +34,7 @@ Represents a text-field in Wicket, which allows the user to enter multiple value
 <p>Usage:</p>
 <pre>
   &lt;!-- in HTML --&gt;
-  &lt;input type="text" wicket:id="tags" class="my-css-class"&gt;
+  &lt;input type="text" wicket:id="tags" class="my-css-class"&gt;&lt;/input&gt;
   
   // In Java
   MultipleValueAutoSuggestTextField tagsField =
@@ -47,7 +47,8 @@ Represents a text-field in Wicket, which allows the user to enter multiple value
   });
   form.add(tagsField);
 </pre>
-The Javascript used by this software is based on the <a href="http://jqueryui.com/demos/autocomplete/#multiple" target="_blank">JQuery autocomplete multiple example</a>.
+<p>If there is an error about a missing <code>&lt;/span&gt;</code> tag, make sure the <code>&lt;input&gt;</code> tag is closed with a <code>&lt;/input&gt;</code>, even though HTML would not normally require it to be closed. This is a consequence of an implementation issue.
+<p>The Javascript used by this software is based on the <a href="http://jqueryui.com/demos/autocomplete/#multiple" target="_blank">JQuery autocomplete multiple example</a>.</p>
 
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$

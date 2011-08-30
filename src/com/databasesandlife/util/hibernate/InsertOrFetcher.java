@@ -57,9 +57,6 @@ constraint</b> which will make sure that only one row per <i>day</i> can be crea
 exists or if it needs to be inserted is taken by attempting an insert and seeing if a constraint violation error occurs (see
 "strategy" later.)</p>
 
-<p>To insert the object, a new blank object is created, i.e. <i>MyObject</i> must support a parameterless constuctor. All the
-fields present in the <i>key</i> map are set, and the object is inserted.</p>
-
 <p>The method <i>loadAndLock</i> locks the object when returning it (with "select for update"), intended for read/write access;
 the method <i>load</i> loads the object without locking it, intended for read-only access.</p>
 
@@ -67,19 +64,13 @@ the method <i>load</i> loads the object without locking it, intended for read-on
 
 <p>As mentioned earlier, to "just in time" insert an object it is no good doing a "select" to see if the object exists and
 inserting it if it doesn't. Between the time the select is done and the time the insert is done, another session might have done
-an insert.</p>
-
-<p>The only way to proceed is to perform the "insert", and if that succeeds then one can be certain that the row now exists, and
+an insert.
+The only way to proceed is to perform the "insert", and if that succeeds then one can be certain that the row now exists, and
 if that fails with a constraint violation then one can be certain that the row already existed.</p>
 
-<p>The only way to determine if an object exists is to insert it and see if the insert fails. Performing a "select" may determine
-that the object doesn't exist, but between the time one does the select and the time one does the insert (based on the
-information that the row doesn't exist) another session may have performed the insert.</p>
-
 <p>However, although this is the only strategy that can be adopted, it is not easy to implement in Hibernate. Hibernate states
-(in the Session Javadoc) that if a statement fails, then the Session must be discarded.</p>
-
-<p>Therefore the strategy which is adopted is to create a new Session with its own Transaction, perform the insert. Afterwards
+(in the Session Javadoc) that if a statement fails, then the Session must be discarded.
+Therefore the strategy which is adopted is to create a new Session with its own Transaction, perform the insert. Afterwards
 one can be certain that the row exists in the database, so the Session is destroyed, and the row is loaded in the original
 Session and returned.</p>
 
