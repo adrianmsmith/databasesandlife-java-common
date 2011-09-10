@@ -1,0 +1,30 @@
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd">
+  <wicket:head>
+    <wicket:link>
+      <link rel="stylesheet" type="text/css" href="JSCal2-1.9/css/jscal2.css" />
+      <link rel="stylesheet" type="text/css" href="JSCal2-1.9/css/border-radius.css" />
+      <link rel="stylesheet" type="text/css" href="JSCal2-1.9/css/matrix/matrix.css" />
+      <script type="text/javascript" src="JSCal2-1.9/js/jscal2.js"></script>
+      <script type="text/javascript" src="JSCal2-1.9/js/lang/en.js"></script>
+    </wicket:link>
+  </wicket:head>
+  
+  <wicket:panel>
+    <div id="calendar-container"></div>
+    <input type="text" style="display:none" id="input-field" wicket:id="selectedDate">
+    
+    <script type="text/javascript">
+        Calendar.setup({
+            cont          : "calendar-container",
+            selectionType : Calendar.SEL_SINGLE,
+            selection     : Calendar.dateToInt(Calendar.parseDate(document.getElementById("input-field").value), false),
+            onSelect      : function() {
+                var date = this.selection.get();
+                date = Calendar.intToDate(date);
+                date = Calendar.printDate(date, "%Y-%m-%d");
+                document.getElementById("input-field").value = date;
+            },
+        });
+    </script>
+  </wicket:panel>
+</html>
