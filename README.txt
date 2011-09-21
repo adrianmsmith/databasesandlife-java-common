@@ -1,4 +1,4 @@
-To develop / Eclips
+To develop / Eclipse
 
 - Download Java 1.5 or higher
 - Download Eclipse

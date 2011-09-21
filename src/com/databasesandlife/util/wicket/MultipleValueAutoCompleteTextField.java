@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.markup.html.basic.Label;
@@ -18,6 +19,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ResourceLink;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
 
@@ -43,7 +45,7 @@ A text-field where the user may enter multiple values, but each value may only b
       new AutoCompleteOption("de", "German"),
   });  // <b>or...</b>
   f.<strong>setServerSideDataSource</strong>(new AutoCompleteDataSource() {
-      AutoCompleteOption[] suggest(String userEnteredText) {
+      AutoCompleteOption[] suggestOptions(String userEnteredText) {
           return ....;
       }
   });
@@ -63,10 +65,11 @@ A text-field where the user may enter multiple values, but each value may only b
  */
 public class MultipleValueAutoCompleteTextField extends FormComponentPanel<String[]> {
     
+    protected String jsId;
     protected AutoCompleteOption[] clientSideOptions = null;
     protected AutoCompleteDataSource serverSideDataSource = null;
     protected String theme = "facebook";
-    protected String[] currentIdsToTextField = new String[0];  // JQuery JS ignores <input> value, this communictes to JS creation
+    protected String[] currentIdsToTextField = null;           // JQuery JS ignores <input> value, this communictes to JS creation
     protected String   currentIdsFromTextField = "";           // JQuery JS puts "12,23" into <input> value, i.e. textfield's model
     protected TextField<String> textField;
     
@@ -85,7 +88,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
     }
     
     public interface AutoCompleteDataSource extends Serializable {
-        public AutoCompleteOption[] suggest(String userEnteredPartialText);
+        public AutoCompleteOption[] suggestOptions(String userEnteredPartialText);
         public AutoCompleteOption getOptionForId(String id);
     }
 
@@ -96,16 +99,18 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
     public MultipleValueAutoCompleteTextField(String wicketId) {
         super(wicketId);
         
+        jsId = wicketId.replace(".", "_");  // JS variables, and JQuery selectors, are invalid if "." is used
+        
         add(new JQueryIncluder("jQueryIncluder"));
         
         ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
-        serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + wicketId)));
+        serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + jsId)));
         add(serverSideDataSourceUrl);
         
         add(new Label("javascript", new PropertyModel<String>(this, "javascript")).setEscapeModelStrings(false));
         
         textField = new TextField<String>("textField", new PropertyModel<String>(this, "currentIdsFromTextField"));
-        textField.add(new AttributeModifier("id", new Model<String>(wicketId)));
+        textField.add(new AttributeModifier("id", new Model<String>(jsId)));
         textField.setConvertEmptyInputStringToNull(false);
         add(textField);
     }
@@ -140,7 +145,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         public IResourceStream getResourceStream() {
             try {
                 String userEnteredPartialText = getParameters().getString("q");
-                AutoCompleteOption[] options = serverSideDataSource.suggest(userEnteredPartialText);
+                AutoCompleteOption[] options = serverSideDataSource.suggestOptions(userEnteredPartialText);
                 String jsonResult = jsonForOptions(options);
                 // Wicket always delivers strings as Latin1, yet client always JSON is always UTF-8 therefore client expects UTF-8
                 jsonResult = new String(jsonResult.getBytes("UTF-8"), "ISO-8859-1");
@@ -174,7 +179,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         if (clientSideOptions != null) 
             source = jsonForOptions(clientSideOptions);
         else if (serverSideDataSource != null) 
-            source = "document.getElementById('serverSideDataSourceUrl" + getId() + "').getAttribute('href')";
+            source = "document.getElementById('serverSideDataSourceUrl" + jsId + "').getAttribute('href')";
         else throw new RuntimeException("Either clientSideOptions or serverSideDataSource must be set for wicket:id='" + getId() + "'");
         
         List<AutoCompleteOption> currentValues = new ArrayList<AutoCompleteOption>(currentIdsToTextField.length);
@@ -189,7 +194,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         
         StringBuilder result = new StringBuilder();
         result.append("$(document).ready(function () { \n");
-        result.append("  $('#"+getId()+"').tokenInput(" + source + ", {\n");
+        result.append("  $('#"+jsId+"').tokenInput(" + source + ", {\n");
         result.append("    prePopulate: " + jsonForOptions(currentValues.toArray(new AutoCompleteOption[0])) + ",\n");
         result.append("    theme: '"+theme+"',\n");
         result.append("  });\n");
@@ -199,7 +204,11 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
     }
 
     @Override protected void onBeforeRender() {
-        currentIdsToTextField = getModelObject();
+        // this IF is a hack: if first view, populate field; else if validiation failed then we don't want to
+        // override what the user has entered with what the model originally contained
+        if (currentIdsToTextField == null)
+            currentIdsToTextField = getModelObject();
+        
         super.onBeforeRender();
     }
     
@@ -208,6 +217,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         List<String> newEntryList = new ArrayList<String>();
         Matcher m = Pattern.compile("[^,]+").matcher(newIdsStr);
         while (m.find()) newEntryList.add(m.group());
-        setConvertedInput(newEntryList.toArray(new String[0]));
+        currentIdsToTextField = newEntryList.toArray(new String[0]);
+        setConvertedInput(currentIdsToTextField);
     }
 }

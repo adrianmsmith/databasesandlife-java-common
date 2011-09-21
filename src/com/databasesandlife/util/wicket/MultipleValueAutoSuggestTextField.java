@@ -55,6 +55,8 @@ Represents a text-field in Wicket, which allows the user to enter multiple value
  */
 public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String[]> {
     
+    protected String jsId;
+    
     // Configuration
     protected String[] clientSideOptions = null;
     protected AutoSuggestDataSource serverSideDataSource = null;
@@ -80,17 +82,19 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     public MultipleValueAutoSuggestTextField(String wicketId) {
         super(wicketId);
         
+        jsId = wicketId.replace(".", "_");  // JS variables, and JQuery selectors, are invalid if "." is used
+        
         add(new JQueryIncluder("jQueryIncluder"));
         
         ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
-        serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + wicketId)));
+        serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + jsId)));
         add(serverSideDataSourceUrl);
         
         add(new Label("callInitializerJS", new PropertyModel<String>(this, "callInitializerJS")).setEscapeModelStrings(false));
         
         textField = new TextField<String>("text", new PropertyModel<String>(this, "text"));
         textField.add(new AttributeModifier("class", true, new PropertyModel<String>(this, "cssClass")));
-        textField.add(new AttributeModifier("id", new Model<String>(wicketId)));
+        textField.add(new AttributeModifier("id", new Model<String>(jsId)));
         textField.setConvertEmptyInputStringToNull(false);
         add(textField);
     }
@@ -172,11 +176,11 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
         }
         
         StringBuilder result = new StringBuilder();  
-        result.append("var clientSideOptions" + getId() + " = " + optionsJS + ";\n");
-        result.append("var separatorForOutput" + getId() + " = " + escapeJsString(separatorForOutput) + ";\n");
-        result.append("var separatorCharacterClassRegexp" + getId() + " = " + escapeJsString(separatorCharacterClassRegexp) + ";\n");
-        result.append("autoCompleteTextFieldInit('" + getId() + "', " +
-    		"clientSideOptions" + getId() + ", separatorForOutput" + getId() + ", separatorCharacterClassRegexp" + getId() + ");\n");
+        result.append("var clientSideOptions" + jsId + " = " + optionsJS + ";\n");
+        result.append("var separatorForOutput" + jsId + " = " + escapeJsString(separatorForOutput) + ";\n");
+        result.append("var separatorCharacterClassRegexp" + jsId + " = " + escapeJsString(separatorCharacterClassRegexp) + ";\n");
+        result.append("autoCompleteTextFieldInit('" + jsId + "', " +
+    		"clientSideOptions" + jsId + ", separatorForOutput" + jsId + ", separatorCharacterClassRegexp" + jsId + ");\n");
 
         return result.toString();
     }
