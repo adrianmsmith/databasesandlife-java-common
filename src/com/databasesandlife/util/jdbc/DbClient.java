@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,6 +183,26 @@ public class DbClient {
         }
         
         return doSqlInsert("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
+    }
+    
+    public void doSqlUpdateMap(String table, Map<String, ?> cols, String where, Object... whereParams) {
+        StringBuilder sql = new StringBuilder();
+        List<Object> params = new ArrayList<Object>();
+        
+        sql.append("UPDATE ");
+        sql.append(table);
+        sql.append(" SET ");
+        for (Entry<String, ?> c : cols.entrySet()) {
+            if (params.size() > 0) sql.append(", ");
+            sql.append(c.getKey());
+            sql.append(" = ?");
+            params.add(c.getValue());
+        }
+        sql.append(" WHERE ");
+        sql.append(where);
+        params.addAll(Arrays.asList(whereParams));
+        
+        doSqlAction(sql.toString(), params.toArray());
     }
     
     protected void closeConnection() {
