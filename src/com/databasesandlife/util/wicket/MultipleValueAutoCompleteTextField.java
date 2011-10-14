@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.markup.html.basic.Label;
@@ -19,7 +18,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ResourceLink;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
 
@@ -99,7 +97,8 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
     public MultipleValueAutoCompleteTextField(String wicketId) {
         super(wicketId);
         
-        jsId = wicketId.replace(".", "_");  // JS variables, and JQuery selectors, are invalid if "." is used
+        // wicketId might have e.g. "form.abc" but that won't work with JQuery; use "form_abc" instead
+        jsId = wicketId.replace(".", "_");
         
         add(new JQueryIncluder("jQueryIncluder"));
         
