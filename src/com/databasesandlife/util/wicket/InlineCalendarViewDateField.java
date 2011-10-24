@@ -9,6 +9,11 @@ import org.apache.wicket.markup.html.form.FormComponentPanel;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.PropertyModel;
 
+/**
+ *
+ * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision: 2637 $
+ */
 public class InlineCalendarViewDateField extends FormComponentPanel<Date> {
     
     protected SimpleDateFormat dateFormatter;
