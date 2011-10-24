@@ -12,17 +12,17 @@ import org.apache.wicket.util.time.Duration;
 
 /**
  * A &lt;span&gt; label which firstly counts up towards its model's value, and secondly auto-refreshes that value. 
- * The component is modeled on the "worldwide members" number which auto-refreshes on the avaaz homepage.
+ * The component implements similar functionality to "worldwide members" number on the avaaz homepage.
  * 
  * <p>Usage:
  * <pre>
- *    CountingUpThenAutoRefreshingLabel label =
- *       new CountingUpThenAutoRefreshingLabel("value");
- *    label.setModel(new PropertyModel(anObject, "anInteger"));
- *    add(label);
+ *    &lt;!-- In HTML file --&gt;
+ *    &lt;span wicket:id="numberOfUsers"&gt;&lt;/span&gt;
  *
- *    &lt;span class="xyz" wicket:id="value"&gt;
- * </pre>
+ *    // In Java file
+ *    CountingUpThenAutoRefreshingLabel label = new CountingUpThenAutoRefreshingLabel("numberOfUsers");
+ *    label.setModel(new PropertyModel(dataSource, "userCount"));
+ *    add(label);</pre>
  * 
  * <p>
  * The first phase of the component lasts two minutes, and the value counts up from zero to the target value. 
@@ -40,8 +40,7 @@ import org.apache.wicket.util.time.Duration;
  *    label.setCountingUpRefreshIntervalSeconds(0.1);
  *    label.setTendencyThreshold(0.001);
  *    label.setAutoRefreshingInitialIntervalSeconds(2.0);
- *    label.setAutoRefreshingIntervalMultiplier(1.2);
- * </pre>
+ *    label.setAutoRefreshingIntervalMultiplier(1.2); </pre>
  */
 
 public class CountingUpThenAutoRefreshingLabel extends Panel {
@@ -91,7 +90,8 @@ public class CountingUpThenAutoRefreshingLabel extends Panel {
      * means they double; so for example the first duration might be 10s, the next 20s, the next 40s, etc. */
     public void setAutoRefreshingIntervalMultiplier(double x) { autoRefreshingIntervalMultiplier = x; }
     
-    /** INTERNAL USE */ public String getLabelValue() {
+    /** INTERNAL METHOD -- DO NOT USE */
+    public String getLabelValue() {
         NumberFormat f = NumberFormat.getInstance(getLocale());
         if (f instanceof DecimalFormat) {
             ((DecimalFormat) f).setGroupingUsed(true);
@@ -108,7 +108,8 @@ public class CountingUpThenAutoRefreshingLabel extends Panel {
             return "";
     }
     
-    /** INTERNAL USE */ public String getJs() {
+    /** INTERNAL METHOD -- DO NOT USE */
+    public String getJs() {
         // CountingUpThenAutoRefreshLabel_continueCounting(",", document.getElementById("labelWICKETID"), 1000, 1000);
         
         String result = "";
