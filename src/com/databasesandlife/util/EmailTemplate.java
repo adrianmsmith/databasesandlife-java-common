@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.activation.MimetypesFileTypeMap;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -37,11 +39,7 @@ public class EmailTemplate {
     protected class FileAttachmentDataSource implements DataSource {
         String leafNameWithoutExtension, extension;
         FileAttachmentDataSource(String l, String e) { leafNameWithoutExtension=l; extension=e; }
-        public String getContentType() {
-            if ("jpg".equalsIgnoreCase(extension)) return "image/jpeg";
-            if ("png".equalsIgnoreCase(extension)) return "image/png";
-            throw new RuntimeException("Extension '" + extension + "' unknown");
-        }
+        public String getContentType() { return new MimetypesFileTypeMap().getContentType(getName()); }
         public String getName() { return leafNameWithoutExtension + "." + extension; }
         public InputStream getInputStream() { return newInputStreamForBinaryFile(getName()); }
         public OutputStream getOutputStream() { throw new RuntimeException(); }
@@ -51,15 +49,17 @@ public class EmailTemplate {
         this.directory = directory;
     }
     
-    protected InputStream newInputStreamForBinaryFile(String leafName) throws FileNotFoundInEmailTemplateDirectoryException {
-        String name = directory.getName().replaceAll("\\.", "/"); // e.g. "com/myproject/mtpl/registrationemail"
-        InputStream i = getClass().getClassLoader().getResourceAsStream(name + "/" + leafName);
+    protected InputStream newInputStreamForBinaryFile(String leafName) 
+    throws FileNotFoundInEmailTemplateDirectoryException {
+        String packageWithSlashes = directory.getName().replaceAll("\\.", "/"); // e.g. "com/myproject/mtpl/registrationemail"
+        InputStream i = getClass().getClassLoader().getResourceAsStream(packageWithSlashes + "/" + leafName);
         if (i == null) throw new FileNotFoundInEmailTemplateDirectoryException(
             "File '" + leafName +"' not found in email tpl package '" + directory + "'");
         return i;
     }
     
-    protected String readTextFile(String leafName) throws FileNotFoundInEmailTemplateDirectoryException {
+    protected String readTextFile(String leafName) 
+    throws FileNotFoundInEmailTemplateDirectoryException {
         try {
             InputStream i = newInputStreamForBinaryFile(leafName);
             return InputOutputStreamUtil.readStringFromReader(new InputStreamReader(i, "UTF-8"));
@@ -67,42 +67,45 @@ public class EmailTemplate {
         catch (IOException e) { throw new RuntimeException(e); }
     }
     
-    /**
-     * @param language for example "de"
-     */
-    public void sendEmailTo(String recipientEmailAddress, String language, Map<String,String> parameters) {
+    protected String readLocaleTextFile(String leafNameStem, Locale locale, String extension) 
+    throws FileNotFoundInEmailTemplateDirectoryException {
         try {
-            boolean bodyFound = false;
-            Multipart messageBody = new MimeMultipart("alternative");
+            return readTextFile(leafNameStem + "_" + locale.getLanguage() + "." + extension);
+        }
+        catch (FileNotFoundInEmailTemplateDirectoryException e) {
+            return readTextFile(leafNameStem + "." + extension);
+        }
+    }
+    
+    protected String replacePlainTextParameters(String template, Map<String,String> parameters) {
+        for (Entry<String,String> paramEntry : parameters.entrySet()) 
+            template = template.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
+        return template;
+    }
+    
+    public void sendEmailTo(String smtpServer, InternetAddress recipientEmailAddress, Locale locale, Map<String,String> parameters) {
+        try {
+            // Read the subject
+            String subject = readLocaleTextFile("subject", locale, "txt");
+            subject = replacePlainTextParameters(subject, parameters);
             
-            // Read the subject; determine if we need to fallback to "en" in case the desired language isn't present in the template
-            String subject;
+            // Read the plain/text part
+            BodyPart plainTextBodyPart;
             try {
-                subject = readTextFile("subject-" + language + ".txt");
+                String textContents = readLocaleTextFile("body", locale, "txt");
+                textContents = replacePlainTextParameters(textContents, parameters);
+                
+                plainTextBodyPart = new MimeBodyPart();
+                plainTextBodyPart.setText(textContents);
             }
             catch (FileNotFoundInEmailTemplateDirectoryException e) {
-                language = "en";
-                subject = readTextFile("subject-" + language + ".txt");
+                plainTextBodyPart = null;
             }
-            for (Entry<String,String> paramEntry : parameters.entrySet()) 
-                subject = subject.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
-
-            // Add the text part (if present)
-            try {
-                String textContents = readTextFile("body-" + language + ".txt");
-                for (Entry<String,String> paramEntry : parameters.entrySet()) 
-                    textContents = textContents.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
-                
-                BodyPart textPart = new MimeBodyPart();
-                textPart.setText(textContents);
-                
-                messageBody.addBodyPart(textPart);
-            }
-            catch (FileNotFoundInEmailTemplateDirectoryException e) { }
             
-            // Add the HTML part (if present)
+            // Read the HTML part
+            BodyPart htmlBodyPart;
             try {
-                String htmlContents = readTextFile("body-" + language + ".html");
+                String htmlContents = readLocaleTextFile("body", locale, "html");
                 
                 for (Entry<String,String> paramEntry : parameters.entrySet()) {
                     String paramKey = paramEntry.getKey();
@@ -140,23 +143,27 @@ public class EmailTemplate {
                 for (BodyPart attachmentPart : referencedFiles.values())
                     htmlMultiPart.addBodyPart(attachmentPart);
                 
-                BodyPart htmlPart = new MimeBodyPart();
-                htmlPart.setContent(htmlMultiPart);
-                
-                messageBody.addBodyPart(htmlPart);
+                htmlBodyPart = new MimeBodyPart();
+                htmlBodyPart.setContent(htmlMultiPart);
             }
-            catch (FileNotFoundInEmailTemplateDirectoryException e) { }
+            catch (FileNotFoundInEmailTemplateDirectoryException e) {
+                htmlBodyPart = null;
+            }
             
-            // No bodies? Error
-            if (messageBody.getCount() == 0) throw new RuntimeException("No bodies found for language='" + language + "'");
+            // Create the "message body" which is the multipart/alternative of the plain/text and HTML versions
+            Multipart messageBody = new MimeMultipart("alternative");
+            if (plainTextBodyPart == null && htmlBodyPart == null)
+                throw new RuntimeException("No bodies for email template " + directory);
+            if (plainTextBodyPart != null) messageBody.addBodyPart(plainTextBodyPart);
+            if (htmlBodyPart != null) messageBody.addBodyPart(htmlBodyPart);
 
             // Create the message from the subject and body
             Properties props = new Properties();
-            props.put("mail.smtp.host", "localhost");
+            props.put("mail.smtp.host", smtpServer);
             Session mailSession = Session.getDefaultInstance(props);
             Message msg = new MimeMessage(mailSession);
-            msg.setFrom(new InternetAddress("adrian@uboot.com"));
-            msg.addRecipient(RecipientType.TO, new InternetAddress(recipientEmailAddress));
+            msg.setFrom(new InternetAddress(readLocaleTextFile("from", locale, "txt")));
+            msg.addRecipient(RecipientType.TO, recipientEmailAddress);
             msg.setSubject(subject);
             msg.setContent(messageBody);
             
