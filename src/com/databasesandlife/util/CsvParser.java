@@ -123,9 +123,9 @@ public class CsvParser {
             }
             finally { is.close(); }
         }
-        catch (FileNotFoundException e) { throw new MalformedCsvException("File '"+f+"' doesn't exist"); }
-        catch (IOException e) { throw new RuntimeException(f + ": " + e.getMessage(), e); }
-        catch (MalformedCsvException e) { throw new MalformedCsvException(f + ": " + e.getMessage()); }
+        catch (FileNotFoundException e) { throw new MalformedCsvException("CSV file '"+f+"' doesn't exist"); }
+        catch (IOException e) { throw new RuntimeException("CSV file '" + f + "': " + e.getMessage(), e); }
+        catch (MalformedCsvException e) { throw new MalformedCsvException("CSV file '" + f + "': " + e.getMessage()); }
     }
     
     public void parseAndCallHandler(CsvLineHandler lineHandler, Class<?> cl) throws MalformedCsvException {
