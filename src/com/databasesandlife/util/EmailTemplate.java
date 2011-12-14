@@ -136,7 +136,7 @@ public class EmailTemplate {
                 fileMatcher.appendTail(htmlContentsWithCid);
 
                 BodyPart htmlContentsPart = new MimeBodyPart();
-                htmlContentsPart.setContent(htmlContentsWithCid.toString(), "text/html");
+                htmlContentsPart.setContent(htmlContentsWithCid.toString(), "text/html; charset=UTF-8");
                 
                 Multipart htmlMultiPart = new MimeMultipart("related");
                 htmlMultiPart.addBodyPart(htmlContentsPart);
