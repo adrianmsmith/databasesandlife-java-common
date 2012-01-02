@@ -114,6 +114,11 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         add(textField);
     }
     
+    public MultipleValueAutoCompleteTextField(String wicketId, Model<String[]> model) {
+        this(wicketId);
+        setModel(model);
+    }
+
     /** @return this */
     public MultipleValueAutoCompleteTextField setClientSideOptions(AutoCompleteOption[] options) {
         this.clientSideOptions = options;
