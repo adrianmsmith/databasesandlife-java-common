@@ -208,11 +208,19 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
         super.onBeforeRender();
     }
     
-    @Override protected void convertInput() {
-        String newEntriesStr = textField.getConvertedInput();
+    protected String[] newArrayForInputString(String inputString) {
         List<String> newEntryList = new ArrayList<String>();
-        Matcher m = Pattern.compile("[^" + separatorCharacterClassRegexp + "]+").matcher(newEntriesStr);
+        Matcher m = Pattern.compile("[^" + separatorCharacterClassRegexp + "]+").matcher(inputString);
         while (m.find()) newEntryList.add(m.group());
-        setConvertedInput(newEntryList.toArray(new String[0]));
+        return newEntryList.toArray(new String[0]);
+    }
+    
+    @Override protected void convertInput() {
+        setConvertedInput(newArrayForInputString(textField.getConvertedInput()));
+    }
+    
+    @Override public boolean checkRequired() {
+        if ( ! isRequired()) return true;
+        return newArrayForInputString(textField.getConvertedInput()).length > 0;
     }
 }

@@ -216,12 +216,20 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         super.onBeforeRender();
     }
     
-    @Override protected void convertInput() {
-        String newIdsStr = textField.getConvertedInput();
+    protected String[] newIdArrayForInputString(String newIdsStr) {
         List<String> newEntryList = new ArrayList<String>();
         Matcher m = Pattern.compile("[^,]+").matcher(newIdsStr);
         while (m.find()) newEntryList.add(m.group());
-        currentIdsToTextField = newEntryList.toArray(new String[0]);
+        return newEntryList.toArray(new String[0]);
+    }
+    
+    @Override protected void convertInput() {
+        currentIdsToTextField = newIdArrayForInputString(textField.getConvertedInput());
         setConvertedInput(currentIdsToTextField);
+    }
+    
+    @Override public boolean checkRequired() {
+        if ( ! isRequired()) return true;
+        else return newIdArrayForInputString(textField.getConvertedInput()).length > 0;
     }
 }
