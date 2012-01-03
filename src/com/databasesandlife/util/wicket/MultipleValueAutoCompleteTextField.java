@@ -2,6 +2,7 @@ package com.databasesandlife.util.wicket;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,8 +152,9 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
                 String userEnteredPartialText = getParameters().getString("q");
                 AutoCompleteOption[] options = serverSideDataSource.suggestOptions(userEnteredPartialText);
                 String jsonResult = jsonForOptions(options);
-                // Wicket always delivers strings as Latin1, yet client always JSON is always UTF-8 therefore client expects UTF-8
-                jsonResult = new String(jsonResult.getBytes("UTF-8"), "ISO-8859-1");
+                // Wicket always delivers strings as local encoding (e.g. Latin1),
+                // yet client always JSON is always UTF-8 therefore client expects UTF-8
+                jsonResult = new String(jsonResult.getBytes("UTF-8"), Charset.defaultCharset());
                 return new StringResourceStream(jsonResult, "application/json");
             }
             catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
