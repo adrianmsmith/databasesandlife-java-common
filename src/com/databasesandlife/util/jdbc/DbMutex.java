@@ -1,8 +1,13 @@
 package com.databasesandlife.util.jdbc;
 
 /** 
- * Maintains a table full of mutexes as described 
- * <a href="http://www.databasesandlife.com/mysql-lock-tables-does-an-implicit-commit/">here</a> 
+ * Maintains a table full of mutexes as described
+ * <a href="http://www.databasesandlife.com/mysql-lock-tables-does-an-implicit-commit/">here</a>
+ *    <p>
+ * To use this, create this table:
+ * <pre>
+ *   CREATE TABLE mutex (name VARCHAR(100)) ENGINE=InnoDB;
+ * </pre> 
  */
 public class DbMutex {
     
@@ -11,9 +16,6 @@ public class DbMutex {
     public DbMutex(String name) { this.name = name; }
     
     public void acquire(DbClient db) {
-        try { db.doSqlAction("CREATE TABLE mutex (name VARCHAR(100)) ENGINE=InnoDB"); }
-        catch (RuntimeException e) { if ( ! e.getMessage().contains("Table 'mutex' already exists")) throw e; }
-        
         try { db.doSqlAction("INSERT INTO mutex SET name=?", name); }
         catch (DbClient.UniqueConstraintViolation e) { }
         
