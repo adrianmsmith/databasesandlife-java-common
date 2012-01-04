@@ -149,7 +149,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
     protected class DataSourceJsonWebResource extends WebResource {
         public IResourceStream getResourceStream() {
             try {
-                String userEnteredPartialText = getParameters().getString("q");
+                String userEnteredPartialText = getParameters().getString("q", "");
                 AutoCompleteOption[] options = serverSideDataSource.suggestOptions(userEnteredPartialText);
                 String jsonResult = jsonForOptions(options);
                 // Wicket always delivers strings as local encoding (e.g. Latin1),

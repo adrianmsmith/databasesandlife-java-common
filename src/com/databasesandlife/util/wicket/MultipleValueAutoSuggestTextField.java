@@ -143,7 +143,7 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
     protected class DataSourceJsonWebResource extends WebResource {
         public IResourceStream getResourceStream() {
             try {
-                String userEnteredPartialText = getParameters().getString("term");
+                String userEnteredPartialText = getParameters().getString("term", "");
                 String[] results = serverSideDataSource.suggest(userEnteredPartialText);
                 String jsonResult = new Gson().toJson(results);
                 // Wicket always delivers strings as local encoding (e.g. Latin1),
