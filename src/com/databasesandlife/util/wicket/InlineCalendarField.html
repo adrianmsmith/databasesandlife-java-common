@@ -1,0 +1,34 @@
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd">
+  <wicket:head>
+    <wicket:remove>
+      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>         
+      <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" type="text/css" media="all" />
+    </wicket:remove>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/i18n/jquery.ui.datepicker-de.min.js" wicket:id="translations"></script>
+  </wicket:head>
+  
+  <wicket:panel>
+    <span wicket:id="jQueryIncluder"></span>
+    <input type="text" wicket:id="input" id="inputWICKETID" value="2012-01-01">
+    <div id="divWICKETID" wicket:id="div"></div>
+    <script wicket:id="script">
+      var wicketId = "WICKETID";
+      var language = "de";
+    </script>
+    <script>
+      $(function() {
+          var initialDate = document.getElementById("input" + wicketId).value;
+          var jsDateObject = $.datepicker.parseDate('yy-mm-dd', initialDate);
+          $.datepicker.setDefaults($.datepicker.regional[language]);
+          $("#div" + wicketId).datepicker({
+              dateFormat: 'yy-mm-dd',
+              onSelect: function(dateText, inst) {
+                  document.getElementById("input" + wicketId).value = dateText;
+              },
+          });
+          $("#div" + wicketId).datepicker("setDate", jsDateObject);
+      });
+    </script>
+  </wicket:panel>
+</html>

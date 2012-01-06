@@ -36,6 +36,7 @@ Represents a text-field in Wicket, which allows the user to enter multiple value
 <p>Usage:</p>
 <pre>
   &lt;!-- in HTML --&gt;
+  &lt;link rel="stylesheet" type="text/css" ....&gt; &lt;-- From JQuery UI themeroller &gt;
   &lt;input type="text" wicket:id="tags" class="my-css-class"&gt;&lt;/input&gt;
   
   // In Java

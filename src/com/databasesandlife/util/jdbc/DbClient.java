@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
+import com.databasesandlife.util.YearMonthDay;
+
 /**
  * Represents a connection to a database.
  * 
@@ -102,10 +104,12 @@ public class DbClient {
                     // Can't set Timestamp object directly, see http://bugs.mysql.com/bug.php?id=15604 w.r.t GMT timezone
                     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     f.setTimeZone(TimeZone.getTimeZone("UTC"));
-                    ps.setString(i+1, f.format((java.util.Date) args[i]));
-                } else if (args[i] instanceof byte[]) {
+                    ps.setString(i+1, f.format((java.util.Date) args[i]));   }
+                else if (args[i] instanceof YearMonthDay)
+                    ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD());
+                else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
-                } else 
+                else 
                     throw new RuntimeException("DBClient: sql='"+sql+
                         "': unexpected type for argument "+i+": "+args[i].getClass());
             } catch (SQLException e) {

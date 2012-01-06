@@ -34,6 +34,7 @@ A text-field where the user may enter multiple values, but each value may only b
 <p>Usage:</p>
 <pre>
   &lt;!-- In HTML --&gt;
+  &lt;link rel="stylesheet" type="text/css" ....&gt; &lt;-- From JQuery UI themeroller &gt;
   &lt;input type="text" wicket:id="languages"&gt;&lt;/input&gt;
   
   // In Java
