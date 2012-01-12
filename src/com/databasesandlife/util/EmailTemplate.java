@@ -46,6 +46,7 @@ public class EmailTemplate {
     }
     
     public EmailTemplate(Package directory) {
+        if (directory == null) throw new IllegalArgumentException("Email template package '" + directory + "' does not exist");
         this.directory = directory;
     }
     
