@@ -11,6 +11,10 @@ public class DisappearingFeedbackPanel extends FeedbackPanel {
         super(id, filter);
     }
     
+    public DisappearingFeedbackPanel(String id) {
+        super(id);
+    }
+    
     public boolean isVisible() {
         if ( ! anyMessage()) return false;
         else return super.isVisible();
