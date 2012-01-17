@@ -30,7 +30,8 @@ import javax.mail.internet.MimeMultipart;
 
 public class EmailTemplate {
     
-    protected Package directory;
+    /** For example "com.project.emailtpl.xyz" */
+    protected String packageStr;
     
     public static class FileNotFoundInEmailTemplateDirectoryException extends RuntimeException {
         public FileNotFoundInEmailTemplateDirectoryException(String msg) { super(msg); }
@@ -45,17 +46,20 @@ public class EmailTemplate {
         public OutputStream getOutputStream() { throw new RuntimeException(); }
     }
     
-    public EmailTemplate(Package directory) {
-        if (directory == null) throw new IllegalArgumentException("Email template package '" + directory + "' does not exist");
-        this.directory = directory;
+    public EmailTemplate(Package pkg) {
+        this.packageStr = pkg.getName();
+    }
+    
+    public EmailTemplate(String pkgStr) {
+        this.packageStr = pkgStr;
     }
     
     protected InputStream newInputStreamForBinaryFile(String leafName) 
     throws FileNotFoundInEmailTemplateDirectoryException {
-        String packageWithSlashes = directory.getName().replaceAll("\\.", "/"); // e.g. "com/myproject/mtpl/registrationemail"
+        String packageWithSlashes = packageStr.replaceAll("\\.", "/"); // e.g. "com/myproject/mtpl/registrationemail"
         InputStream i = getClass().getClassLoader().getResourceAsStream(packageWithSlashes + "/" + leafName);
         if (i == null) throw new FileNotFoundInEmailTemplateDirectoryException(
-            "File '" + leafName +"' not found in email tpl package '" + directory + "'");
+            "File '" + leafName +"' not found in email tpl package '" + packageStr + "'");
         return i;
     }
     
@@ -154,7 +158,7 @@ public class EmailTemplate {
             // Create the "message body" which is the multipart/alternative of the plain/text and HTML versions
             Multipart messageBody = new MimeMultipart("alternative");
             if (plainTextBodyPart == null && htmlBodyPart == null)
-                throw new RuntimeException("No bodies for email template " + directory);
+                throw new RuntimeException("No bodies for email template: " + packageStr);
             if (plainTextBodyPart != null) messageBody.addBodyPart(plainTextBodyPart);
             if (htmlBodyPart != null) messageBody.addBodyPart(htmlBodyPart);
 
