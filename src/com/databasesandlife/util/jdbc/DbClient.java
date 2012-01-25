@@ -109,6 +109,8 @@ public class DbClient {
                     ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD());
                 else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
+                else if (args[i] instanceof Enum<?>)
+                    ps.setString(i+1, ((Enum<?>) args[i]).name());
                 else 
                     throw new RuntimeException("DBClient: sql='"+sql+
                         "': unexpected type for argument "+i+": "+args[i].getClass());
