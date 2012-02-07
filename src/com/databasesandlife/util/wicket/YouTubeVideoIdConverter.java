@@ -12,10 +12,17 @@ import com.databasesandlife.util.YouTubeVideoId;
 public class YouTubeVideoIdConverter implements IConverter {
 
     @Override public Object convertToObject(String value, Locale locale) {
+        Matcher m;
+        
         if (value == null || "".equals(value)) return null;
-        Matcher m = Pattern.compile("youtube.*[\\?&]v=([\\w-]{11})([#&].*)?$", Pattern.CASE_INSENSITIVE).matcher(value);
+        
+        m = Pattern.compile("youtube.*[\\?&]v=([\\w-]{11})([#&].*)?$", Pattern.CASE_INSENSITIVE).matcher(value);
         if (m.find()) return new YouTubeVideoId(m.group(1));
-        else throw new ConversionException("URL '" + value + "' doesn't look like a youtube URL");
+        
+        m = Pattern.compile("youtu\\.be/(\\w{11})$", Pattern.CASE_INSENSITIVE).matcher(value);
+        if (m.find()) return new YouTubeVideoId(m.group(1));
+        
+        throw new ConversionException("URL '" + value + "' doesn't look like a youtube URL");
     }
 
     @Override public String convertToString(Object value, Locale locale) {
