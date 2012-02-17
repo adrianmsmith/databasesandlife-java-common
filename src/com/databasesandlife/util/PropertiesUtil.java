@@ -61,7 +61,7 @@ public class PropertiesUtil {
     public static Hashtable<String, Properties> splitToHashtable(Properties p, String prefix) {
         if ( ! prefix.equals("")) prefix += ".";
         Hashtable<String, Properties> propertiesForName = new Hashtable<String, Properties>();
-        for (Enumeration e = p.keys(); e.hasMoreElements();  ) {
+        for (Enumeration<Object> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (! key.startsWith(prefix)) continue; // wrong prefix
             String nameAndSubKey = key.substring(prefix.length());
@@ -93,7 +93,7 @@ public class PropertiesUtil {
     public static Properties getSubProperties(Properties p, String prefix) {
         prefix += ".";
         Properties result = new Properties();
-        for (Enumeration e = p.keys(); e.hasMoreElements();  ) {
+        for (Enumeration<Object> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (! key.startsWith(prefix)) continue; // wrong prefix
             String subKey = key.substring(prefix.length());
@@ -107,7 +107,7 @@ public class PropertiesUtil {
       * @see #getSubProperties */
     public static boolean existsSubProperties(Properties p, String prefix) {
         prefix += ".";
-        for (Enumeration e = p.keys(); e.hasMoreElements();  ) {
+        for (Enumeration<Object> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (key.startsWith(prefix)) return true;
         }
@@ -118,7 +118,7 @@ public class PropertiesUtil {
     public static Properties prefixAllProperties(Properties p, String prefix) {
         prefix += ".";
         Properties result = new Properties();
-        for (Enumeration e = p.keys(); e.hasMoreElements();  ) {
+        for (Enumeration<Object> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             result.setProperty(prefix + key, p.getProperty(key));
         }
@@ -130,11 +130,11 @@ public class PropertiesUtil {
       * is undefined. */
     public static Properties union(Properties p1, Properties p2) {
         Properties result = new Properties();
-        for (Enumeration e1 = p1.keys(); e1.hasMoreElements();  ) {
+        for (Enumeration<Object> e1 = p1.keys(); e1.hasMoreElements();  ) {
             String key = (String) e1.nextElement();
             result.setProperty(key, p1.getProperty(key));
         }
-        for (Enumeration e2 = p2.keys(); e2.hasMoreElements();  ) {
+        for (Enumeration<Object> e2 = p2.keys(); e2.hasMoreElements();  ) {
             String key = (String) e2.nextElement();
             result.setProperty(key, p2.getProperty(key));
         }

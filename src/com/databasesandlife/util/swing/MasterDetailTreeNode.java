@@ -380,7 +380,7 @@ implements TreeNode, java.io.Serializable {
     // javax.swing.tree.TreeNode API
     // -----------------------------------------------------------------------
     
-    public Enumeration children() { return new Vector<MasterDetailTreeNode>(Arrays.asList(getChildren())).elements(); }
+    public Enumeration<MasterDetailTreeNode> children() { return new Vector<MasterDetailTreeNode>(Arrays.asList(getChildren())).elements(); }
     public TreeNode getChildAt(int param) { return getChildren()[param]; }
     public int getChildCount() { return getChildren().length; }
     public TreeNode getParent() { return parent; }
