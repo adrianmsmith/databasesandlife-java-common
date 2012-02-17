@@ -7,7 +7,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 import com.databasesandlife.util.YearMonthDay;
@@ -18,6 +17,7 @@ import com.databasesandlife.util.YearMonthDay;
  * The date is mandatory (as the calendar is always displayed).
  *    <p>
  * In your HTML, use <code>&lt;div wicket:id="xxxx"&gt;&lt;/div&gt;</code>.
+ * You need to include JQuery UI.
  * You need to include a JQuery UI CSS using the <a href="http://jqueryui.com/themeroller/">JQuery UI ThemeRoller</a>.
  *
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
@@ -32,8 +32,6 @@ public class InlineCalendarField extends FormComponentPanel<YearMonthDay> {
     protected void addWidgets() {
         jsId = getId().replace(".", "-");
         
-        add(new JQueryIncluder("jQueryIncluder"));
-
         WebMarkupContainer translationInclude = new WebMarkupContainer("translations") {
             // there is no English "translation", as this is the default language
             public boolean isVisible() { return !getLocale().getLanguage().equals("en"); };

@@ -34,6 +34,7 @@ A text-field where the user may enter multiple values, but each value may only b
 <p>Usage:</p>
 <pre>
   &lt;!-- In HTML --&gt;
+  &lt;!-- Include JQuery, JQuery UI--&gt;
   &lt;link rel="stylesheet" type="text/css" ....&gt; &lt;-- From JQuery UI themeroller &gt;
   &lt;input type="text" wicket:id="languages"&gt;&lt;/input&gt;
   
@@ -101,8 +102,6 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         
         // wicketId might have e.g. "form.abc" but that won't work with JQuery; use "form_abc" instead
         jsId = wicketId.replace(".", "_");
-        
-        add(new JQueryIncluder("jQueryIncluder"));
         
         ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
         serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + jsId)));

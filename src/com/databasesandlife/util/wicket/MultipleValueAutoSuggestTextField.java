@@ -36,6 +36,7 @@ Represents a text-field in Wicket, which allows the user to enter multiple value
 <p>Usage:</p>
 <pre>
   &lt;!-- in HTML --&gt;
+  &lt;!-- Include JQuery, JQuery UI--&gt;
   &lt;link rel="stylesheet" type="text/css" ....&gt; &lt;-- From JQuery UI themeroller &gt;
   &lt;input type="text" wicket:id="tags" class="my-css-class"&gt;&lt;/input&gt;
   
@@ -86,8 +87,6 @@ public class MultipleValueAutoSuggestTextField extends FormComponentPanel<String
         super(wicketId);
         
         jsId = wicketId.replace(".", "_");  // JS variables, and JQuery selectors, are invalid if "." is used
-        
-        add(new JQueryIncluder("jQueryIncluder"));
         
         ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
         serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + jsId)));
