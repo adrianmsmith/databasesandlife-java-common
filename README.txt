@@ -2,6 +2,16 @@ To develop / Eclipse
 
 - Download Java 1.5 or higher
 - Download Eclipse
+- Preferences in Eclipse
+  - Text Editors
+    - Print margin column 132
+    - Insert spaces for tab
+  - Java -> Code Style -> Formatter
+    - New Profile -> Adrian
+    - Set "tab policy" to spaces
+  - Web -> HTML Files -> Editor -> Indent using spaces
+  - Refresh workspace on startup
+  - Runtime environment -> Add -> Tomcat 6
 - Create new project
 - Link "src"
 - Delete old "src"
