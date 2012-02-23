@@ -14,8 +14,10 @@ package contrib;
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-
 import java.security.SecureRandom;
 
 /**
@@ -748,5 +750,13 @@ public class BCrypt {
 	 */
 	public static boolean checkpw(String plaintext, String hashed) {
 		return (hashed.compareTo(hashpw(plaintext, hashed)) == 0);
+	}
+	
+	public static void main(String[] x) throws Exception {
+	    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+	    System.out.println("Cleartext: ");
+	    String cleartext = in.readLine();
+	    String hashed = BCrypt.hashpw(cleartext, BCrypt.gensalt());
+	    System.out.println("Hashed: " + hashed);
 	}
 }
