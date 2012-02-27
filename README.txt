@@ -18,6 +18,8 @@ To develop / Eclipse
 - Link "src-junit"
 - Build path -> Add library -> Junit 3
 - Add all external JARs, in both "lib-compile" and "lib-test"
+- Create a MySQL database locally, "databasesandlife_common"
+- Alter database connections in DatabaseConnection test class to a local MySQL
 - Run "src-junit" 'as JUNIT' (try "debug as" in case JUNIT option is missing)
 
 To develop / Netbeans
