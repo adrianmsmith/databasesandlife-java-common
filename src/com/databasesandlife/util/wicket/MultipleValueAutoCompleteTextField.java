@@ -17,6 +17,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ResourceLink;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.resource.IResourceStream;
@@ -115,7 +116,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         add(textField);
     }
     
-    public MultipleValueAutoCompleteTextField(String wicketId, Model<String[]> model) {
+    public MultipleValueAutoCompleteTextField(String wicketId, IModel<String[]> model) {
         this(wicketId);
         setModel(model);
     }
