@@ -150,10 +150,13 @@ public class DbClient {
     /** @param args an arr of String or Integer objs for ? values */
     public void doSqlAction(String sql, Object... args) {
         try {
-            PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
-            ps.executeUpdate();  // returns int = row count processed; we ignore
-        } catch (SQLIntegrityConstraintViolationException e) {
-            throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
+            try {
+                PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
+                ps.executeUpdate();  // returns int = row count processed; we ignore
+            } catch (SQLIntegrityConstraintViolationException e) {
+                if (e.getMessage().contains("Duplicate entry")) throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
+                throw e;
+            }
         } catch (SQLException e) {
             throw new RuntimeException("database error ("+
                 getSqlForLog(sql, args)+"): " + e.getMessage(), e);
