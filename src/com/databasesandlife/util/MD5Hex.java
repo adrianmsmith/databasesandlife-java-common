@@ -62,7 +62,11 @@ public class MD5Hex {
         catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
     }
 
-    /** @param stuff ASCII bytes are used */
+    /**
+     * This is capable of handling very large strings without creating any intermediate large objects such
+     * as Strings. As a consequence of the implementation, ASCII bytes are used not UTF-8 bytes.
+     * @see #md5(String) md5(String) - for the normal case of using UTF-8 bytes
+     */
     public static String md5(StringBuilder stuff) {
         return md5(bytesFromStringBuilder(stuff));
     }
