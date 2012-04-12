@@ -42,6 +42,7 @@ A text-field where the user may enter multiple values, but each value may only b
   // In Java
   MultipleValueAutoCompleteTextField f =
       new MultipleValueAutoCompleteTextField("languages");
+  f.allowDuplicates(); // default is not to allow duplicates
   f.<strong>setClientSideOptions</strong>(new AutoCompleteOption[] {
       new AutoCompleteOption("en", "English"),
       new AutoCompleteOption("de", "German"),
@@ -74,6 +75,7 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
     protected String[] currentIdsToTextField = null;           // JQuery JS ignores <input> value, this communictes to JS creation
     protected String   currentIdsFromTextField = "";           // JQuery JS puts "12,23" into <input> value, i.e. textfield's model
     protected TextField<String> textField;
+    protected boolean preventDuplicates = true;                // Named the same as the JQuery tokeninput parameter name
     
     // ----------------------------------------------------------------------------------------------------------------
     // Inner classes & interfaces
@@ -142,6 +144,10 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         this.theme = theme;
         return this;
     }
+    
+    public void allowDuplicates() {
+        preventDuplicates = false;
+    }
 
     // ----------------------------------------------------------------------------------------------------------------
     // Implementation / Wicket
@@ -204,6 +210,9 @@ public class MultipleValueAutoCompleteTextField extends FormComponentPanel<Strin
         result.append("  $('#"+jsId+"').tokenInput(" + source + ", {\n");
         result.append("    prePopulate: " + jsonForOptions(currentValues.toArray(new AutoCompleteOption[0])) + ",\n");
         result.append("    theme: '"+theme+"',\n");
+        result.append("    minChars: 0,\n");
+        if (clientSideOptions != null) result.append("    searchDelay: 0,\n");
+        if (preventDuplicates) result.append("    preventDuplicates: true,\n");
         result.append("  });\n");
         result.append("});\n");
         

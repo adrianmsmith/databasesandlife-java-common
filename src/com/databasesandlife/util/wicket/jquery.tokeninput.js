@@ -8,6 +8,11 @@
  *
  */
 
+// MODIFICATIONS BY ADRIAN
+//    - If minChars==0 then displays drop-down immediately upon click
+//    - If searchDelay==0 then omit displaying "searching..." drop-down
+//    - Only re-display search drop-down if entered text has changed (focus called many times!)
+
 (function ($) {
 // Default settings
 var DEFAULT_SETTINGS = {
@@ -183,6 +188,8 @@ $.TokenList = function (input, url_or_data, settings) {
     // Keep track of the timeout, old vals
     var timeout;
     var input_val;
+    
+    var last_query;
 
     // Create a new text input an attach keyup events
     var input_box = $("<input type=\"text\"  autocomplete=\"off\">")
@@ -191,8 +198,12 @@ $.TokenList = function (input, url_or_data, settings) {
         })
         .attr("id", settings.idPrefix + input.id)
         .focus(function () {
-            if (settings.tokenLimit === null || settings.tokenLimit !== token_count) {
-                show_dropdown_hint();
+            if (settings.minChars > 0) {
+                if (settings.tokenLimit === null || settings.tokenLimit !== token_count) {
+                    show_dropdown_hint();
+                }
+            } else {
+                setTimeout(function(){do_search();}, 5);
             }
         })
         .blur(function () {
@@ -625,6 +636,7 @@ $.TokenList = function (input, url_or_data, settings) {
     function hide_dropdown () {
         dropdown.hide().empty();
         selected_dropdown_item = null;
+        last_query = "ldkjfjkdgfjkldkjdgfk";
     }
 
     function show_dropdown() {
@@ -734,13 +746,16 @@ $.TokenList = function (input, url_or_data, settings) {
     // than settings.minChars
     function do_search() {
         var query = input_box.val().toLowerCase();
+        
+        if (query == last_query) return;
+        last_query = query;
 
-        if(query && query.length) {
-            if(selected_token) {
-                deselect_token($(selected_token), POSITION.AFTER);
-            }
+        if(selected_token) {
+            deselect_token($(selected_token), POSITION.AFTER);
+        }
 
-            if(query.length >= settings.minChars) {
+        if(query.length >= settings.minChars) {
+            if (settings.searchDelay > 0) {
                 show_dropdown_searching();
                 clearTimeout(timeout);
 
@@ -748,8 +763,10 @@ $.TokenList = function (input, url_or_data, settings) {
                     run_search(query);
                 }, settings.searchDelay);
             } else {
-                hide_dropdown();
+                run_search(query);
             }
+        } else {
+            hide_dropdown();
         }
     }
 
