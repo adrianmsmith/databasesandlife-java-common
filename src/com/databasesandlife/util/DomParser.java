@@ -72,13 +72,21 @@ public class DomParser {
                 "='" + str + "'>: couldn't parse decimal attribute"); }
     }
 
-    protected static int parseOptionalIntAttribute(Element node, String attributeName, int defaultValue)
+    /** @return null if attribute not found */
+    protected static Integer parseOptionalIntegerAttribute(Element node, String attributeName)
     throws ConfigurationException {
         String str = node.getAttribute(attributeName);
-        if (str.equals("")) return defaultValue;
+        if (str.equals("")) return null;
         try { return Integer.parseInt(str); }
         catch (NumberFormatException e) { throw new ConfigurationException("<" + node.getNodeName() + " " + attributeName +
                 "='" + str + "'>: couldn't parse integer attribute"); }
+    }
+
+    protected static int parseOptionalIntAttribute(Element node, String attributeName, int defaultValue)
+    throws ConfigurationException {
+        Integer result = parseOptionalIntegerAttribute(node, attributeName);
+        if (result == null) return defaultValue;
+        return result;
     }
 
     /** @param subNodeName can be "*" */
