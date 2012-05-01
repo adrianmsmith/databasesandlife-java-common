@@ -69,7 +69,11 @@ public class CsvParser {
 
     public void setCharset(Charset x) { charset = x; }
     public void setFieldSeparatorRegexp(String x) { fieldSeparatorRegexp = x; }
+    
+    /** Any fields found outside of this list cause an error */ 
     public void setDesiredFields(String... x) { desiredFields = x; }
+    
+    /** Any fields here must be present and have non-empty values */ 
     public void setNonEmptyFields(String... x) { nonEmptyFields = x; }
 
     public void parseAndCallHandler(CsvLineHandler lineHandler, BufferedReader r) throws MalformedCsvException {
