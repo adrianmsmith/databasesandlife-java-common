@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Savepoint;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +23,8 @@ import java.util.NoSuchElementException;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.postgresql.util.PSQLException;
 
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
@@ -222,7 +225,8 @@ public class DbTransaction {
                 else 
                     throw new RuntimeException("sql='"+sql+
                         "': unexpected type for argument "+i+": "+args[i].getClass());
-            } catch (SQLException e) {
+            }
+            catch (SQLException e) {
                 throw new RuntimeException("sql='"+sql+
                     "': unexpected error setting argument "+i+": "+e.getMessage(), e);
             }
@@ -231,11 +235,27 @@ public class DbTransaction {
     }
     
     protected long getLastInsertId() {
-        switch (product) {
-            case mysql: return query("SELCT LAST_INSERT_ID() AS id").iterator().next().getLong("id");
-            case postgres: return query("SELECT lastval() AS id").iterator().next().getLong("id");
-            default: throw new RuntimeException();
+        try {
+            switch (product) {
+                case mysql: 
+                    return query("SELCT LAST_INSERT_ID() AS id").iterator().next().getLong("id");
+                    
+                case postgres:
+                    Savepoint prior = connection.setSavepoint();
+                    try { 
+                        long result = query("SELECT lastval() AS id").iterator().next().getLong("id");
+                        connection.releaseSavepoint(prior);
+                        return result;
+                    }
+                    catch (RuntimeException e) { 
+                        if (e.getMessage().contains("lastval is not yet defined")) { connection.rollback(prior); return 0; } 
+                        else throw e; 
+                    }
+                    
+                default: throw new RuntimeException();
+            }
         }
+        catch (SQLException e) { throw new RuntimeException(e); }
     }
     
     protected void closeConnection() {
@@ -264,7 +284,8 @@ public class DbTransaction {
             
             connection = DriverManager.getConnection(jdbcUrl);
             connection.setAutoCommit(false);
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             throw new RuntimeException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
                 "connection is NOT OK: "+e.getMessage(), e);
         }
@@ -308,19 +329,26 @@ public class DbTransaction {
     
     public void execute(String sql, Object... args) {
         try {
+            Savepoint prior = connection.setSavepoint();
             try {
-                System.out.println("SQL: " + getSqlForLog(sql, args));
-                
                 PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
                 ps.executeUpdate();  // returns int = row count processed; we ignore
-            } catch (SQLIntegrityConstraintViolationException e) {
-                if (e.getMessage().contains("Duplicate entry")) throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
+                connection.releaseSavepoint(prior);
+            }
+            catch (SQLIntegrityConstraintViolationException e) {        // MySQL
+                if (e.getMessage().contains("Duplicate entry"))
+                    throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
                 throw e;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("database error ("+
-                getSqlForLog(sql, args)+"): " + e.getMessage(), e);
-        }
+            catch (PSQLException e) {                                   // PostgreSQL
+                if (e.getMessage().contains("violates unique constraint")) {
+                    connection.rollback(prior); // UniqueConstraintViolation is intended to be a recoverable error
+                    throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
+                }
+                throw e;
+            }
+        } 
+        catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
     }
 
     public long insert(String sql, Object... args) {

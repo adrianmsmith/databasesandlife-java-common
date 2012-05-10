@@ -1,9 +1,5 @@
 package com.databasesandlife.util.jdbc.testutil;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
 import com.databasesandlife.util.jdbc.DbTransaction;
 
 /**
