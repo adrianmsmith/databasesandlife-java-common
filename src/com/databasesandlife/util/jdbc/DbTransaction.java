@@ -248,8 +248,12 @@ public class DbTransaction {
                         return result;
                     }
                     catch (RuntimeException e) { 
-                        if (e.getMessage().contains("lastval is not yet defined")) { connection.rollback(prior); return 0; } 
-                        else throw e; 
+                        if (e.getMessage().contains("lastval is not yet defined")) {
+                            connection.rollback(prior);
+                            connection.releaseSavepoint(prior);
+                            return 0; 
+                        }
+                        throw e; 
                     }
                     
                 default: throw new RuntimeException();
@@ -347,6 +351,7 @@ public class DbTransaction {
             catch (PSQLException e) {                                   // PostgreSQL
                 if (e.getMessage().contains("violates unique constraint")) {
                     connection.rollback(prior); // UniqueConstraintViolation is intended to be a recoverable error
+                    connection.releaseSavepoint(prior);
                     throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
                 }
                 throw e;
