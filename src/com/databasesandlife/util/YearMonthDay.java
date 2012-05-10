@@ -16,7 +16,7 @@ public class YearMonthDay implements Serializable {
     
     public int year, month, day;
     
-    /** @param date "YYYY-MM-DD" */
+    /** @param date "YYYY-MM-DD", not null */
     public static YearMonthDay newForYYYYMMDD(String date) {
         Matcher m = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})").matcher(date);
         if (!m.matches()) throw new IllegalArgumentException("Date '" + date + "' is not 'YYYY-MM-DD' format");

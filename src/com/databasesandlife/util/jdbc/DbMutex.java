@@ -15,11 +15,11 @@ public class DbMutex {
     
     public DbMutex(String name) { this.name = name; }
     
-    public void acquire(DbClient db) {
-        try { db.doSqlAction("INSERT INTO mutex SET name=?", name); }
-        catch (DbClient.UniqueConstraintViolation e) { }
+    public void acquire(DbTransaction db) {
+        try { db.execute("INSERT INTO mutex SET name=?", name); }
+        catch (DbTransaction.UniqueConstraintViolation e) { }
         
-        db.doSqlQuery("SELECT * FROM mutex WHERE name=? FOR UPDATE", name);
+        db.query("SELECT * FROM mutex WHERE name=? FOR UPDATE", name);
     }
 
 }
