@@ -15,8 +15,6 @@ import junit.framework.TestCase;
  */
 public class ResultSetIteratorTest extends TestCase {
     
-    Connection connection = null;
-    
     public class I extends ResultSetIterator<Integer> {
         public I(PreparedStatement s) { super("", s, CloseStrategy.CLOSE_STATEMENT); }
         @Override protected Integer newObjectForRow(ResultSet r) throws SQLException {
@@ -28,12 +26,10 @@ public class ResultSetIteratorTest extends TestCase {
         super(testName);
     }
     
-    @Override
-    public void setUp() throws Exception {
-        connection = DatabaseConnection.getConnection();
-    }
-    
     public void test() throws Exception {
+        DbTransaction tx = DatabaseConnection.newDbTransaction();
+        Connection connection = tx.getConnection();
+        
         connection.prepareStatement("DROP TABLE IF EXISTS ResultSetIteratorTest").execute();
         connection.prepareStatement("CREATE TABLE ResultSetIteratorTest(intCol INTEGER)").execute();
         

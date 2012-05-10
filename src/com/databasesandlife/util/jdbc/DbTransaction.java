@@ -29,7 +29,7 @@ import com.databasesandlife.util.YearMonthDay;
 /**
  * Represents a transaction against a database.
  *     <p>
- * MySQL is supported.
+ * MySQL and PostgreSQL are supported.
  *     <p>
  * An object is created with the JDBC URL to the database.
  * There is no factory for this type of object, simply store the string JDBC URL as opposed to a DbConnectionFactory.
@@ -71,8 +71,11 @@ import com.databasesandlife.util.YearMonthDay;
 
 public class DbTransaction {
     
+    protected DbServerProduct product;
     protected Connection connection;    // null means already committed
     protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
+    
+    public enum DbServerProduct { mysql, postgres };
     
     public static class UniqueConstraintViolation extends RuntimeException {
         UniqueConstraintViolation(String msg, Throwable t) { super(msg+": "+t.getMessage(), t); }
@@ -228,7 +231,11 @@ public class DbTransaction {
     }
     
     protected long getLastInsertId() {
-        return query("select LAST_INSERT_ID() AS id").iterator().next().getLong("id");
+        switch (product) {
+            case mysql: return query("SELCT LAST_INSERT_ID() AS id").iterator().next().getLong("id");
+            case postgres: return query("SELECT lastval() AS id").iterator().next().getLong("id");
+            default: throw new RuntimeException();
+        }
     }
     
     protected void closeConnection() {
@@ -246,7 +253,15 @@ public class DbTransaction {
     
     public DbTransaction(String jdbcUrl) {
         try {
-            new com.mysql.jdbc.Driver();   // load the MySQL classes so that getConnection works
+            if (jdbcUrl.contains(":mysql")) product = DbServerProduct.mysql;
+            else if (jdbcUrl.contains(":postgres")) product = DbServerProduct.postgres;
+            else throw new RuntimeException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
+            
+            switch (product) {   // load the classes so that getConnection recognizes the :mysql: etc part of JDBC url
+                case mysql: new com.mysql.jdbc.Driver();
+                case postgres: new org.postgresql.Driver();
+            }
+            
             connection = DriverManager.getConnection(jdbcUrl);
             connection.setAutoCommit(false);
         } catch (SQLException e) {

@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.databasesandlife.util.jdbc.DbTransaction;
+
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
@@ -16,15 +18,11 @@ public class DatabaseConnection {
     public static String getPassword()      { return System.getProperty("db.password", ""); }
 
     public static String getJdbcUrl() {
-        return "jdbc:mysql://" + getHostname() + "/" + getDatabaseName() + "?user=" + getUsername() +
-                "&password=" + getPassword() + "&useUnicode=true&characterEncoding=UTF-8";
+        return "jdbc:postgresql://" + getHostname() + "/" + getDatabaseName() + 
+            "?user=" + getUsername() + "&password=" + getPassword();
     }
 
-    public static Connection getConnection() {
-        try {
-            new com.mysql.jdbc.Driver();
-            return DriverManager.getConnection(getJdbcUrl());
-        }
-        catch (SQLException e) { throw new RuntimeException(e); }
+    public static DbTransaction newDbTransaction() {
+        return new DbTransaction(getJdbcUrl());
     }
 }
