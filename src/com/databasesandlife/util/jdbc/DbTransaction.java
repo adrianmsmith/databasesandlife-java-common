@@ -237,13 +237,13 @@ public class DbTransaction {
     protected long getLastInsertId() {
         try {
             switch (product) {
-                case mysql: 
-                    return query("SELCT LAST_INSERT_ID() AS id").iterator().next().getLong("id");
+                case mysql:
+                    return query("SELCT LAST_INSERT_ID() AS id", false).iterator().next().getLong("id");
                     
                 case postgres:
                     Savepoint prior = connection.setSavepoint();
                     try { 
-                        long result = query("SELECT lastval() AS id").iterator().next().getLong("id");
+                        long result = query("SELECT lastval() AS id", false).iterator().next().getLong("id");
                         connection.releaseSavepoint(prior);
                         return result;
                     }
@@ -310,11 +310,11 @@ public class DbTransaction {
         return result.toString();
     }
     
-    public Iterable<DbQueryResultRow> query(final String sql, final Object... args) {
+    protected Iterable<DbQueryResultRow> query(final String sql, final boolean timer, final Object... args) {
         return new Iterable<DbQueryResultRow>() {
             public Iterator<DbQueryResultRow> iterator() {
                 PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
-                Timer.start("SQL: " + getSqlForLog(sql, args));
+                if (timer) Timer.start("SQL: " + getSqlForLog(sql, args));
                 try {
                     ResultSet rs = ps.executeQuery();
                     Iterator<DbQueryResultRow> result = new DbQueryResultSet(rs);
@@ -322,9 +322,13 @@ public class DbTransaction {
                     return result;
                 }
                 catch (SQLException e) { throw new RuntimeException(getSqlForLog(sql, args) + ": " + e.getMessage(), e); }
-                finally { Timer.end("SQL: " + getSqlForLog(sql, args)); }
+                finally { if (timer) Timer.end("SQL: " + getSqlForLog(sql, args)); }
             }
         };
+    }
+
+    public Iterable<DbQueryResultRow> query(final String sql, final Object... args) {
+        return query(sql, true, args);
     }
     
     public void execute(String sql, Object... args) {
