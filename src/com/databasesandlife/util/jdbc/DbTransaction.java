@@ -238,7 +238,7 @@ public class DbTransaction {
         try {
             switch (product) {
                 case mysql:
-                    return query("SELCT LAST_INSERT_ID() AS id", false).iterator().next().getLong("id");
+                    return query("SELECT LAST_INSERT_ID() AS id", false).iterator().next().getLong("id");
                     
                 case postgres:
                     Savepoint prior = connection.setSavepoint();
