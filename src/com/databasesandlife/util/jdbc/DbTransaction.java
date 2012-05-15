@@ -282,8 +282,8 @@ public class DbTransaction {
             else throw new RuntimeException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
             
             switch (product) {   // load the classes so that getConnection recognizes the :mysql: etc part of JDBC url
-                case mysql: new com.mysql.jdbc.Driver();
-                case postgres: new org.postgresql.Driver();
+                case mysql: new com.mysql.jdbc.Driver(); break;
+                case postgres: new org.postgresql.Driver(); break;
             }
             
             connection = DriverManager.getConnection(jdbcUrl);
@@ -343,13 +343,11 @@ public class DbTransaction {
                 ps.executeUpdate();  // returns int = row count processed; we ignore
                 connection.releaseSavepoint(prior);
             }
-            catch (SQLIntegrityConstraintViolationException e) {        // MySQL
-                if (e.getMessage().contains("Duplicate entry"))
+            catch (SQLException e) {        // Don't catch e.g. com.mysql exceptions, in case only PG JARs are loaded
+                if (e.getMessage().contains("Duplicate entry")) {               // MySQL
                     throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
-                throw e;
-            }
-            catch (PSQLException e) {                                   // PostgreSQL
-                if (e.getMessage().contains("violates unique constraint")) {
+                }
+                if (e.getMessage().contains("violates unique constraint")) {    // PostgreSQL
                     connection.rollback(prior); // UniqueConstraintViolation is intended to be a recoverable error
                     connection.releaseSavepoint(prior);
                     throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
