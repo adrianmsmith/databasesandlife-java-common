@@ -7,7 +7,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Savepoint;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,8 +22,6 @@ import java.util.NoSuchElementException;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.postgresql.util.PSQLException;
 
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
@@ -346,12 +343,12 @@ public class DbTransaction {
             }
         };
     }
-
+    
     public void execute(String sql, Object... args) {
         try { insertParamsToPreparedStatement(sql, args).executeUpdate(); } // returns int = row count processed; we ignore
         catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
     }
-
+    
     public void insert(String table, Map<String, ?> cols) {
         StringBuilder keys = new StringBuilder();
         StringBuilder questionMarks = new StringBuilder();
@@ -388,6 +385,13 @@ public class DbTransaction {
         return fetchNewPkValue();
     }
     
+    public void insertBulk(String table, List<Map<String, ?>> rows) {
+        // MySQL driver cannot handle long statements; 15s for this vs 36s for multiple VALUES INSERT
+        switch (product) {
+            default: for (Map<String, ?> cols : rows) insert(table, cols); break;
+        }
+    }
+    
     public void update(String table, Map<String, ?> cols, String where, Object... whereParams) {
         StringBuilder sql = new StringBuilder();
         List<Object> params = new ArrayList<Object>();
@@ -407,7 +411,7 @@ public class DbTransaction {
         
         execute(sql.toString(), params.toArray());
     }
-
+    
     public void updateOrThrowUniqueConstraintViolation(String table, Map<String, ?> cols, String where, Object... whereParams)
     throws UniqueConstraintViolation {
         try {
@@ -431,7 +435,7 @@ public class DbTransaction {
             closeConnection();
         }
         catch (SQLException e) { throw new RuntimeException("Can't rollback: " + e.getMessage(), e); }
-   }
+    }
     
     public void commit() {
         try {
