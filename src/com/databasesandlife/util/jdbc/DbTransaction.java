@@ -44,10 +44,16 @@ import com.databasesandlife.util.YearMonthDay;
  *       This allows checked Exceptions to be used in client code to represent things that might actually happen.
  *       If a SQLException occurs e.g. due to database connectivity, it is assumed there is nothing the program can do apart 
  *          from display an error to the user.
- *   <li>execute and query methods prepare statements and do parameter substitution in one line.
- *   <li>Various extra data types are supported such as GMT Dates ({@linkplain Date java.util.Date}), {@linkplain YearMonthDay}, etc.
- *   <li>Various convenience methods such as insertMap are provided.
- *   <li>Upon a unique constraint violation, the exception {@linkplain UniqueConstraintViolation} is thrown, which can be caught.  
+ *   <li>{@link #execute} method prepares statements and does parameter substitution in one line.
+ *   <li>{@link #query} method acts like execute, but returns an {@link Iterable} of objects representing rows.
+ *       This is more convenient for the java "for" statement than the JDBC ResultSet object.
+ *   <li>Various extra data types are supported such as "points in time" stored as GMT date/times using {@link Date java.util.Date}, 
+ *       {@link  YearMonthDay}, etc.
+ *   <li>{@link #insert} and {@link #update} take Maps of columns as arguments (easier than maintaining SQL strings)
+ *   <li>{@link #insertAndFetchNewId} performs an insert and returns the new "auto-increment ID".
+ *   <li>{@link #insertIgnoringConstraintViolations} and {@link #updateIgnoringConstraintViolations}
+ *       perform inserts and updates, but ignore any unique constraint violations.
+ *       For example using the "insert then update" pattern, for "just-in-time" creating records, can use these methods.
  * </ul>
  *     <p>
  * Upon creating an object, a connection is made to the database, and a transaction is started.
@@ -80,8 +86,8 @@ public class DbTransaction {
     
     public enum DbServerProduct { mysql, postgres };
     
-    public static class UniqueConstraintViolation extends RuntimeException {
-        UniqueConstraintViolation(String msg, Throwable t) { super(msg+": "+t.getMessage(), t); }
+    public static class UniqueConstraintViolation extends Exception {
+        UniqueConstraintViolation(Throwable t) { super(t); }
     }
     
     public static class DbQueryResultRow {
@@ -195,9 +201,7 @@ public class DbTransaction {
         return ps;
     }
     
-    protected PreparedStatement insertParamsToPreparedStatement(
-        String sql, Object[] args
-    ) {
+    protected PreparedStatement insertParamsToPreparedStatement(String sql, Object... args) {
         PreparedStatement ps = getPreparedStatement(sql);
         for (int i = 0; i < args.length; i++) {
             try {
@@ -234,29 +238,41 @@ public class DbTransaction {
         return ps;
     }
     
-    protected long getLastInsertId() {
+    protected long fetchNewPkValue() {
         try {
+            String sql;
             switch (product) {
-                case mysql:
-                    return query("SELECT LAST_INSERT_ID() AS id", false).iterator().next().getLong("id");
-                    
-                case postgres:
-                    Savepoint prior = connection.setSavepoint();
-                    try { 
-                        long result = query("SELECT lastval() AS id", false).iterator().next().getLong("id");
-                        connection.releaseSavepoint(prior);
-                        return result;
-                    }
-                    catch (RuntimeException e) { 
-                        if (e.getMessage().contains("lastval is not yet defined")) {
-                            connection.rollback(prior);
-                            connection.releaseSavepoint(prior);
-                            return 0; 
-                        }
-                        throw e; 
-                    }
-                    
+                case mysql: sql = "SELECT LAST_INSERT_ID() AS id"; break;
+                case postgres: sql = "SELECT lastval() AS id"; break;
                 default: throw new RuntimeException();
+            }
+            PreparedStatement ps = insertParamsToPreparedStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if ( ! rs.next()) throw new RuntimeException("SQL to request just-inserted PK value returned no results");
+            long result = rs.getLong("id");
+            rs.close();
+            return result;
+        }
+        catch (SQLException e) { throw new RuntimeException(e); }
+    }
+    
+    /**
+     * If "exception" represents a violation exception it is thrown and the connection is rolled back to "initialState",
+     * otherwise the original exception is re-thrown.
+     */
+    protected void throwUniqueConstraintViolation(Savepoint initialState, RuntimeException exception) 
+    throws UniqueConstraintViolation {
+        try {
+            boolean isConstraintViolation = false;
+            if (exception.getMessage().contains("Duplicate entry")) isConstraintViolation = true;               // MySQL
+            if (exception.getMessage().contains("violates unique constraint")) isConstraintViolation = true;    // PostgreSQL
+            
+            if (isConstraintViolation) {
+                if (initialState != null) connection.rollback(initialState);
+                throw new UniqueConstraintViolation(exception);
+            }
+            else {
+                throw exception;
             }
         }
         catch (SQLException e) { throw new RuntimeException(e); }
@@ -314,56 +330,29 @@ public class DbTransaction {
         return result.toString();
     }
     
-    protected Iterable<DbQueryResultRow> query(final String sql, final boolean timer, final Object... args) {
+    public Iterable<DbQueryResultRow> query(final String sql, final Object... args) {
         return new Iterable<DbQueryResultRow>() {
             public Iterator<DbQueryResultRow> iterator() {
-                PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
-                if (timer) Timer.start("SQL: " + getSqlForLog(sql, args));
+                Timer.start("SQL: " + getSqlForLog(sql, args));
                 try {
+                    PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
                     ResultSet rs = ps.executeQuery();
                     Iterator<DbQueryResultRow> result = new DbQueryResultSet(rs);
                     result.hasNext(); // this forces the statement to really be executed; important for timing
                     return result;
                 }
                 catch (SQLException e) { throw new RuntimeException(getSqlForLog(sql, args) + ": " + e.getMessage(), e); }
-                finally { if (timer) Timer.end("SQL: " + getSqlForLog(sql, args)); }
+                finally { Timer.end("SQL: " + getSqlForLog(sql, args)); }
             }
         };
     }
 
-    public Iterable<DbQueryResultRow> query(final String sql, final Object... args) {
-        return query(sql, true, args);
-    }
-    
     public void execute(String sql, Object... args) {
-        try {
-            Savepoint prior = connection.setSavepoint();
-            try {
-                PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
-                ps.executeUpdate();  // returns int = row count processed; we ignore
-                connection.releaseSavepoint(prior);
-            }
-            catch (SQLException e) {        // Don't catch e.g. com.mysql exceptions, in case only PG JARs are loaded
-                if (e.getMessage().contains("Duplicate entry")) {               // MySQL
-                    throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
-                }
-                if (e.getMessage().contains("violates unique constraint")) {    // PostgreSQL
-                    connection.rollback(prior); // UniqueConstraintViolation is intended to be a recoverable error
-                    connection.releaseSavepoint(prior);
-                    throw new UniqueConstraintViolation(getSqlForLog(sql, args), e);
-                }
-                throw e;
-            }
-        } 
+        try { insertParamsToPreparedStatement(sql, args).executeUpdate(); } // returns int = row count processed; we ignore
         catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
     }
 
-    public long insert(String sql, Object... args) {
-        execute(sql, args);
-        return getLastInsertId();
-    }
-    
-    public long insertMap(String table, Map<String, ?> cols) {
+    public void insert(String table, Map<String, ?> cols) {
         StringBuilder keys = new StringBuilder();
         StringBuilder questionMarks = new StringBuilder();
         List<Object> values = new ArrayList<Object>();
@@ -374,10 +363,32 @@ public class DbTransaction {
             values.add(c.getValue());
         }
         
-        return insert("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
+        execute("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
     }
     
-    public void updateMap(String table, Map<String, ?> cols, String where, Object... whereParams) {
+    public void insertOrThrowUniqueConstraintViolation(String table, Map<String, ?> cols)
+    throws UniqueConstraintViolation {
+        try {
+            Savepoint initialState = null;
+            if (product == DbServerProduct.postgres) initialState = connection.setSavepoint();
+            try { insert(table, cols); }
+            catch (RuntimeException e) { throwUniqueConstraintViolation(initialState, e); }
+            finally { if (initialState != null) connection.releaseSavepoint(initialState); }
+        }
+        catch (SQLException e) { throw new RuntimeException(e); }
+    }
+    
+    public void insertIgnoringUniqueConstraintViolations(String table, Map<String, ?> cols) {
+        try { insertOrThrowUniqueConstraintViolation(table, cols); }
+        catch (UniqueConstraintViolation e) { } // ignore
+    }
+    
+    public long insertAndFetchNewId(String table, Map<String, ?> cols) {
+        insert(table, cols);
+        return fetchNewPkValue();
+    }
+    
+    public void update(String table, Map<String, ?> cols, String where, Object... whereParams) {
         StringBuilder sql = new StringBuilder();
         List<Object> params = new ArrayList<Object>();
         
@@ -395,6 +406,23 @@ public class DbTransaction {
         params.addAll(Arrays.asList(whereParams));
         
         execute(sql.toString(), params.toArray());
+    }
+
+    public void updateOrThrowUniqueConstraintViolation(String table, Map<String, ?> cols, String where, Object... whereParams)
+    throws UniqueConstraintViolation {
+        try {
+            Savepoint initialState = null;
+            if (product == DbServerProduct.postgres) initialState = connection.setSavepoint();
+            try { update(table, cols, where, whereParams); }
+            catch (RuntimeException e) { throwUniqueConstraintViolation(initialState, e); }
+            finally { if (initialState != null) connection.releaseSavepoint(initialState); }
+        }
+        catch (SQLException e) { throw new RuntimeException(e); }
+    }
+    
+    public void updateIgnoringUniqueConstraintViolations(String table, Map<String, ?> cols, String where, Object... whereParams) {
+        try { updateOrThrowUniqueConstraintViolation(table, cols, where, whereParams); }
+        catch (UniqueConstraintViolation e) { } // ignore
     }
     
     public void rollback() {

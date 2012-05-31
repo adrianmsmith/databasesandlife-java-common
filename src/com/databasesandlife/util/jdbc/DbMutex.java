@@ -1,5 +1,7 @@
 package com.databasesandlife.util.jdbc;
 
+import java.util.HashMap;
+
 /** 
  * Maintains a table full of mutexes as described
  * <a href="http://www.databasesandlife.com/mysql-lock-tables-does-an-implicit-commit/">here</a>
@@ -15,11 +17,9 @@ public class DbMutex {
     
     public DbMutex(String name) { this.name = name; }
     
-    public void acquire(DbTransaction db) {
-        try { db.execute("INSERT INTO mutex SET name=?", name); }
-        catch (DbTransaction.UniqueConstraintViolation e) { }
-        
-        db.query("SELECT * FROM mutex WHERE name=? FOR UPDATE", name);
+    public void acquire(DbTransaction tx) {
+        tx.insertIgnoringUniqueConstraintViolations("mutex", new HashMap<String, String>() {{ put("name", name); }});
+        tx.query("SELECT * FROM mutex WHERE name=? FOR UPDATE", name);
     }
 
 }

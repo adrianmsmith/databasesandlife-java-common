@@ -51,13 +51,4 @@ public class DbTransactionTest extends TestCase {
         }
         finally { tx.commit(); }
     }
-    
-    public void testInsert() {
-        DbTransaction tx = new DbTransaction(DatabaseConnection.getJdbcUrl());
-        tx.execute("DROP TABLE IF EXISTS joe");
-        tx.execute("CREATE TABLE joe (id SERIAL, num INTEGER)");
-        long id = tx.insert("INSERT INTO joe (num) VALUES (?)", 4);
-        assertTrue(id == 1);
-    }
-
 }
