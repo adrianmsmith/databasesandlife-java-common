@@ -80,6 +80,7 @@ public class DbTransaction {
     protected DbServerProduct product;
     protected Connection connection;    // null means already committed
     protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
+    protected Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<Class<? extends Enum<?>>, String>();
     
     public enum DbServerProduct { mysql, postgres };
     
@@ -212,11 +213,17 @@ public class DbTransaction {
                     ps.setLong(i+1, ((Long) args[i]).longValue());
                 else if (args[i] instanceof Double)
                     ps.setDouble(i+1, ((Double) args[i]).doubleValue());
-                else if (args[i] instanceof java.util.Date) {
-                    // Can't set Timestamp object directly, see http://bugs.mysql.com/bug.php?id=15604 w.r.t GMT timezone
-                    SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    f.setTimeZone(TimeZone.getTimeZone("UTC"));
-                    ps.setString(i+1, f.format((java.util.Date) args[i]));   }
+                else if (args[i] instanceof java.util.Date)
+                    switch (product) {
+                        case mysql:
+                            // Can't set Timestamp object directly, see http://bugs.mysql.com/bug.php?id=15604 w.r.t GMT timezone
+                            SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            f.setTimeZone(TimeZone.getTimeZone("UTC"));
+                            ps.setString(i+1, f.format((java.util.Date) args[i]));
+                            break;
+                        default:
+                            ps.setDate(i+1, new java.sql.Date(((java.util.Date) args[i]).getTime())); 
+                    }
                 else if (args[i] instanceof YearMonthDay)
                     ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD());
                 else if (args[i] instanceof byte[])
@@ -253,11 +260,28 @@ public class DbTransaction {
         catch (SQLException e) { throw new RuntimeException(e); }
     }
     
+    protected String getQuestionMarkForValue(Object value) {
+        if (value instanceof Enum<?>) {
+            switch (product) {
+                case postgres:
+                    String type = postgresTypeForEnum.get(value.getClass());
+                    if (type == null) throw new RuntimeException("Cannot convert Java Enum '" + value.getClass() + "' to " +
+                		"Postgres ENUM type: use addPostgresTypeForEnum method after DbTransaction constructor");
+                    return "?::" + type;
+
+                default:
+                    return "?";
+            }
+        } else {
+            return "?";
+        }
+    }
+    
     /**
      * If "exception" represents a violation exception it is thrown and the connection is rolled back to "initialState",
      * otherwise the original exception is re-thrown.
      */
-    protected void throwUniqueConstraintViolation(Savepoint initialState, RuntimeException exception) 
+    protected void rollbackToSavepointAndThrowUniqueConstraintViolation(Savepoint initialState, RuntimeException exception) 
     throws UniqueConstraintViolation {
         try {
             boolean isConstraintViolation = false;
@@ -265,7 +289,10 @@ public class DbTransaction {
             if (exception.getMessage().contains("violates unique constraint")) isConstraintViolation = true;    // PostgreSQL
             
             if (isConstraintViolation) {
-                if (initialState != null) connection.rollback(initialState);
+                if (initialState != null) {
+                    connection.rollback(initialState);
+                    connection.releaseSavepoint(initialState);
+                }
                 throw new UniqueConstraintViolation(exception);
             }
             else {
@@ -306,6 +333,10 @@ public class DbTransaction {
             throw new RuntimeException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
                 "connection is NOT OK: "+e.getMessage(), e);
         }
+    }
+    
+    public void addPostgresTypeForEnum(Class<? extends Enum<?>> enumClass, String postgresType) {
+        postgresTypeForEnum.put(enumClass, postgresType);
     }
     
     public static String getSqlForLog(String sql, Object[] args) {
@@ -356,7 +387,7 @@ public class DbTransaction {
         for (Entry<String, ?> c : cols.entrySet()) {
             if (keys.length() > 0) { keys.append(", "); questionMarks.append(", "); }
             keys.append(c.getKey());
-            questionMarks.append("?");
+            questionMarks.append(getQuestionMarkForValue(c.getValue()));
             values.add(c.getValue());
         }
         
@@ -368,9 +399,13 @@ public class DbTransaction {
         try {
             Savepoint initialState = null;
             if (product == DbServerProduct.postgres) initialState = connection.setSavepoint();
-            try { insert(table, cols); }
-            catch (RuntimeException e) { throwUniqueConstraintViolation(initialState, e); }
-            finally { if (initialState != null) connection.releaseSavepoint(initialState); }
+            try { 
+                insert(table, cols); 
+                if (initialState != null) connection.releaseSavepoint(initialState);
+            }
+            catch (RuntimeException e) { 
+                rollbackToSavepointAndThrowUniqueConstraintViolation(initialState, e); 
+            }
         }
         catch (SQLException e) { throw new RuntimeException(e); }
     }
@@ -402,7 +437,8 @@ public class DbTransaction {
         for (Entry<String, ?> c : cols.entrySet()) {
             if (params.size() > 0) sql.append(", ");
             sql.append(c.getKey());
-            sql.append(" = ?");
+            sql.append(" = ");
+            sql.append(getQuestionMarkForValue(c.getValue()));
             params.add(c.getValue());
         }
         sql.append(" WHERE ");
@@ -417,9 +453,13 @@ public class DbTransaction {
         try {
             Savepoint initialState = null;
             if (product == DbServerProduct.postgres) initialState = connection.setSavepoint();
-            try { update(table, cols, where, whereParams); }
-            catch (RuntimeException e) { throwUniqueConstraintViolation(initialState, e); }
-            finally { if (initialState != null) connection.releaseSavepoint(initialState); }
+            try { 
+                update(table, cols, where, whereParams); 
+                if (initialState != null) connection.releaseSavepoint(initialState);
+            }
+            catch (RuntimeException e) { 
+                rollbackToSavepointAndThrowUniqueConstraintViolation(initialState, e); 
+            }
         }
         catch (SQLException e) { throw new RuntimeException(e); }
     }
