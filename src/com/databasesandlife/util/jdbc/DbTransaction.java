@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.text.ParseException;
@@ -92,6 +93,17 @@ public class DbTransaction {
         ResultSet rs;
         DbQueryResultRow(ResultSet rs) { this.rs = rs; }
         
+        public boolean hasColumn(String columnName) {
+            try {
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columns = rsmd.getColumnCount();
+                for (int x = 1; x <= columns; x++)
+                    if (columnName.equals(rsmd.getColumnName(x))) return true;
+                return false;
+            }
+            catch (SQLException e) { throw new RuntimeException(e); }
+        }
+
         public String getString(String col) {
             try { return rs.getString(col); }
             catch (SQLException e) { throw new RuntimeException(e); }
