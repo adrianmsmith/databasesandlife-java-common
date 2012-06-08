@@ -34,7 +34,7 @@ public class PaginationWidget extends Panel {
         add(new ListView<Integer>("pagination", pages) {
             protected void populateItem(ListItem<Integer> item) {
                 int destPageIdx = item.getModelObject();
-                Link<?> link = c.newLinkToPageIdx("link", pageIdx); 
+                Link<?> link = c.newLinkToPageIdx("link", destPageIdx); 
                 if (destPageIdx == pageIdx) link.add(new AttributeAppender("class", new Model<String>("active"), " "));
                 link.add(new Label("pageNo", "" + (1 + destPageIdx)));
                 item.add(link);
