@@ -22,6 +22,7 @@ public class PaginationWidget extends Panel {
         super(wicketId);
 
         int maxPageIdxIncl = (resultCount - 1) / resultsPerPage;
+        setVisible(maxPageIdxIncl > 0);
         List<Integer> pages = new ArrayList<Integer>();
         for (int p = pageIdx - 10; p < pageIdx + 10; p++) {
             if (p < 0) continue;
