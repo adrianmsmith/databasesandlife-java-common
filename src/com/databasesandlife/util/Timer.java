@@ -32,6 +32,21 @@ public class Timer {
         logger.info(getPrefix() + "'" + name + "' start");
         start.get().put(name, System.nanoTime());
     }
+    
+    protected static String formatDurationNanos(long durationNanos) {
+        double seconds = durationNanos / (1000*1000*1000.0);
+        
+        int minutes = (int) Math.floor(seconds / 60);
+        seconds -= 60 * minutes;
+
+        int hours = (int) Math.floor(minutes / 60);       
+        minutes -= 60 * hours;
+        
+        String hoursStr = (hours == 0) ? "" : (hours + " hrs ");
+        String minutesStr = (hours == 0 && minutes == 0) ? "" : (minutes + " min ");
+
+        return String.format("%s%s%.3f sec", hoursStr, minutesStr, seconds);
+    }
 
     public static void end(String name) {
         if (start.get() == null) start.set(new HashMap<String, Long>());
@@ -44,7 +59,7 @@ public class Timer {
         long durationNanos = System.nanoTime() - start.get().get(name);
         start.get().remove(name);
 
-        logger.info(String.format("%s'%s' end (%.3f seconds)", getPrefix(), name, durationNanos / 1000000000.0));
+        logger.info(String.format("%s'%s' end (%s)", getPrefix(), name, formatDurationNanos(durationNanos)));
     }
 
     // ------------------------------------------------------------------------------------------------------------------------
