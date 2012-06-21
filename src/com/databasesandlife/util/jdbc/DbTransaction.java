@@ -144,7 +144,8 @@ public class DbTransaction {
             }
             catch (SQLException e) { throw new RuntimeException(e); }
         }
-        
+
+        @SuppressWarnings("unchecked")    
         public <T extends Enum<T>> T getEnum(String col, Class<T> clazz) {
             try {
                 String str = rs.getString(col);
