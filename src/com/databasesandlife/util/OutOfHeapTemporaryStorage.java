@@ -122,6 +122,8 @@ public class OutOfHeapTemporaryStorage {
         protected OutOfHeapString stringRepresentation;
         
         public void setXml(Element x) { writeXml(this, x); }
+        
+        /** You will need to import this into your DOM document */
         public Element toXmlDomElement() { return readXml(this); }
     }
     
