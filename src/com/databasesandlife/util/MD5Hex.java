@@ -5,9 +5,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
@@ -96,5 +105,16 @@ public class MD5Hex {
             finally { fileStr.close(); }
         }
         catch (IOException e) { throw new RuntimeException(e); }
+    }
+
+    public static String md5(Document xslt) {
+        try {
+            StringWriter str = new StringWriter();        
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty("omit-xml-declaration","yes");
+            transformer.transform(new DOMSource(xslt), new StreamResult(str));
+            return md5(str.toString());
+        }
+        catch (TransformerException e) { throw new RuntimeException(e); }
     }
 }
