@@ -1,30 +1,5 @@
 package com.databasesandlife.util.wicket;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebResource;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.FormComponentPanel;
-import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.ResourceLink;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.resource.StringResourceStream;
-
-import com.databasesandlife.util.WebEncodingUtils;
-import com.google.gson.Gson;
 
 /**
 A text-field where the user may enter multiple values, but each value may only be one of a pre-defined list of values. Similar to Facebook's message compose screen, where users may only enter recipients who are in their address book.
@@ -66,182 +41,183 @@ A text-field where the user may enter multiple values, but each value may only b
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
-public class MultipleValueAutoCompleteTextField extends FormComponentPanel<String[]> {
-    
-    protected String jsId;
-    protected AutoCompleteOption[] clientSideOptions = null;
-    protected AutoCompleteDataSource serverSideDataSource = null;
-    protected String theme = "facebook";
-    protected String[] currentIdsToTextField = null;           // JQuery JS ignores <input> value, this communictes to JS creation
-    protected String   currentIdsFromTextField = "";           // JQuery JS puts "12,23" into <input> value, i.e. textfield's model
-    protected TextField<String> textField;
-    protected boolean preventDuplicates = true;                // Named the same as the JQuery tokeninput parameter name
-    
-    // ----------------------------------------------------------------------------------------------------------------
-    // Inner classes & interfaces
-    // ----------------------------------------------------------------------------------------------------------------
-    
-    public static class AutoCompleteOption implements Serializable {
-        String id, displayText;
-        public AutoCompleteOption(String id, String displayText) { this.id=id; this.displayText=displayText; }
-        protected AutoCompleteOption() { } // e.g. for subclasses that override getId() and getDisplayText()
-        public String getId() { return id; }
-        public String getDisplayText() { return displayText; }
-        /** If not overridden, this returns HTML encoded version of {@link #getDisplayText()} */
-        public String getHtmlDisplayText() { return WebEncodingUtils.encodeHtml(displayText); }
-    }
-    
-    public interface AutoCompleteDataSource extends Serializable {
-        public AutoCompleteOption[] suggestOptions(String userEnteredPartialText);
-        public AutoCompleteOption getOptionForId(String id);
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------
-    // Public API
-    // ----------------------------------------------------------------------------------------------------------------
-
-    public MultipleValueAutoCompleteTextField(String wicketId) {
-        super(wicketId);
-        
-        // wicketId might have e.g. "form.abc" but that won't work with JQuery; use "form_abc" instead
-        jsId = wicketId.replace(".", "_");
-        
-        ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
-        serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + jsId)));
-        add(serverSideDataSourceUrl);
-        
-        add(new Label("javascript", new PropertyModel<String>(this, "javascript")).setEscapeModelStrings(false));
-        
-        textField = new TextField<String>("textField", new PropertyModel<String>(this, "currentIdsFromTextField"));
-        textField.add(new AttributeModifier("id", new Model<String>(jsId)));
-        textField.setConvertEmptyInputStringToNull(false);
-        add(textField);
-    }
-    
-    public MultipleValueAutoCompleteTextField(String wicketId, IModel<String[]> model) {
-        this(wicketId);
-        setModel(model);
-    }
-
-    /** @return this */
-    public MultipleValueAutoCompleteTextField setClientSideOptions(AutoCompleteOption[] options) {
-        this.clientSideOptions = options;
-        return this;
-    }
-
-    /** @return this */
-    public MultipleValueAutoCompleteTextField setServerSideDataSource(AutoCompleteDataSource dataSource) {
-        this.serverSideDataSource = dataSource;
-        return this;
-    }
-    
-    /**
-     * If the default style is not acceptable, copy "token-input-facebook.css" (from databases and life source) into your
-     * CSS directory as "token-input-XXX.css", include it from your HTML, and call <code>setTheme("XXX")</code>.
-     * @return this
-     */
-    public MultipleValueAutoCompleteTextField setTheme(String theme) {
-        this.theme = theme;
-        return this;
-    }
-    
-    public void allowDuplicates() {
-        preventDuplicates = false;
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------
-    // Implementation / Wicket
-    // ----------------------------------------------------------------------------------------------------------------
-
-    protected class DataSourceJsonWebResource extends WebResource {
-        public IResourceStream getResourceStream() {
-            try {
-                String userEnteredPartialText = getParameters().getString("q", "");
-                AutoCompleteOption[] options = serverSideDataSource.suggestOptions(userEnteredPartialText);
-                String jsonResult = jsonForOptions(options);
-                // Wicket always delivers strings as local encoding (e.g. Latin1),
-                // yet client always JSON is always UTF-8 therefore client expects UTF-8
-                jsonResult = new String(jsonResult.getBytes("UTF-8"), Charset.defaultCharset());
-                return new StringResourceStream(jsonResult, "application/json");
-            }
-            catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
-        }
-    }
-
-    @Override protected void onComponentTag(ComponentTag tag) {
-        super.onComponentTag(tag);
-        tag.setName("span");  // So that clients can write <input wicket:id="xx"> and we generate <script>, <input> etc.
-    }
-    
-    protected String jsonForOptions(AutoCompleteOption[] options) {
-        List<Object> optionList = new ArrayList<Object>(options.length);
-        for (AutoCompleteOption o : options) {
-            Map<String, String> optionMap = new HashMap<String, String>();
-            optionMap.put("id", o.getId());
-            optionMap.put("name", o.getHtmlDisplayText());
-            optionList.add(optionMap);
-        }
-        
-        Gson json = new Gson();
-        return json.toJson(optionList);
-    }
-    
-    /** Internal method - Do not use */
-    public String getJavascript() {
-        String source;
-        if (clientSideOptions != null) 
-            source = jsonForOptions(clientSideOptions);
-        else if (serverSideDataSource != null) 
-            source = "document.getElementById('serverSideDataSourceUrl" + jsId + "').getAttribute('href')";
-        else throw new RuntimeException("Either clientSideOptions or serverSideDataSource must be set for wicket:id='" + getId() + "'");
-        
-        List<AutoCompleteOption> currentValues = new ArrayList<AutoCompleteOption>(currentIdsToTextField.length);
-        for (String id : currentIdsToTextField) {
-            if (clientSideOptions != null) 
-                for (AutoCompleteOption candidate : clientSideOptions)
-                    if (candidate.getId().equals(id))
-                        currentValues.add(candidate);
-            if (serverSideDataSource != null)
-                currentValues.add(serverSideDataSource.getOptionForId(id));
-        }
-        
-        StringBuilder result = new StringBuilder();
-        result.append("$(document).ready(function () { \n");
-        result.append("  $('#"+jsId+"').tokenInput(" + source + ", {\n");
-        result.append("    prePopulate: " + jsonForOptions(currentValues.toArray(new AutoCompleteOption[0])) + ",\n");
-        result.append("    theme: '"+theme+"',\n");
-        result.append("    minChars: 0,\n");
-        if (clientSideOptions != null) result.append("    searchDelay: 0,\n");
-        if (preventDuplicates) result.append("    preventDuplicates: true,\n");
-        result.append("  });\n");
-        result.append("});\n");
-        
-        return result.toString();
-    }
-
-    @Override protected void onBeforeRender() {
-        // this IF is a hack: if first view, populate field; else if validiation failed then we don't want to
-        // override what the user has entered with what the model originally contained
-        if (currentIdsToTextField == null)
-            currentIdsToTextField = getModelObject();
-        
-        super.onBeforeRender();
-    }
-    
-    protected String[] newIdArrayForInputString(String newIdsStr) {
-        List<String> newEntryList = new ArrayList<String>();
-        Matcher m = Pattern.compile("[^,]+").matcher(newIdsStr);
-        while (m.find()) newEntryList.add(m.group());
-        return newEntryList.toArray(new String[0]);
-    }
-    
-    @Override protected void convertInput() {
-        currentIdsToTextField = newIdArrayForInputString(textField.getConvertedInput());
-        setConvertedInput(currentIdsToTextField);
-    }
-    
-    @Override public boolean checkRequired() {
-        if ( ! isRequired()) return true;
-        else return newIdArrayForInputString(textField.getConvertedInput()).length > 0;
-    }
+public class MultipleValueAutoCompleteTextField {
+//extends FormComponentPanel<String[]> {
+//    
+//    protected String jsId;
+//    protected AutoCompleteOption[] clientSideOptions = null;
+//    protected AutoCompleteDataSource serverSideDataSource = null;
+//    protected String theme = "facebook";
+//    protected String[] currentIdsToTextField = null;           // JQuery JS ignores <input> value, this communictes to JS creation
+//    protected String   currentIdsFromTextField = "";           // JQuery JS puts "12,23" into <input> value, i.e. textfield's model
+//    protected TextField<String> textField;
+//    protected boolean preventDuplicates = true;                // Named the same as the JQuery tokeninput parameter name
+//    
+//    // ----------------------------------------------------------------------------------------------------------------
+//    // Inner classes & interfaces
+//    // ----------------------------------------------------------------------------------------------------------------
+//    
+//    public static class AutoCompleteOption implements Serializable {
+//        String id, displayText;
+//        public AutoCompleteOption(String id, String displayText) { this.id=id; this.displayText=displayText; }
+//        protected AutoCompleteOption() { } // e.g. for subclasses that override getId() and getDisplayText()
+//        public String getId() { return id; }
+//        public String getDisplayText() { return displayText; }
+//        /** If not overridden, this returns HTML encoded version of {@link #getDisplayText()} */
+//        public String getHtmlDisplayText() { return WebEncodingUtils.encodeHtml(displayText); }
+//    }
+//    
+//    public interface AutoCompleteDataSource extends Serializable {
+//        public AutoCompleteOption[] suggestOptions(String userEnteredPartialText);
+//        public AutoCompleteOption getOptionForId(String id);
+//    }
+//
+//    // ----------------------------------------------------------------------------------------------------------------
+//    // Public API
+//    // ----------------------------------------------------------------------------------------------------------------
+//
+//    public MultipleValueAutoCompleteTextField(String wicketId) {
+//        super(wicketId);
+//        
+//        // wicketId might have e.g. "form.abc" but that won't work with JQuery; use "form_abc" instead
+//        jsId = wicketId.replace(".", "_");
+//        
+//        ResourceLink<?> serverSideDataSourceUrl = new ResourceLink<Object>("serverSideDataSourceUrl", new DataSourceJsonWebResource());
+//        serverSideDataSourceUrl.add(new AttributeModifier("id", new Model<String>("serverSideDataSourceUrl" + jsId)));
+//        add(serverSideDataSourceUrl);
+//        
+//        add(new Label("javascript", new PropertyModel<String>(this, "javascript")).setEscapeModelStrings(false));
+//        
+//        textField = new TextField<String>("textField", new PropertyModel<String>(this, "currentIdsFromTextField"));
+//        textField.add(new AttributeModifier("id", new Model<String>(jsId)));
+//        textField.setConvertEmptyInputStringToNull(false);
+//        add(textField);
+//    }
+//    
+//    public MultipleValueAutoCompleteTextField(String wicketId, IModel<String[]> model) {
+//        this(wicketId);
+//        setModel(model);
+//    }
+//
+//    /** @return this */
+//    public MultipleValueAutoCompleteTextField setClientSideOptions(AutoCompleteOption[] options) {
+//        this.clientSideOptions = options;
+//        return this;
+//    }
+//
+//    /** @return this */
+//    public MultipleValueAutoCompleteTextField setServerSideDataSource(AutoCompleteDataSource dataSource) {
+//        this.serverSideDataSource = dataSource;
+//        return this;
+//    }
+//    
+//    /**
+//     * If the default style is not acceptable, copy "token-input-facebook.css" (from databases and life source) into your
+//     * CSS directory as "token-input-XXX.css", include it from your HTML, and call <code>setTheme("XXX")</code>.
+//     * @return this
+//     */
+//    public MultipleValueAutoCompleteTextField setTheme(String theme) {
+//        this.theme = theme;
+//        return this;
+//    }
+//    
+//    public void allowDuplicates() {
+//        preventDuplicates = false;
+//    }
+//
+//    // ----------------------------------------------------------------------------------------------------------------
+//    // Implementation / Wicket
+//    // ----------------------------------------------------------------------------------------------------------------
+//
+//    protected class DataSourceJsonWebResource extends WebResource {
+//        public IResourceStream getResourceStream() {
+//            try {
+//                String userEnteredPartialText = getParameters().getString("q", "");
+//                AutoCompleteOption[] options = serverSideDataSource.suggestOptions(userEnteredPartialText);
+//                String jsonResult = jsonForOptions(options);
+//                // Wicket always delivers strings as local encoding (e.g. Latin1),
+//                // yet client always JSON is always UTF-8 therefore client expects UTF-8
+//                jsonResult = new String(jsonResult.getBytes("UTF-8"), Charset.defaultCharset());
+//                return new StringResourceStream(jsonResult, "application/json");
+//            }
+//            catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
+//        }
+//    }
+//
+//    @Override protected void onComponentTag(ComponentTag tag) {
+//        super.onComponentTag(tag);
+//        tag.setName("span");  // So that clients can write <input wicket:id="xx"> and we generate <script>, <input> etc.
+//    }
+//    
+//    protected String jsonForOptions(AutoCompleteOption[] options) {
+//        List<Object> optionList = new ArrayList<Object>(options.length);
+//        for (AutoCompleteOption o : options) {
+//            Map<String, String> optionMap = new HashMap<String, String>();
+//            optionMap.put("id", o.getId());
+//            optionMap.put("name", o.getHtmlDisplayText());
+//            optionList.add(optionMap);
+//        }
+//        
+//        Gson json = new Gson();
+//        return json.toJson(optionList);
+//    }
+//    
+//    /** Internal method - Do not use */
+//    public String getJavascript() {
+//        String source;
+//        if (clientSideOptions != null) 
+//            source = jsonForOptions(clientSideOptions);
+//        else if (serverSideDataSource != null) 
+//            source = "document.getElementById('serverSideDataSourceUrl" + jsId + "').getAttribute('href')";
+//        else throw new RuntimeException("Either clientSideOptions or serverSideDataSource must be set for wicket:id='" + getId() + "'");
+//        
+//        List<AutoCompleteOption> currentValues = new ArrayList<AutoCompleteOption>(currentIdsToTextField.length);
+//        for (String id : currentIdsToTextField) {
+//            if (clientSideOptions != null) 
+//                for (AutoCompleteOption candidate : clientSideOptions)
+//                    if (candidate.getId().equals(id))
+//                        currentValues.add(candidate);
+//            if (serverSideDataSource != null)
+//                currentValues.add(serverSideDataSource.getOptionForId(id));
+//        }
+//        
+//        StringBuilder result = new StringBuilder();
+//        result.append("$(document).ready(function () { \n");
+//        result.append("  $('#"+jsId+"').tokenInput(" + source + ", {\n");
+//        result.append("    prePopulate: " + jsonForOptions(currentValues.toArray(new AutoCompleteOption[0])) + ",\n");
+//        result.append("    theme: '"+theme+"',\n");
+//        result.append("    minChars: 0,\n");
+//        if (clientSideOptions != null) result.append("    searchDelay: 0,\n");
+//        if (preventDuplicates) result.append("    preventDuplicates: true,\n");
+//        result.append("  });\n");
+//        result.append("});\n");
+//        
+//        return result.toString();
+//    }
+//
+//    @Override protected void onBeforeRender() {
+//        // this IF is a hack: if first view, populate field; else if validiation failed then we don't want to
+//        // override what the user has entered with what the model originally contained
+//        if (currentIdsToTextField == null)
+//            currentIdsToTextField = getModelObject();
+//        
+//        super.onBeforeRender();
+//    }
+//    
+//    protected String[] newIdArrayForInputString(String newIdsStr) {
+//        List<String> newEntryList = new ArrayList<String>();
+//        Matcher m = Pattern.compile("[^,]+").matcher(newIdsStr);
+//        while (m.find()) newEntryList.add(m.group());
+//        return newEntryList.toArray(new String[0]);
+//    }
+//    
+//    @Override protected void convertInput() {
+//        currentIdsToTextField = newIdArrayForInputString(textField.getConvertedInput());
+//        setConvertedInput(currentIdsToTextField);
+//    }
+//    
+//    @Override public boolean checkRequired() {
+//        if ( ! isRequired()) return true;
+//        else return newIdArrayForInputString(textField.getConvertedInput()).length > 0;
+//    }
 }
