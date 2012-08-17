@@ -16,7 +16,7 @@ import org.apache.wicket.markup.html.panel.Panel;
  * (Perhaps some installations require the code, and other installations do not.)
  *
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision:  $
+ * @version $Revision$
  */
 public class GoogleAnalyticsAsyncWidget extends Panel {
     

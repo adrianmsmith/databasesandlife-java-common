@@ -12,6 +12,11 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
+/**
+ *
+ * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 public class PaginationWidget extends Panel {
     
     public interface PaginationWidgetCallback extends Serializable {

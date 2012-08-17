@@ -12,6 +12,9 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
  * <li>The whole component is deleted from the markup in case there are no messages to display.
  * <li>If newlines are used in error messages, they are displayed as &lt;br&gt; characters in errors 
  * </ul>
+ *
+ * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */ 
 public class DisappearingFeedbackPanel extends FeedbackPanel {
     public DisappearingFeedbackPanel(String id, IFeedbackMessageFilter filter) {

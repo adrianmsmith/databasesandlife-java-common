@@ -43,7 +43,7 @@ import org.apache.wicket.util.time.Duration;
  *    label.setAutoRefreshingIntervalMultiplier(1.2); </pre>
  *
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision: 2637 $
+ * @version $Revision$
  */
 
 public class CountingUpThenAutoRefreshingLabel extends Panel {

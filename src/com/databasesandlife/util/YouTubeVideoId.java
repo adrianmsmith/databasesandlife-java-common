@@ -2,7 +2,12 @@ package com.databasesandlife.util;
 
 import java.io.Serializable;
 
-/** Represents the ID of a youtube Video */
+/** 
+ * Represents the ID of a youtube Video 
+ *
+ * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 public class YouTubeVideoId implements Serializable {
     
     public String id;

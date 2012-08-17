@@ -5,22 +5,23 @@ import java.io.Serializable;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 
+import com.databasesandlife.util.gwtsafe.ConfigurationException;
+
 /**
  * Represents a SVN URL, username, password.
+ *
+ * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 public class SvnUrlWithUsernamePassword implements Serializable {
 
     public SVNURL url;
     public String username, password;
 
-    public static class MalformedException extends RuntimeException {
-        MalformedException(String arg) { super(arg); }
-    }
-
     /** @param pipeSeparated "url|username|password" */
-    public static SvnUrlWithUsernamePassword parse(String pipeSeparated) throws MalformedException {
+    public static SvnUrlWithUsernamePassword parse(String pipeSeparated) throws ConfigurationException {
         String[] parts = pipeSeparated.split("\\|");
-        if (parts.length != 3) throw new MalformedException("SVN '" + pipeSeparated + "' should have 'url|user|pw' form");
+        if (parts.length != 3) throw new ConfigurationException("SVN '" + pipeSeparated + "' should have 'url|user|pw' form");
 
         try {
             SvnUrlWithUsernamePassword result = new SvnUrlWithUsernamePassword();
@@ -29,6 +30,6 @@ public class SvnUrlWithUsernamePassword implements Serializable {
             result.password = parts[2];
             return result;
         }
-        catch (SVNException e) { throw new MalformedException("SVN URL '" + parts[0] + "' malformed: " + e.getMessage()); }
+        catch (SVNException e) { throw new ConfigurationException("SVN URL '" + parts[0] + "' malformed: " + e.getMessage()); }
     }
 }

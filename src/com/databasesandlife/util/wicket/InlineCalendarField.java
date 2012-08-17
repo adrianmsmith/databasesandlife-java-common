@@ -21,7 +21,7 @@ import com.databasesandlife.util.YearMonthDay;
  * You need to include a JQuery UI CSS using the <a href="http://jqueryui.com/themeroller/">JQuery UI ThemeRoller</a>.
  *
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision: 2637 $
+ * @version $Revision$
  */
 public class InlineCalendarField extends FormComponentPanel<YearMonthDay> {
     
