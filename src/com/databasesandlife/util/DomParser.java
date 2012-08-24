@@ -1,10 +1,12 @@
 package com.databasesandlife.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,14 +20,17 @@ import com.databasesandlife.util.gwtsafe.ConfigurationException;
  */
 public class DomParser {
 
-    /** @param elementName can be "*" */
-    protected static List<Element> getSubElements(Node container, String elementName) {
-        Vector<Element> result = new Vector<Element>();
+    /** @param elementNames can be "*" */
+    protected static List<Element> getSubElements(Node container, String... elementNames) {
+        boolean allElementsDesired = "*".equals(elementNames[0]);
+        Set<String> elementNameSet = new HashSet<String>(Arrays.asList(elementNames));
+        
+        ArrayList<Element> result = new ArrayList<Element>();
         NodeList children = container.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
-                if ("*".equals(elementName) || child.getNodeName().equals(elementName))
+                if (allElementsDesired || elementNameSet.contains(child.getNodeName()))
                     result.add((Element) child);
             }
         }
@@ -93,7 +98,7 @@ public class DomParser {
     protected static Element getMandatorySingleSubElement(Node node, String subNodeName) throws ConfigurationException {
         List<Element> resultList = getSubElements(node, subNodeName);
         if (resultList.size() != 1) throw new ConfigurationException("<" + node.getNodeName() + ">: found " +
-                resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
+            resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
         return resultList.get(0);
     }
 
@@ -107,5 +112,20 @@ public class DomParser {
         else if (resultList.size() == 1) return resultList.get(0);
         else throw new ConfigurationException("<" + node.getNodeName() + ">: found " +
                 resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
+    }
+
+    protected static Set<String> parseSet(Element container, String elementName, String attribute)
+    throws ConfigurationException {
+        Set<String> result = new HashSet<String>();
+        for (Element e : getSubElements(container, elementName)) result.add(getMandatoryAttribute(e, attribute));
+        return result;
+    }
+
+    protected static Map<String, String> parseMap(Element container, String elementName, String keyAttribute, String valueAttribute)
+    throws ConfigurationException {
+        Map<String, String> result = new HashMap<String, String>();
+        for (Element e : getSubElements(container, elementName))
+            result.put(getMandatoryAttribute(e, keyAttribute), getMandatoryAttribute(e, valueAttribute));
+        return result;
     }
 }

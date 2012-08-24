@@ -5,7 +5,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-/** Forwards all events on to a destination ContentHandler */
+/** Forwards all SAX events on to a destination ContentHandler. */
 public class IdentityForwardingSaxHandler implements ContentHandler {
     
     protected ContentHandler destinationHandler;
