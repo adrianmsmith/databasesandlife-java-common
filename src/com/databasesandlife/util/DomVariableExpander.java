@@ -37,6 +37,9 @@ import org.xml.sax.helpers.AttributesImpl;
  * Variable names may contain a-z, A-Z, 0-9, hypen and underscore and are case sensitive.
  *   <p>
  * This class is namespace aware.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 
 public class DomVariableExpander extends IdentityForwardingSaxHandler {
