@@ -27,13 +27,13 @@ import org.xml.sax.helpers.AttributesImpl;
  *    <p>
  * Usage:
  * <pre>
- *    DomVariableExpander expander = new DomVariableExpander();
  *    Map&lt;String, String&gt; variables = ...
  *    Element elementWithVariables = ...
- *    Element elementExpanded = expander.expand(
+ *    Element elementExpanded = DomVariableExpander.expand(
  *       elementWithVariables, variables);          </pre>
  *   <p>
- * Variables may be written in attribute values and in text contents, and may be written as $xyz or ${xyz}.
+ * Variables may be written in attribute values and in text contents, and may be written in the XML as $xyz or ${xyz}.
+ * Variables in the Map passed to the expand method should not have the dollar prefix.
  * Variable names may contain a-z, A-Z, 0-9, hypen and underscore and are case sensitive.
  *   <p>
  * This class is namespace aware.
