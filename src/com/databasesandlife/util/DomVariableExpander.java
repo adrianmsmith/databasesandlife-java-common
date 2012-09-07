@@ -63,7 +63,7 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
             String variable = matcher.group(2);                   // $xyz 
             if (variable == null) variable = matcher.group(3);    // ${xyz}
             String expansion = variables.get(variable);
-            if (expansion == null) throw new VariableNotFoundException(variable);
+            if (expansion == null) throw new VariableNotFoundException("Variable '" + variable + "' is used in <post> but cannot be set");
             matcher.appendReplacement(result, expansion);
         }
         matcher.appendTail(result);
@@ -112,6 +112,9 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
             return ((Document) result.getNode()).getDocumentElement();
         }
         catch (TransformerConfigurationException e) { throw new RuntimeException(e); }
-        catch (TransformerException e) { throw new RuntimeException(e); }
+        catch (TransformerException e) {
+            if (e.getCause() instanceof VariableNotFoundException) throw (VariableNotFoundException) e.getCause();
+            throw new RuntimeException(e); 
+        }
     }
 }
