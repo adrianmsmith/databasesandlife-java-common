@@ -10,7 +10,8 @@
     
     <script>
     $(function() {
-        top.$.colorbox.close();
+        if (top.$.colorbox) top.$.colorbox.close();
+        if (top.$.fancybox) top.$.fancybox.close();
         top.location.href = document.getElementById("linkToSuccessPage").getAttribute("href");
     });
     </script>
