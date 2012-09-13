@@ -8,10 +8,15 @@
 
     <a wicket:id="link" id="linkToSuccessPage" target="_top"></a>
     
-    <script>
+    <script wicket:id="closeOverlayScript">
     $(function() {
         if (top.$.colorbox) top.$.colorbox.close();
         if (top.$.fancybox) top.$.fancybox.close();
+    }
+    </script>
+    
+    <script>
+    $(function() {
         top.location.href = document.getElementById("linkToSuccessPage").getAttribute("href");
     });
     </script>
