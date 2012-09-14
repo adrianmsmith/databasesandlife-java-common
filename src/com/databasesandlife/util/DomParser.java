@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -56,19 +57,19 @@ public class DomParser {
     }
 
     protected static String getMandatoryAttribute(Element node, String attributeName) throws ConfigurationException {
-        String result = node.getAttribute(attributeName);
-        if (result.equals(""))
+        Attr attributeNode = node.getAttributeNode(attributeName); 
+        if (attributeNode == null)
             throw new ConfigurationException("<" + node.getNodeName() + "> expects mandatory attribute '" + attributeName + "'");
-        return result;
+        return attributeNode.getValue();
     }
 
     /** @return null if the attribute is not defined */
     protected static String getOptionalAttribute(Element node, String attributeName) {
-        String result = node.getAttribute(attributeName);
-        if (result.equals("")) return null;
-        return result;
+        Attr attributeNode = node.getAttributeNode(attributeName); 
+        if (attributeNode == null) return null;
+        return attributeNode.getValue();
     }
-
+    
     protected static double parseMandatoryDoubleAttribute(Element node, String attributeName)
     throws ConfigurationException {
         String str = getMandatoryAttribute(node, attributeName);
