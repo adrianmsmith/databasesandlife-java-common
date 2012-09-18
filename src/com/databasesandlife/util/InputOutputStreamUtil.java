@@ -1,7 +1,28 @@
 package com.databasesandlife.util;
 
-import java.io.*;
-import java.net.*;
+import java.io.ByteArrayInputStream;
+import java.io.CharArrayWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Properties;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.wicket.util.io.ByteArrayOutputStream;
+import org.w3c.dom.Element;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
@@ -65,5 +86,23 @@ public class InputOutputStreamUtil {
 
     public static void writeBytesToOutputStream(OutputStream out, byte[] src) throws IOException {
         copyBytesFromInputToOutputStream(out, new ByteArrayInputStream(src));
+    }
+    
+    public static String prettyPrintXml(Element xml) {
+        try {
+            Properties systemProperties = System.getProperties();
+            systemProperties.remove("javax.xml.transform.TransformerFactory");
+            System.setProperties(systemProperties);
+            
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            DOMSource source = new DOMSource(xml);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            transformer.transform(source, result);
+            return writer.toString();
+        }
+        catch (TransformerException e) { throw new RuntimeException(e); }
     }
 }
