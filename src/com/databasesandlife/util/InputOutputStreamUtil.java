@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
@@ -88,7 +89,7 @@ public class InputOutputStreamUtil {
         copyBytesFromInputToOutputStream(out, new ByteArrayInputStream(src));
     }
     
-    public static String prettyPrintXml(Element xml) {
+    public static void prettyPrintXml(Writer writer, Element xml) {
         try {
             Properties systemProperties = System.getProperties();
             systemProperties.remove("javax.xml.transform.TransformerFactory");
@@ -98,11 +99,15 @@ public class InputOutputStreamUtil {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             DOMSource source = new DOMSource(xml);
-            StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
             transformer.transform(source, result);
-            return writer.toString();
         }
         catch (TransformerException e) { throw new RuntimeException(e); }
+    }
+    
+    public static String prettyPrintXml(Element xml) {
+        StringWriter writer = new StringWriter();
+        prettyPrintXml(writer, xml);
+        return writer.toString();
     }
 }
