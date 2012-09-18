@@ -1,6 +1,7 @@
 package com.databasesandlife.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +23,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.wicket.util.io.ByteArrayOutputStream;
 import org.w3c.dom.Element;
 
 /**
