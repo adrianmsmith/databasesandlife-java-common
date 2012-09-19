@@ -1,7 +1,6 @@
 package com.databasesandlife.util.wicket;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
@@ -40,8 +39,8 @@ public class InlineCalendarField extends FormComponentPanel<YearMonthDay> {
         add(translationInclude);
         
         textField = new TextField<String>("input", new PropertyModel<String>(this, "textFieldValue"));
-        textField.add(new SimpleAttributeModifier("style", "display:none"));
-        textField.add(new SimpleAttributeModifier("id", "input" + jsId));
+        textField.add(new AttributeModifier("style", "display:none"));
+        textField.add(new AttributeModifier("id", "input" + jsId));
         add(textField);
         
         Label script = new Label("script");
@@ -50,7 +49,7 @@ public class InlineCalendarField extends FormComponentPanel<YearMonthDay> {
         add(script);
 
         WebMarkupContainer div = new WebMarkupContainer("div");
-        div.add(new SimpleAttributeModifier("id", "div" + jsId));
+        div.add(new AttributeModifier("id", "div" + jsId));
         add(div);
     }
     

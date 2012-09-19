@@ -138,7 +138,7 @@ public class CountingUpThenAutoRefreshingLabel extends Panel {
         
         js.setVisible(false);
         
-        target.addComponent(this);
+        target.add(this);
         
         autoRefreshIntervalSeconds *= autoRefreshingIntervalMultiplier;        
     }
