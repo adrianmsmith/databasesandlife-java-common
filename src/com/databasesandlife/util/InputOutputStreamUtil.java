@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * @version $Revision$
  */
 public class InputOutputStreamUtil {
-    
+
     public static class Response {
         public String contentType;
         public byte[] byteArray;
@@ -43,14 +43,14 @@ public class InputOutputStreamUtil {
         while ((bytesRead = iStream.read(buffer)) >= 0)
            oStream.write(buffer, 0, bytesRead);
     }
-    
+
     public static byte[] readBytesFromInputStream(InputStream iStream)
     throws IOException {
         ByteArrayOutputStream oStream = new ByteArrayOutputStream();
         copyBytesFromInputToOutputStream(oStream, iStream);
         return oStream.toByteArray();
     }
-    
+
     public static String readStringFromReader(Reader iStream)
     throws IOException {
         CharArrayWriter oStream = new CharArrayWriter();
@@ -73,7 +73,7 @@ public class InputOutputStreamUtil {
         }
         catch (IOException e) { throw new RuntimeException(e); }
     }
-    
+
     public static void writeStringToFileUtf8(File f, String str)
     throws IOException {
         FileOutputStream o = new FileOutputStream(f);
@@ -88,13 +88,13 @@ public class InputOutputStreamUtil {
     public static void writeBytesToOutputStream(OutputStream out, byte[] src) throws IOException {
         copyBytesFromInputToOutputStream(out, new ByteArrayInputStream(src));
     }
-    
+
     public static void prettyPrintXml(Writer writer, Element xml) {
         try {
             Properties systemProperties = System.getProperties();
             systemProperties.remove("javax.xml.transform.TransformerFactory");
             System.setProperties(systemProperties);
-            
+
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -105,10 +105,19 @@ public class InputOutputStreamUtil {
         }
         catch (TransformerException e) { throw new RuntimeException(e); }
     }
-    
+
     public static String prettyPrintXml(Element xml) {
         StringWriter writer = new StringWriter();
         prettyPrintXml(writer, xml);
         return writer.toString();
+    }
+
+    public static String readUtf8(File infoText) {
+        try {
+            FileReader r = new FileReader(infoText);
+            try { return readStringFromReader(r); }
+            finally { r.close(); }
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
     }
 }
