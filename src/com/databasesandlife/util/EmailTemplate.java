@@ -86,7 +86,7 @@ public class EmailTemplate {
         }
     }
     
-    protected String replacePlainTextParameters(String template, Map<String,String> parameters) {
+    public static String replacePlainTextParameters(String template, Map<String,String> parameters) {
         for (Entry<String,String> paramEntry : parameters.entrySet()) 
             template = template.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
         return template;
