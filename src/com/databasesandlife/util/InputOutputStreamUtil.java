@@ -113,9 +113,9 @@ public class InputOutputStreamUtil {
         return writer.toString();
     }
 
-    public static String readUtf8(File infoText) {
+    public static String readUtf8(File file) {
         try {
-            FileReader r = new FileReader(infoText);
+            FileReader r = new FileReader(file);
             try { return readStringFromReader(r); }
             finally { r.close(); }
         }
