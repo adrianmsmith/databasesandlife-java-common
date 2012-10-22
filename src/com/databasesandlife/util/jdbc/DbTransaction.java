@@ -85,6 +85,11 @@ public class DbTransaction {
     
     public enum DbServerProduct { mysql, postgres };
     
+    public interface DbTransactionFactory {
+        /** Caller must call {@link DbTransaction#commit()} or {@link DbTransaction#rollback()}. */
+        public DbTransaction newDbTransaction();
+    }
+    
     public static class UniqueConstraintViolation extends Exception {
         UniqueConstraintViolation(Throwable t) { super(t); }
     }
