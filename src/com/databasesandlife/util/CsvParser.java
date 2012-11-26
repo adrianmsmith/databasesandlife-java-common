@@ -100,7 +100,7 @@ public class CsvParser {
                 try {
                     String line = r.readLine();
                     if (line == null) break; // end of file
-                    String[] valueForColIdx = fieldSeparatorRegexp.split(line);
+                    String[] valueForColIdx = fieldSeparatorRegexp.split(line, -1); // -1 so that empty trailing fields are not ignored
                     if (valueForColIdx.length == 0) continue; // ignore blank lines e.g. at end of file
                     if (valueForColIdx.length != fieldForColIdx.length) throw new MalformedCsvException("Expected " +
                         fieldForColIdx.length + " fields but found " + valueForColIdx.length + " fields");
