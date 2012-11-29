@@ -71,7 +71,10 @@ public class CsvParser {
     protected Pattern fieldSeparatorRegexp = Pattern.compile(Pattern.quote(","));
     protected String[] desiredFields = null;
     protected String[] nonEmptyFields = null;
+    protected Pattern endOfLineRegex = Pattern.compile("^$");
 
+    public void setEndOfLineRegex(Pattern p){ this.endOfLineRegex = p;}
+    
     public void setDefaultCharset(Charset c) { defaultCharset = c; }
     public void setFieldSeparatorRegexp(Pattern p) { fieldSeparatorRegexp = p; }
     
@@ -99,8 +102,8 @@ public class CsvParser {
             while (true) {
                 try {
                     String line = r.readLine();
-                    if (line == null) break; // end of file
-                    String[] valueForColIdx = fieldSeparatorRegexp.split(line, -1); // -1 so that empty trailing fields are not ignored
+                    if (line == null || endOfLineRegex.matcher(line).matches()) break; // end of file
+                    String[] valueForColIdx = fieldSeparatorRegexp.split(line,-1);
                     if (valueForColIdx.length == 0) continue; // ignore blank lines e.g. at end of file
                     if (valueForColIdx.length != fieldForColIdx.length) throw new MalformedCsvException("Expected " +
                         fieldForColIdx.length + " fields but found " + valueForColIdx.length + " fields");
