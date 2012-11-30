@@ -72,11 +72,13 @@ public class CsvParser {
     protected String[] desiredFields = null;
     protected String[] nonEmptyFields = null;
     protected Pattern endOfDataRegex = Pattern.compile("^$");
+    protected boolean ignoreNotDesiredColumns = false;
 
     public void setEndOfLineRegex(Pattern p){ this.endOfDataRegex = p;}
     
     public void setDefaultCharset(Charset c) { defaultCharset = c; }
     public void setFieldSeparatorRegexp(Pattern p) { fieldSeparatorRegexp = p; }
+    public void setIgnoreNotDesiredColumns(boolean b){ this.ignoreNotDesiredColumns = b;}
     
     /** Any fields found outside of this list cause an error */ 
     public void setDesiredFields(String... f) { desiredFields = f; }
@@ -93,9 +95,10 @@ public class CsvParser {
                 for (String desiredField : desiredFields)
                     if ( ! Arrays.asList(fieldForColIdx).contains(desiredField))
                         throw new MalformedCsvException("Column '" + desiredField + "' is missing");
-                for (String foundField : fieldForColIdx)
-                    if ( ! Arrays.asList(desiredFields).contains(foundField))
-                        throw new MalformedCsvException("Column '" + foundField + "' unexpected");
+                if(!ignoreNotDesiredColumns)
+	                for (String foundField : fieldForColIdx)
+	                    if ( ! Arrays.asList(desiredFields).contains(foundField))
+	                        throw new MalformedCsvException("Column '" + foundField + "' unexpected");
             }
 
             int lineNumber = 2;
