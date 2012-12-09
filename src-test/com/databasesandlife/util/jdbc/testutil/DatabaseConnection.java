@@ -14,7 +14,7 @@ public class DatabaseConnection {
     public static String getPassword()      { return System.getProperty("db.password", ""); }
 
     public static String getJdbcUrl() {
-        return "jdbc:postgresql://" + getHostname() + "/" + getDatabaseName() + 
+        return "jdbc:mysql://" + getHostname() + "/" + getDatabaseName() + 
             "?user=" + getUsername() + "&password=" + getPassword();
     }
 

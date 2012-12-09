@@ -16,12 +16,12 @@ public class DbTransactionTest extends TestCase {
         DbQueryResultRow row;
         try {
             // no rows hasNext
-            i = tx.query("SELECT 1  WHERE 1=2").iterator();
+            i = tx.query("SELECT 1 FROM dual WHERE 1=2").iterator();
             assertFalse(i.hasNext());
             assertFalse(i.hasNext());
             
             // no rows next
-            i = tx.query("SELECT 1  WHERE 1=2").iterator();
+            i = tx.query("SELECT 1 FROM dual WHERE 1=2").iterator();
             try { i.next(); fail(); }
             catch (NoSuchElementException e) { }
             

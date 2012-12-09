@@ -8,14 +8,14 @@ To develop / Eclipse
     - Insert spaces for tab
   - Java -> Code Style -> Formatter
     - New Profile -> Adrian
-    - Set "tab policy" to spaces
+    - Set "tab policy" to "spaces only"
   - Web -> HTML Files -> Editor -> Indent using spaces
   - Refresh workspace on startup
   - Runtime environment -> Add -> Tomcat 6
-- Create new project
-- Link "src"
+    - Download install into "eclipse/tomcat" (not just "eclipse"!)
+- Create new project, "Databases & Life Common"
 - Delete old "src"
-- Link "src-junit"
+- Link "src", "src-junit"
 - Build path -> Add library -> Junit 3
 - Add all external JARs, in both "lib-compile" and "lib-test"
 - Create a MySQL database locally, "databasesandlife_common"

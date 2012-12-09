@@ -52,7 +52,7 @@ public class DomVariableExpanderTest extends TestCase {
             fail();
         }
         catch (VariableNotFoundException e) {
-            assertEquals("var2", e.getMessage());
+            assertTrue(e.getMessage().contains("var2"));
         }
     }
 }
