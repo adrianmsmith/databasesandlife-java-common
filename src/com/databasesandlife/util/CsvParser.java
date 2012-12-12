@@ -69,15 +69,17 @@ public class CsvParser {
 
     protected Charset defaultCharset = Charset.forName("UTF-8");
     protected Pattern fieldSeparatorRegexp = Pattern.compile(Pattern.quote(","));
+    protected String fieldSeparator = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
     protected String[] desiredFields = null;
     protected String[] nonEmptyFields = null;
     protected Pattern endOfDataRegex = Pattern.compile("^$");
     protected boolean ignoreNotDesiredColumns = false;
+    protected Pattern skipLinePattern = null;
 
     public void setEndOfLineRegex(Pattern p){ this.endOfDataRegex = p;}
-    
+    public void setSkipLinePattern(Pattern p){ this.skipLinePattern = p;}
     public void setDefaultCharset(Charset c) { defaultCharset = c; }
-    public void setFieldSeparatorRegexp(Pattern p) { fieldSeparatorRegexp = p; }
+    public void setFieldSeparatorRegexp(Pattern p) { fieldSeparatorRegexp = Pattern.compile(fieldSeparator.replace(",", p.toString()));}
     public void setIgnoreNotDesiredColumns(boolean b){ this.ignoreNotDesiredColumns = b;}
     
     /** Any fields found outside of this list cause an error */ 
@@ -93,7 +95,7 @@ public class CsvParser {
             String[] fieldForColIdx = fieldSeparatorRegexp.split(headerLine);
             if (desiredFields != null) {
                 for (String desiredField : desiredFields)
-                    if ( ! Arrays.asList(fieldForColIdx).contains(desiredField))
+                    if ( ! containsField(Arrays.asList(fieldForColIdx),desiredField))
                         throw new MalformedCsvException("Column '" + desiredField + "' is missing");
                 if(!ignoreNotDesiredColumns)
 	                for (String foundField : fieldForColIdx)
@@ -106,13 +108,14 @@ public class CsvParser {
                 try {
                     String line = r.readLine();
                     if (line == null || endOfDataRegex.matcher(line).matches()) break; // end of data
+                    if(skipLinePattern != null && skipLinePattern.matcher(line).matches()) continue;
                     String[] valueForColIdx = fieldSeparatorRegexp.split(line,-1);
                     if (valueForColIdx.length != fieldForColIdx.length) throw new MalformedCsvException("Expected " +
                         fieldForColIdx.length + " fields but found " + valueForColIdx.length + " fields");
                     Map<String, String> valueForField = new HashMap<String, String>();
                     for (int c = 0; c < valueForColIdx.length; c++) {
-                        String field = fieldForColIdx[c];
-                        String val = valueForColIdx[c];
+                        String field = fieldForColIdx[c].replaceAll("\"", "");
+                        String val = valueForColIdx[c].replaceAll("\"", "");
                         if (nonEmptyFields != null && Arrays.asList(nonEmptyFields).contains(field))
                             if (val.length() == 0) throw new MalformedCsvException("Column " + c + ", field '" + field + "': value may not be empty");
                         valueForField.put(field, val);
@@ -170,4 +173,12 @@ public class CsvParser {
         parseAndCallHandler(lineHandler, cl);
         return lineHandler.result;
     }
+    
+    private boolean containsField(List<String> desired,String field){
+    	for(String s : desired){
+    		if(s.replaceAll("\"", "").equals(field)) return true;
+    	}
+    	return false;
+    }
+    
 }
