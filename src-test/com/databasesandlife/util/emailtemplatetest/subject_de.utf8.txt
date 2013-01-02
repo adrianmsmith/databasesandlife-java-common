@@ -1,0 +1,1 @@
+Email Template test äöü (localized into "de")
