@@ -50,7 +50,7 @@ Represents a directory in the classpath, which contains text and potentially gra
 
 <p>Bodies and subjects may have <b>variables </b>such ${XYZ}. All variables are HTML-escaped in the HTML version of the email apart from variables with names such as ${XYZ_HTML}.</p>
 
-<p>For <b>unit testing</b>, use the static method {@link #setLastBodyForTestingInsteadOfSendingEmails}.
+<p>For <b>unit testing</b>, use the static method {@link #setLastBodyForTestingInsteadOfSendingEmails()}.
 After that method has been called, no emails will be sent, 
 instead the method {@link #getLastBodyForTesting} may be used to retrieve the last sent plain/text email body.
 This allows one to assert that particular emails would be sent, and that they contain particular text.</p>
