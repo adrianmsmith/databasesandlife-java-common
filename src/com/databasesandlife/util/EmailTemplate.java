@@ -36,12 +36,12 @@ Represents a directory in the classpath, which contains text and potentially gra
 <p>A directory within the classpath should be created, and filled with the following files:</p>
 
 <p><ul>
-        <li><b>MyEmailTemplate.java</b> - Subclass of EmailTemplate, means that the tpl can be referenced via static typing, can be renamed with refactoring tools, and so on.</li>
         <li><b>body.utf8.txt</b> - UTF-8 formatted body of the text/plain part of the email to be sent.</li>
         <li><b>body<b>.utf8</b>.html</b> - UTF-8 formatted HTML version of the email to be sent.</li>
         <li><b>subject<b>.utf8</b>.txt</b> - UTF-8 formatted subject of the email to be sent.</li>
         <li><b>from<b>.utf8</b>.txt </b>- An file containing an email address such as "John Smith &lt;bar@example.com&gt;"</li>
         <li><b>xyz.jpg</b> - Any resources required from the HTML version of the emails. They are referenced simply as &lt;img src="xyz.jpg"&gt; from the HTML versions, so the HTML version can be easily tested locally in a browser. This is replaced by &lt;img src="cid:xyz.jpg"&gt; by the software, as this is what is required in the email.</li>
+        <li>Optionally <b>MyEmailTemplate.java</b> - Subclass of EmailTemplate, means that the whole template directory can be referenced via static typing, can be renamed with refactoring tools, and so on.</li>
 </ul></p>
 
 <p>Concerning <b>languages</b>, although e.g. "subject.utf8.txt" must be present, there may also be files with names such as "subject_de.utf8.txt" files for other Locales.</p>
@@ -52,7 +52,7 @@ Represents a directory in the classpath, which contains text and potentially gra
 
 <p>For <b>unit testing</b>, use the static method {@link #setLastBodyForTestingInsteadOfSendingEmails}.
 After that method has been called, no emails will be sent, 
-instead the method {@link #getLastBodyForTesting} may be used to retrieve the last sent plain/text email body.</p>  
+instead the method {@link #getLastBodyForTesting} may be used to retrieve the last sent plain/text email body.
 This allows one to assert that particular emails would be sent, and that they contain particular text.</p>
 
 <p>Writing code such as new EmailTemplate("myproject.mtpl.registration") is bad, because if that package is renamed, the <b>refactoring tools</b> will not see this string. The solution is to create a class in the directory, which calls its superclass constructor with its package name. This class is then instanciated in the client code.</p>
@@ -263,15 +263,20 @@ public class EmailTemplate {
     public EmailTemplate(Package pkg) { this.packageStr = pkg.getName(); }
     public EmailTemplate(String pkgStr) { this.packageStr = pkgStr; }
     
+    /** Henceforth, no emails will be sent; instead the body will be recorded for inspection by {@link #getLastBodyForTesting()}. */
     static public void setLastBodyForTestingInsteadOfSendingEmails() { setLastBodyForTestingInsteadOfSendingEmails = true; }
+    
+    /** Return the plain text body of the last email which has been sent; or the empty string in case no emails have been sent. */
     static public String getLastBodyForTesting() { return lastBodyForTesting; }
     
+    /** Replaces variables such as ${XYZ} in the template */
     public static String replacePlainTextParameters(String template, Map<String,String> parameters) {
         for (Entry<String,String> paramEntry : parameters.entrySet()) 
             template = template.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
         return template;
     }
     
+    /** Send an email based on this email template. */
     public void send(
         String smtpServer, InternetAddress recipientEmailAddress, Locale locale, 
         Map<String,String> parameters, Attachment... attachments
