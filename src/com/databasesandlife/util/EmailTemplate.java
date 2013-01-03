@@ -48,18 +48,18 @@ Represents a directory in the classpath, which contains text and potentially gra
 
 <p>One or both of the <b>plain-text</b> and <b>HTML</b> versions of the email must be present. If they are both present then a "multipart/alternative" email is sent.</p>
 
-<p>Bodies and subjects may have <b>variables </b>such ${XYZ}. All variables are HTML-escaped in the HTML version of the email apart from variables with names such as ${XYZ_HTML}.</p>
+<p>Bodies and subjects may have <b>variables </b>such <code>${XYZ}</code>. All variables are HTML-escaped in the HTML version of the email apart from variables with names such as <code>${XYZ_HTML}</code>.</p>
 
 <p>For <b>unit testing</b>, use the static method {@link #setLastBodyForTestingInsteadOfSendingEmails()}.
-After that method has been called, no emails will be sent, 
+After that method has been called, no emails will be sent,
 instead the method {@link #getLastBodyForTesting} may be used to retrieve the last sent plain/text email body.
 This allows one to assert that particular emails would be sent, and that they contain particular text.</p>
 
-<p>Writing code such as new EmailTemplate("myproject.mtpl.registration") is bad, because if that package is renamed, the <b>refactoring tools</b> will not see this string. The solution is to create a class in the directory, which calls its superclass constructor with its package name. This class is then instanciated in the client code.</p>
+<p>Writing code such as <code>new EmailTemplate("myproject.mtpl.registration")</code> has the disadvantage that if that package is renamed, <b>refactoring tools</b> will not see this string, and not rename it. Errors will result at run-time. The solution is to create a class in the directory, which calls its superclass constructor with its package name. This class is then instanciated in the client code, instead of the general <code>EmailTemplate</code>.</p>
 
-<p>You can send <b>attachments</b> with your email (e.g. PDF invoices) by passing multiple {@link Attachment} objects to the send method. 
+<p>You can send <b>attachments</b> with your email (e.g. PDF invoices) by passing multiple {@link Attachment} objects to the send method.
 Either you implement your own attachment, providing the filename, mime type and a way to get an InputStream for the bytes of the attachment,
-or you can just create a {@link ByteArrayAttachment} by passing the filename, mime type and a byte[].</p>
+or you can just create a {@link ByteArrayAttachment} by passing the filename, mime type and a <code>byte[]</code>.</p>
 
 <p>Concerning <b>naming</b>,</p>
 
@@ -78,12 +78,13 @@ class RegistrationEmailTemplate extends EmailTemplate {
    public RegistrationEmailTemplate() {
      super(RegistrationEmailTemplate.class.getPackage());
    }
+   // other methods can be added, specific to this email template
 }
 </pre></p>
 <p>In client code:
 <pre>
 class RegistrationProcess {
-  public registerNewUser(String emailAddress, String language, String name, ... ) {
+  public registerNewUser(InternetAddress emailAddress, Locale language, String name, ... ) {
     String smtpServer = "localhost";
 
     Map&lt;String,String&gt; params = new HashMap&lt;String,String&gt;();
@@ -112,17 +113,17 @@ class RegistrationProcessTest extends TestCase {
  * @version $Revision$
  */
 public class EmailTemplate {
-    
+
     // --------------------------------------------------------------------------------------------------------
-    // Internal 
+    // Internal
     // --------------------------------------------------------------------------------------------------------
-    
+
     /** For example "com.project.emailtpl.xyz" */
     protected String packageStr;
-    
+
     static protected boolean setLastBodyForTestingInsteadOfSendingEmails = false;
     static protected String lastBodyForTesting = "";
-    
+
     protected class FileAttachmentJavamailDataSource implements DataSource {
         String leafNameWithoutExtension, extension;
         FileAttachmentJavamailDataSource(String l, String e) { leafNameWithoutExtension=l; extension=e; }
@@ -131,8 +132,8 @@ public class EmailTemplate {
         public InputStream getInputStream() { return newInputStreamForBinaryFile(getName()); }
         public OutputStream getOutputStream() { throw new RuntimeException(); }
     }
-    
-    protected InputStream newInputStreamForBinaryFile(String leafName) 
+
+    protected InputStream newInputStreamForBinaryFile(String leafName)
     throws FileNotFoundInEmailTemplateDirectoryException {
         String packageWithSlashes = packageStr.replaceAll("\\.", "/"); // e.g. "com/myproject/mtpl/registrationemail"
         InputStream i = getClass().getClassLoader().getResourceAsStream(packageWithSlashes + "/" + leafName);
@@ -140,8 +141,8 @@ public class EmailTemplate {
             "File '" + leafName +"' not found in email tpl package '" + packageStr + "'");
         return i;
     }
-    
-    protected String readTextFile(String leafName) 
+
+    protected String readTextFile(String leafName)
     throws FileNotFoundInEmailTemplateDirectoryException {
         try {
             InputStream i = newInputStreamForBinaryFile(leafName);
@@ -149,8 +150,8 @@ public class EmailTemplate {
         }
         catch (IOException e) { throw new RuntimeException(e); }
     }
-    
-    protected String readLocaleTextFile(String leafNameStem, Locale locale, String extension) 
+
+    protected String readLocaleTextFile(String leafNameStem, Locale locale, String extension)
     throws FileNotFoundInEmailTemplateDirectoryException {
         try {
             return readTextFile(leafNameStem + "_" + locale.getLanguage() + ".utf8." + extension);
@@ -159,33 +160,33 @@ public class EmailTemplate {
             return readTextFile(leafNameStem + ".utf8." + extension);
         }
     }
-    
+
     protected BodyPart parseOptionalPlainTextBodyPart(Locale locale, Map<String,String> parameters) throws MessagingException {
         String textContents;
         try { textContents = readLocaleTextFile("body", locale, "txt"); }
-        catch (FileNotFoundInEmailTemplateDirectoryException e) { return null; }    
+        catch (FileNotFoundInEmailTemplateDirectoryException e) { return null; }
 
         textContents = replacePlainTextParameters(textContents, parameters);
-        
+
         lastBodyForTesting = textContents;
-        
+
         BodyPart result = new MimeBodyPart();
         result.setText(textContents);
         return result;
     }
-    
+
     protected BodyPart parseOptionalHtmlBodyPart(Locale locale, Map<String,String> parameters) throws MessagingException {
         String htmlContents;
         try { htmlContents = readLocaleTextFile("body", locale, "html"); }
-        catch (FileNotFoundInEmailTemplateDirectoryException e) { return null; }    
-            
+        catch (FileNotFoundInEmailTemplateDirectoryException e) { return null; }
+
         for (Entry<String,String> paramEntry : parameters.entrySet()) {
             String paramKey = paramEntry.getKey();
             String paramValue = paramEntry.getValue();
-            if ( ! paramKey.matches("^.*_HTML$")) paramValue = WebEncodingUtils.encodeHtml(paramValue); 
+            if ( ! paramKey.matches("^.*_HTML$")) paramValue = WebEncodingUtils.encodeHtml(paramValue);
             htmlContents = htmlContents.replace("${" + paramKey + "}", paramValue);
         }
-        
+
         Map<String, BodyPart> referencedFiles = new TreeMap<String, BodyPart>();
         StringBuffer htmlContentsWithCid = new StringBuffer();
         Matcher fileMatcher = Pattern.compile("(['\"])([\\w\\-]+)\\.(\\w{3,4})['\"]").matcher(htmlContents);
@@ -194,7 +195,7 @@ public class EmailTemplate {
             String leafNameWithoutExtension = fileMatcher.group(2);
             String extension = fileMatcher.group(3);
             String leafNameWithExtension = leafNameWithoutExtension + "." + extension;
-            
+
             BodyPart filePart = new MimeBodyPart();
             DataSource source = new FileAttachmentJavamailDataSource(leafNameWithoutExtension, extension);
             filePart.setDataHandler(new DataHandler(source));
@@ -209,17 +210,17 @@ public class EmailTemplate {
 
         BodyPart htmlContentsPart = new MimeBodyPart();
         htmlContentsPart.setContent(htmlContentsWithCid.toString(), "text/html; charset=UTF-8");
-        
+
         Multipart htmlMultiPart = new MimeMultipart("related");
         htmlMultiPart.addBodyPart(htmlContentsPart);
         for (BodyPart attachmentPart : referencedFiles.values())
             htmlMultiPart.addBodyPart(attachmentPart);
-        
+
         MimeBodyPart result = new MimeBodyPart();
         result.setContent(htmlMultiPart);
         return result;
     }
-    
+
     protected void addAttachment(Multipart container, final Attachment attachment) throws MessagingException {
         DataSource dataSource = new DataSource() {
             @Override public String getContentType() { return attachment.getMimeType(); }
@@ -227,29 +228,29 @@ public class EmailTemplate {
             @Override public String getName() { return attachment.getLeafNameInclExtension(); }
             @Override public OutputStream getOutputStream() { throw new RuntimeException("unreachable"); }
         };
-        
+
         BodyPart filePart = new MimeBodyPart();
         filePart.setDataHandler(new DataHandler(dataSource));
         filePart.setFileName(attachment.getLeafNameInclExtension());
         filePart.setDisposition(Part.ATTACHMENT);
-        
+
         container.addBodyPart(filePart);
     }
-    
+
     // --------------------------------------------------------------------------------------------------------
     // Public methods / API
     // --------------------------------------------------------------------------------------------------------
-    
+
     public static class FileNotFoundInEmailTemplateDirectoryException extends RuntimeException {
         public FileNotFoundInEmailTemplateDirectoryException(String msg) { super(msg); }
     }
-    
+
     public interface Attachment {
         /** For example "invoice.pdf" */ public String getLeafNameInclExtension();
         /** For example "application/pdf" */ public String getMimeType();
         /** To provide the bytes of the file */ public InputStream newInputStream();
     }
-    
+
     public static class ByteArrayAttachment implements Attachment {
         protected String leafNameInclExtension, mimeType;
         protected byte[] bytes;
@@ -259,33 +260,33 @@ public class EmailTemplate {
         @Override public String getMimeType() { return mimeType; }
         @Override public InputStream newInputStream() { return new ByteArrayInputStream(bytes); }
     }
-    
+
     public EmailTemplate(Package pkg) { this.packageStr = pkg.getName(); }
     public EmailTemplate(String pkgStr) { this.packageStr = pkgStr; }
-    
+
     /** Henceforth, no emails will be sent; instead the body will be recorded for inspection by {@link #getLastBodyForTesting()}. */
     static public void setLastBodyForTestingInsteadOfSendingEmails() { setLastBodyForTestingInsteadOfSendingEmails = true; }
-    
+
     /** Return the plain text body of the last email which has been sent; or the empty string in case no emails have been sent. */
     static public String getLastBodyForTesting() { return lastBodyForTesting; }
-    
+
     /** Replaces variables such as ${XYZ} in the template */
     public static String replacePlainTextParameters(String template, Map<String,String> parameters) {
-        for (Entry<String,String> paramEntry : parameters.entrySet()) 
+        for (Entry<String,String> paramEntry : parameters.entrySet())
             template = template.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
         return template;
     }
-    
+
     /** Send an email based on this email template. */
     public void send(
-        String smtpServer, InternetAddress recipientEmailAddress, Locale locale, 
+        String smtpServer, InternetAddress recipientEmailAddress, Locale locale,
         Map<String,String> parameters, Attachment... attachments
     ) {
         try {
             // Read the subject
             String subject = readLocaleTextFile("subject", locale, "txt");
             subject = replacePlainTextParameters(subject, parameters);
-            
+
             // Read the bodies
             BodyPart plainTextBodyPart = parseOptionalPlainTextBodyPart(locale, parameters);
             BodyPart htmlBodyPart = parseOptionalHtmlBodyPart(locale, parameters);
@@ -314,7 +315,7 @@ public class EmailTemplate {
             msg.addRecipient(RecipientType.TO, recipientEmailAddress);
             msg.setSubject(subject);
             msg.setContent(mainPart);
-            
+
             // Send the message
             Transport.send(msg);
         }
