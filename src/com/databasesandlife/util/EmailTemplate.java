@@ -36,32 +36,32 @@ Represents a directory in the classpath, which contains text and potentially gra
 <p>A directory within the classpath should be created, and filled with the following files:</p>
 
 <p><ul>
-        <li><b>body.utf8.txt</b> - UTF-8 formatted body of the text/plain part of the email to be sent.</li>
-        <li><b>body<b>.utf8</b>.html</b> - UTF-8 formatted HTML version of the email to be sent.</li>
-        <li><b>subject<b>.utf8</b>.txt</b> - UTF-8 formatted subject of the email to be sent.</li>
-        <li><b>from<b>.utf8</b>.txt </b>- An file containing an email address such as "John Smith &lt;bar@example.com&gt;"</li>
-        <li><b>xyz.jpg</b> - Any resources required from the HTML version of the emails. They are referenced simply as &lt;img src="xyz.jpg"&gt; from the HTML versions, so the HTML version can be easily tested locally in a browser. This is replaced by &lt;img src="cid:xyz.jpg"&gt; by the software, as this is what is required in the email.</li>
-        <li>Optionally <b>MyEmailTemplate.java</b> - Subclass of EmailTemplate, means that the whole template directory can be referenced via static typing, can be renamed with refactoring tools, and so on.</li>
+        <li><b>body.utf8.txt</b> - UTF-8 formatted body of the text/plain part of the email to be sent.</li>
+        <li><b>body<b>.utf8</b>.html</b> - UTF-8 formatted HTML version of the email to be sent.</li>
+        <li><b>subject<b>.utf8</b>.txt</b> - UTF-8 formatted subject of the email to be sent.</li>
+        <li><b>from<b>.utf8</b>.txt </b>- An file containing an email address such as "John Smith &lt;bar@example.com&gt;"</li>
+        <li><b>xyz.jpg</b> - Any resources required from the HTML version of the emails. They are referenced simply as &lt;img src="xyz.jpg"&gt; from the HTML versions, so the HTML version can be easily tested locally in a browser. This is replaced by &lt;img src="cid:xyz.jpg"&gt; by the software, as this is what is required in the email.</li>
+        <li>Optionally <b>MyEmailTemplate.java</b> - Subclass of EmailTemplate, means that the whole template directory can be referenced via static typing, can be renamed with refactoring tools, and so on.</li>
 </ul></p>
 
-<p>Concerning <b>languages</b>, although e.g. "subject.utf8.txt" must be present, there may also be files with names such as "subject_de.utf8.txt" files for other Locales.</p>
+<p>Concerning <b>languages</b>, although e.g. "subject.utf8.txt" must be present, there may also be files with names such as "subject_de.utf8.txt" files for other Locales.</p>
 
 <p>One or both of the <b>plain-text</b> and <b>HTML</b> versions of the email must be present. If they are both present then a "multipart/alternative" email is sent.</p>
 
-<p>Bodies and subjects may have <b>variables </b>such <code>${XYZ}</code>. All variables are HTML-escaped in the HTML version of the email apart from variables with names such as <code>${XYZ_HTML}</code>.</p>
+<p>Bodies and subjects may have <b>variables </b>such <code>${XYZ}</code>. All variables are HTML-escaped in the HTML version of the email apart from variables with names such as <code>${XYZ_HTML}</code>.</p>
 
-<p>For <b>unit testing</b>, use the static method {@link #setLastBodyForTestingInsteadOfSendingEmails()}.
+<p>For <b>unit testing</b>, use the static method {@link #setLastBodyForTestingInsteadOfSendingEmails()}.
 After that method has been called, no emails will be sent,
 instead the method {@link #getLastBodyForTesting} may be used to retrieve the last sent plain/text email body.
 This allows one to assert that particular emails would be sent, and that they contain particular text.</p>
 
-<p>Writing code such as <code>new EmailTemplate("myproject.mtpl.registration")</code> has the disadvantage that if that package is renamed, <b>refactoring tools</b> will not see this string, and not rename it. Errors will result at run-time. The solution is to create a class in the directory, which calls its superclass constructor with its package name. This class is then instanciated in the client code, instead of the general <code>EmailTemplate</code>.</p>
+<p>Writing code such as <code>new EmailTemplate("myproject.mtpl.registration")</code> has the disadvantage that if that package is renamed, <b>refactoring tools</b> will not see this string, and not rename it. Errors will result at run-time. The solution is to create a class in the directory, which calls its superclass constructor with its package name. This class is then instanciated in the client code, instead of the general <code>EmailTemplate</code>.</p>
 
-<p>You can send <b>attachments</b> with your email (e.g. PDF invoices) by passing multiple {@link Attachment} objects to the send method.
+<p>You can send <b>attachments</b> with your email (e.g. PDF invoices) by passing multiple {@link Attachment} objects to the send method.
 Either you implement your own attachment, providing the filename, mime type and a way to get an InputStream for the bytes of the attachment,
-or you can just create a {@link ByteArrayAttachment} by passing the filename, mime type and a <code>byte[]</code>.</p>
+or you can just create a {@link ByteArrayAttachment} by passing the filename, mime type and a <code>byte[]</code>.</p>
 
-<p>Concerning <b>naming</b>,</p>
+<p>Concerning <b>naming</b>,</p>
 
 <p><ul>
         <li>"Email" is used over Mail, in order to be consistent with the term "email address", which is never called "mail address".</li>
@@ -72,38 +72,38 @@ or you can just create a {@link ByteArrayAttachment} by passing the filename, 
 
 <h3>Usage</h3>
 
-<p>In the directory containing the template files:
+<p>In the directory containing the template files:
 <pre>
 class RegistrationEmailTemplate extends EmailTemplate {
-   public RegistrationEmailTemplate() {
-     super(RegistrationEmailTemplate.class.getPackage());
-   }
+   public RegistrationEmailTemplate() {
+     super(RegistrationEmailTemplate.class.getPackage());
+   }
    // other methods can be added, specific to this email template
 }
 </pre></p>
 <p>In client code:
 <pre>
 class RegistrationProcess {
-  public registerNewUser(InternetAddress emailAddress, Locale language, String name, ... ) {
-    String smtpServer = "localhost";
+  public registerNewUser(InternetAddress emailAddress, Locale language, String name, ... ) {
+    String smtpServer = "localhost";
 
-    Map&lt;String,String&gt; params = new HashMap&lt;String,String&gt;();
-    params.put("USERNAME", name);
+    Map&lt;String,String&gt; params = new HashMap&lt;String,String&gt;();
+    params.put("USERNAME", name);
 
-    RegistrationEmailTemplate tpl = new RegistrationEmailTemplate();
-    tpl.send(smtpServer, recipientEmailAddress, language, params);
-  }
+    RegistrationEmailTemplate tpl = new RegistrationEmailTemplate();
+    tpl.send(smtpServer, recipientEmailAddress, language, params);
+  }
 }
 </pre></p>
 <p>In unit test code:
 <pre>
 class RegistrationProcessTest extends TestCase {
-  public testRegisterNewUser() {
-    EmailTemplate.setLastBodyForTestingInsteadOfSendingEmails();
-    new RegistrationProcess().registerNewUser("test@example.com", "Adrian");
-    String txt = EmailTemplate.getLastBodyForTesting();
-    assertTrue(txt.contains("Adrian"));
-  }
+  public testRegisterNewUser() {
+    EmailTemplate.setLastBodyForTestingInsteadOfSendingEmails();
+    new RegistrationProcess().registerNewUser("test@example.com", "Adrian");
+    String txt = EmailTemplate.getLastBodyForTesting();
+    assertTrue(txt.contains("Adrian"));
+  }
 }
 </pre></p>
 
