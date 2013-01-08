@@ -55,10 +55,10 @@ import com.google.gdata.util.io.base.UnicodeReader;
 public class CsvParser {
 
     public interface CsvLineHandler {
-        void processCsvLine(Map<String, String> line);
+        void processCsvLine(Map<String, String> line) throws MalformedCsvException;
     }
 
-    public class MalformedCsvException extends Exception {  // checked ex. because it's always possible CSV invalid, must handle it
+    public static class MalformedCsvException extends Exception {  // checked ex. because it's always possible CSV invalid, must handle it
         public MalformedCsvException(String msg) { super(msg); }
     }
 
