@@ -49,7 +49,7 @@ import com.databasesandlife.util.YearMonthDay;
  *       {@link  YearMonthDay}, etc.
  *   <li>{@link #insert} and {@link #update} take Maps of columns as arguments (easier than maintaining SQL strings)
  *   <li>{@link #insertAndFetchNewId} performs an insert and returns the new "auto-increment ID".
- *   <li>{@link #insertIgnoringConstraintViolations} and {@link #updateIgnoringConstraintViolations}
+ *   <li>{@link #insertIgnoringUniqueConstraintViolations} and {@link #updateIgnoringUniqueConstraintViolations}
  *       perform inserts and updates, but ignore any unique constraint violations.
  *       For example using the "insert then update" pattern, for "just-in-time" creating records, can use these methods.
  * </ul>
@@ -376,6 +376,7 @@ public class DbTransaction {
         return result.toString();
     }
     
+    /** @return Never retuns null (but may return an empty iterable) */
     public Iterable<DbQueryResultRow> query(final String sql, final Object... args) {
         return new Iterable<DbQueryResultRow>() {
             public Iterator<DbQueryResultRow> iterator() {
