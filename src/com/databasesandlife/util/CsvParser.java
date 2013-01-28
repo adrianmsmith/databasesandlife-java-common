@@ -76,7 +76,7 @@ public class CsvParser {
     protected boolean ignoreNotDesiredColumns = false;
     protected Pattern skipLinePattern = null;
 
-    public void setEndOfLineRegex(Pattern p){ this.endOfDataRegex = p;}
+    public void setEndOfDataRegex(Pattern p){ this.endOfDataRegex = p;}
     public void setSkipLinePattern(Pattern p){ this.skipLinePattern = p;}
     public void setDefaultCharset(Charset c) { defaultCharset = c; }
     public void setFieldSeparatorRegexp(Pattern p) { fieldSeparatorRegexp = Pattern.compile(fieldSeparator.replace(",", p.toString()));}
