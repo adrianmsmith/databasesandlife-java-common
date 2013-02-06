@@ -439,6 +439,12 @@ public class DbTransaction {
         return fetchNewPkValue();
     }
     
+    public long insertAndFetchNewIdOrThrowUniqueConstraintViolation(String table, Map<String, ?> cols)
+            throws UniqueConstraintViolation {
+        insertOrThrowUniqueConstraintViolation(table, cols);
+        return fetchNewPkValue();
+    }
+    
     public void insertBulk(String table, List<Map<String, ?>> rows) {
         // MySQL driver cannot handle long statements; 15s for this vs 36s for multiple VALUES INSERT
         switch (product) {
