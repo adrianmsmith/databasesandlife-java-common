@@ -19,6 +19,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 
+import com.databasesandlife.util.Timer;
+import com.databasesandlife.util.Timer.TimerResult;
+
 /**
  * BCrypt implements OpenBSD-style Blowfish password hashing using
  * the scheme described in "A Future-Adaptable Password Scheme" by
@@ -751,11 +754,20 @@ public class BCrypt {
 		return (hashed.compareTo(hashpw(plaintext, hashed)) == 0);
 	}
 	
-	public static void main(String[] x) throws Exception {
+	public static void main(String[] params) throws Exception {
 	    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 	    System.out.println("Cleartext: ");
-	    String cleartext = in.readLine();
-	    String hashed = BCrypt.hashpw(cleartext, BCrypt.gensalt());
-	    System.out.println("Hashed: " + hashed);
+	    final String cleartext = in.readLine();
+	    final String salt = BCrypt.gensalt();
+	    class Hasher implements Runnable {
+	        String hashed;
+	        @Override public void run() {
+	            hashed = BCrypt.hashpw(cleartext, salt);
+	        }
+	    }
+	    Hasher hasher = new Hasher();
+	    TimerResult time = Timer.measureWallclockMilliseconds(hasher, 1000); // 1 second
+        System.out.println("Hashed: " + hasher.hashed);
+        System.out.println("Time: " + time.toString());
 	}
 }
