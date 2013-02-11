@@ -113,7 +113,7 @@ public class MultipleValueAutoCompleteTextField {
 //    
 //    /**
 //     * If the default style is not acceptable, copy "token-input-facebook.css" (from databases and life source) into your
-//     * CSS directory as "token-input-XXX.css", include it from your HTML, and call <code>setTheme("XXX")</code>.
+//     * CSS directory as "token-input-FOO.css", include it from your HTML, and call <code>setTheme("foo")</code>.
 //     * @return this
 //     */
 //    public MultipleValueAutoCompleteTextField setTheme(String theme) {
