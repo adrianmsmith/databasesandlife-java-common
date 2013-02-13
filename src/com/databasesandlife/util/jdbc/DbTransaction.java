@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -222,7 +223,8 @@ public class DbTransaction {
         for (int i = 0; i < args.length; i++) {
             try {
                 if (args[i] == null) 
-                    ps.setString(i+1, null);
+                    ps.setNull(i+1,Types.NULL);
+//                    ps.setString(i+1, null);
                 else if (args[i] instanceof String) // setXx 1st param: first arg is 1 not 0
                     ps.setString(i+1, (String) args[i]);
                 else if (args[i] instanceof Integer)
@@ -240,7 +242,7 @@ public class DbTransaction {
                             ps.setString(i+1, f.format((java.util.Date) args[i]));
                             break;
                         default:
-                            ps.setDate(i+1, new java.sql.Date(((java.util.Date) args[i]).getTime())); 
+                            ps.setTimestamp(i+1, new java.sql.Timestamp(((java.util.Date) args[i]).getTime())); 
                     }
                 else if (args[i] instanceof YearMonthDay)
                     ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD());
