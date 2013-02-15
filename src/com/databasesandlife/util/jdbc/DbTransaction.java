@@ -224,7 +224,6 @@ public class DbTransaction {
             try {
                 if (args[i] == null) 
                     ps.setNull(i+1,Types.NULL);
-//                    ps.setString(i+1, null);
                 else if (args[i] instanceof String) // setXx 1st param: first arg is 1 not 0
                     ps.setString(i+1, (String) args[i]);
                 else if (args[i] instanceof Integer)
