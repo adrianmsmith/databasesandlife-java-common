@@ -110,6 +110,11 @@ public class DbTransaction {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
 
+        public Boolean getBoolean(String col){
+            try { return rs.getBoolean(col); }
+            catch (SQLException e) { throw new RuntimeException(e); }
+        }
+        
         public String getString(String col) {
             try { return rs.getString(col); }
             catch (SQLException e) { throw new RuntimeException(e); }
@@ -224,6 +229,8 @@ public class DbTransaction {
             try {
                 if (args[i] == null) 
                     ps.setNull(i+1,Types.NULL);
+                else if (args[i] instanceof Boolean)
+                    ps.setBoolean(i+1, (Boolean) args[i]);
                 else if (args[i] instanceof String) // setXx 1st param: first arg is 1 not 0
                     ps.setString(i+1, (String) args[i]);
                 else if (args[i] instanceof Integer)
