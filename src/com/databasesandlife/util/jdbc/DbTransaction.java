@@ -9,11 +9,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -248,7 +250,9 @@ public class DbTransaction {
                             ps.setString(i+1, f.format((java.util.Date) args[i]));
                             break;
                         default:
-                            ps.setTimestamp(i+1, new java.sql.Timestamp(((java.util.Date) args[i]).getTime())); 
+                            Timestamp ts = new java.sql.Timestamp(((java.util.Date) args[i]).getTime());
+                            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                            ps.setTimestamp(i+1, ts, cal);
                     }
                 else if (args[i] instanceof YearMonthDay)
                     ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD());
