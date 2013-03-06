@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -9,7 +10,13 @@ import junit.framework.TestCase;
 public class CompositeIterableTest extends TestCase {
     
     public void testHasNext() {
-        Iterator<String> i = new CompositeIterable<String>(Arrays.asList(Arrays.asList("a", "b"), Arrays.asList("c"))).iterator();
+        Iterator<String> i = new CompositeIterable<String>(Arrays.asList(
+            new ArrayList<String>(),
+            Arrays.asList("a", "b"), 
+            new ArrayList<String>(),
+            Arrays.asList("c"),
+            new ArrayList<String>()
+        )).iterator();
         assertTrue(i.hasNext());
         i.next(); // a
         assertTrue(i.hasNext());
@@ -20,7 +27,13 @@ public class CompositeIterableTest extends TestCase {
     }
 
     public void testNext() {
-        Iterator<String> i = new CompositeIterable<String>(Arrays.asList(Arrays.asList("a", "b"), Arrays.asList("c"))).iterator();
+        Iterator<String> i = new CompositeIterable<String>(Arrays.asList(
+                new ArrayList<String>(),
+                Arrays.asList("a", "b"), 
+                new ArrayList<String>(),
+                Arrays.asList("c"),
+                new ArrayList<String>()
+            )).iterator();
         assertEquals("a", i.next());
         assertEquals("b", i.next());
         assertEquals("c", i.next());
