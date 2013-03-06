@@ -65,7 +65,7 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
             String expansion = variables.get(variable);
             if (expansion == null) throw new VariableNotFoundException(
                 "Variable '$" + variable + "' is used in XML template, but is missing from map of variables");
-            matcher.appendReplacement(result, expansion);
+            matcher.appendReplacement(result, Matcher.quoteReplacement(expansion));
         }
         matcher.appendTail(result);
         return result;
