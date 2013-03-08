@@ -5,10 +5,13 @@ import java.util.Iterator;
 /**
  * A future is the response of a calculation which is done in the background (in a thread).
  *     <p>
- * A future has one method which is get which waits for the calculation to complete, and returns the result.
- * The client must create a subclass and implement the method populate which will be run in the thread.
+ * A future has the method {@link #get()} which waits for the calculation to complete, and returns the result.
+ * The client must create a subclass and implement the method {@link #populate()} which will be run in the thread.
  *     <p>
- * The author was not satisfied with the simplicity of the JVM-supplied Future object.
+ * The reason for the creation of this class is the JVM-supplied {@link java.util.concurrent.Future} object seemed too complex.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 public abstract class Future<T> {
 
@@ -27,8 +30,12 @@ public abstract class Future<T> {
                 try { result = populate(); }
                 catch (RuntimeException e) { exception = e; }
             }
-        });
+        }, getThreadName());
         thread.start();
+    }
+    
+    protected String getThreadName() {
+        return "Future-" + getClass().getSimpleName();
     }
     
     /** Same as {@link #get()} but times out after 'seconds' seconds. */
