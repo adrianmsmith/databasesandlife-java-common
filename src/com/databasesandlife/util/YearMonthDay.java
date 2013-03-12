@@ -1,6 +1,7 @@
 package com.databasesandlife.util;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -49,8 +50,33 @@ public class YearMonthDay implements Serializable {
     @Override public int hashCode() {
         return 384745 + toYYYYMMDD().hashCode();
     }
-
+    
     public static YearMonthDay newToday() {
         return newForYYYYMMDD(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+    }
+    
+    public Date getMidnightAtStart() {
+        try {
+            SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+            return f.parse(toYYYYMMDD());
+        }
+        catch (ParseException e) { throw new RuntimeException(e); }
+    }
+    
+    protected YearMonthDay getDelta(long millisDelta) {
+        Date result = new Date(getMidnightAtStart().getTime() + millisDelta);
+        return newForYYYYMMDD(new SimpleDateFormat("yyyy-MM-dd").format(result));
+    }
+    
+    public YearMonthDay getPrevious() {
+        return getDelta(-24*60*60*1000L);
+    }
+    
+    public YearMonthDay getNext() {
+        return getDelta(+24*60*60*1000L);
+    }
+
+    public Date getMidnightAtEnd() {
+        return getNext().getMidnightAtStart();
     }
 }

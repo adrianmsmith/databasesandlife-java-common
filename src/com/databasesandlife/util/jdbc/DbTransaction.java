@@ -27,6 +27,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
 
@@ -347,6 +349,8 @@ public class DbTransaction {
     
     public DbTransaction(String jdbcUrl) {
         try {
+            Logger.getLogger(DbTransaction.class.getName() + "." + "newTransaction").info("Starting new transaction...");
+            
             if (jdbcUrl.contains(":mysql")) product = DbServerProduct.mysql;
             else if (jdbcUrl.contains(":postgres")) product = DbServerProduct.postgres;
             else throw new RuntimeException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
@@ -412,17 +416,24 @@ public class DbTransaction {
     }
     
     public void insert(String table, Map<String, ?> cols) {
-        StringBuilder keys = new StringBuilder();
-        StringBuilder questionMarks = new StringBuilder();
-        List<Object> values = new ArrayList<Object>();
-        for (Entry<String, ?> c : cols.entrySet()) {
-            if (keys.length() > 0) { keys.append(", "); questionMarks.append(", "); }
-            keys.append(c.getKey());
-            questionMarks.append(getQuestionMarkForValue(c.getValue()));
-            values.add(c.getValue());
+        if (cols.isEmpty() && product == DbServerProduct.postgres) {
+            // if no columns:
+            //     MySQL:      INSERT INTO mytable () VALUES ();
+            //     PostgreSQL: INSERT INTO mytable DEFAULT VALUES;
+            execute("INSERT INTO "+table+" DEFAULT VALUES");
+        } else {
+            StringBuilder keys = new StringBuilder();
+            StringBuilder questionMarks = new StringBuilder();
+            List<Object> values = new ArrayList<Object>();
+            for (Entry<String, ?> c : cols.entrySet()) {
+                if (keys.length() > 0) { keys.append(", "); questionMarks.append(", "); }
+                keys.append(c.getKey());
+                questionMarks.append(getQuestionMarkForValue(c.getValue()));
+                values.add(c.getValue());
+            }
+            
+            execute("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
         }
-        
-        execute("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
     }
     
     public void insertOrThrowUniqueConstraintViolation(String table, Map<String, ?> cols)
