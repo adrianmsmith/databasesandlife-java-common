@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
-public class YearMonthDay implements Serializable {
+public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     
     public int year, month, day;
     
@@ -78,5 +78,24 @@ public class YearMonthDay implements Serializable {
 
     public Date getMidnightAtEnd() {
         return getNext().getMidnightAtStart();
+    }
+
+    @Override public int compareTo(YearMonthDay other) {
+        return getMidnightAtStart().compareTo(other.getMidnightAtStart());
+//        if (this.year < other.year) return -1;
+//        if (this.year > other.year) return +1;
+//        if (this.month < other.month) return -1;
+//        if (this.month > other.month) return +1;
+//        if (this.day < other.day) return -1;
+//        if (this.day > other.day) return +1;
+//        return 0;
+    }
+
+    public YearMonthDay subtractDays(int dayCount) {
+        return getDelta(-dayCount*24*60*60*1000L);
+    }
+
+    public static YearMonthDay newMinusInfinity() {
+        return newForYYYYMMDD("1970-01-01");
     }
 }
