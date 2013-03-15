@@ -468,6 +468,12 @@ public class DbTransaction {
         return fetchNewPkValue();
     }
     
+    /**
+     * @deprecated
+     * Use individual {@link #insert(String, Map)} statements.
+     * The idea was that inserting in bulk would reduce latency between the app and the database,
+     * but in fact it turned out that having a statement with lots of ? takes longer than the saved latency.
+     */
     public void insertBulk(String table, List<Map<String, ?>> rows) {
         // MySQL driver cannot handle long statements; 15s for this vs 36s for multiple VALUES INSERT
         switch (product) {
