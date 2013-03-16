@@ -55,7 +55,7 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
         return newForYYYYMMDD(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
     }
     
-    public Date getMidnightAtStart() {
+    public Date getMidnightUtcAtStart() {
         try {
             SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
             return f.parse(toYYYYMMDD());
@@ -64,7 +64,7 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     }
     
     protected YearMonthDay getDelta(long millisDelta) {
-        Date result = new Date(getMidnightAtStart().getTime() + millisDelta);
+        Date result = new Date(getMidnightUtcAtStart().getTime() + millisDelta);
         return newForYYYYMMDD(new SimpleDateFormat("yyyy-MM-dd").format(result));
     }
     
@@ -76,12 +76,12 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
         return getDelta(+24*60*60*1000L);
     }
 
-    public Date getMidnightAtEnd() {
-        return getNext().getMidnightAtStart();
+    public Date getMidnightUtcAtEnd() {
+        return getNext().getMidnightUtcAtStart();
     }
 
     @Override public int compareTo(YearMonthDay other) {
-        return getMidnightAtStart().compareTo(other.getMidnightAtStart());
+        return getMidnightUtcAtStart().compareTo(other.getMidnightUtcAtStart());
 //        if (this.year < other.year) return -1;
 //        if (this.year > other.year) return +1;
 //        if (this.month < other.month) return -1;
