@@ -21,7 +21,7 @@ import org.apache.wicket.util.time.Duration;
  *
  *    // In Java file
  *    CountingUpThenAutoRefreshingLabel label = new CountingUpThenAutoRefreshingLabel("numberOfUsers");
- *    label.setModel(new PropertyModel(dataSource, "userCount"));
+ *    label.setDefaultModel(new PropertyModel(dataSource, "userCount")); // model returns Integer
  *    add(label);</pre>
  * 
  * <p>
