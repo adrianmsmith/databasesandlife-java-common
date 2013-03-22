@@ -36,7 +36,7 @@ import com.esotericsoftware.yamlbeans.YamlReader;
  */
 public class GeographicalLocation implements Serializable {
 
-    public static class GeographicalLocationId {
+    public static class GeographicalLocationId implements Serializable {
         protected String id;
         public GeographicalLocationId(String id) { this.id = id; } 
         public String getId() { return id; }
@@ -59,6 +59,7 @@ public class GeographicalLocation implements Serializable {
 
     protected GeographicalLocation() { } // shouldn't be constructed by clients
 
+    @SuppressWarnings("unchecked")
     protected static GeographicalLocation newLocationForYaml(
         Map<GeographicalLocationId, GeographicalLocation> locationsForId,
         GeographicalLocation parent,
@@ -97,6 +98,7 @@ public class GeographicalLocation implements Serializable {
         return location;
     }
 
+    @SuppressWarnings("unchecked")
     protected static void setChildrenFromYaml(
         Map<GeographicalLocationId, GeographicalLocation> locationsForId,
         GeographicalLocation parent,
@@ -114,6 +116,7 @@ public class GeographicalLocation implements Serializable {
         parent.children = children.toArray(new GeographicalLocation[0]);
     }
 
+    @SuppressWarnings("unchecked")
     protected static Map<GeographicalLocationId, GeographicalLocation> parseLocationsYaml() {
         Timer.start("parse-geographical-locations-yaml");
         try {
