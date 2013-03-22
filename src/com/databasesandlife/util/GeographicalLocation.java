@@ -36,10 +36,19 @@ import com.esotericsoftware.yamlbeans.YamlReader;
  */
 public class GeographicalLocation implements Serializable {
 
-    protected static GeographicalLocation world;
-    protected static Map<String, GeographicalLocation> locationsForId;
+    public static class GeographicalLocationId {
+        protected String id;
+        public GeographicalLocationId(String id) { this.id = id; } 
+        public String getId() { return id; }
+        @Override public int hashCode() { return 4753 + id.hashCode(); }
+        @Override public boolean equals(Object obj) { return ((GeographicalLocationId) obj).id.equals(id); }
+        @Override public String toString() { return id; }
+    }
 
-    protected String id;
+    protected static GeographicalLocation world;
+    protected static Map<GeographicalLocationId, GeographicalLocation> locationsForId;
+    
+    protected GeographicalLocationId id;
     protected transient GeographicalLocation parent;
     protected transient GeographicalLocation[] children;
     protected transient Map<String, String> displayNameForLanguage;
@@ -51,7 +60,7 @@ public class GeographicalLocation implements Serializable {
     protected GeographicalLocation() { } // shouldn't be constructed by clients
 
     protected static GeographicalLocation newLocationForYaml(
-        Map<String, GeographicalLocation> locationsForId,
+        Map<GeographicalLocationId, GeographicalLocation> locationsForId,
         GeographicalLocation parent,
         String numericalId,
         Map<String,?> locationYaml
@@ -79,7 +88,7 @@ public class GeographicalLocation implements Serializable {
         }
 
         GeographicalLocation location = new GeographicalLocation();
-        location.id = id.toString();
+        location.id = new GeographicalLocationId(id.toString());
         location.parent = parent;
         location.displayNameForLanguage = displayNameForLanguage;
 
@@ -89,7 +98,7 @@ public class GeographicalLocation implements Serializable {
     }
 
     protected static void setChildrenFromYaml(
-        Map<String, GeographicalLocation> locationsForId,
+        Map<GeographicalLocationId, GeographicalLocation> locationsForId,
         GeographicalLocation parent,
         Map<String,?> locationYaml
     ) {
@@ -105,8 +114,8 @@ public class GeographicalLocation implements Serializable {
         parent.children = children.toArray(new GeographicalLocation[0]);
     }
 
-    protected static Map<String, GeographicalLocation> parseLocationsYaml() {
-        Timer.start("parse-movement-locations-yaml");
+    protected static Map<GeographicalLocationId, GeographicalLocation> parseLocationsYaml() {
+        Timer.start("parse-geographical-locations-yaml");
         try {
             String name = GeographicalLocation.class.getName().replaceAll("\\.", "/"); // e.g. "com/mypkg/MyClass"
             InputStream csvStream = GeographicalLocation.class.getClassLoader().getResourceAsStream(name + ".yaml");
@@ -115,9 +124,9 @@ public class GeographicalLocation implements Serializable {
                 BufferedReader yamlCharacterReader = new BufferedReader(new InputStreamReader(csvStream, "UTF-8"));
                 YamlReader yamlParser = new YamlReader(yamlCharacterReader);
                 Map<String,?> rootLocationYaml = (Map<String,?>) yamlParser.read();
-                Map<String, GeographicalLocation> result = new HashMap<String, GeographicalLocation>();
+                Map<GeographicalLocationId, GeographicalLocation> result = new HashMap<GeographicalLocationId, GeographicalLocation>();
                 world = new GeographicalLocation();
-                world.id = "";
+                world.id = new GeographicalLocationId("");
                 world.parent = null;
                 setChildrenFromYaml(result, world, rootLocationYaml);
                 return result;
@@ -125,7 +134,7 @@ public class GeographicalLocation implements Serializable {
             finally { csvStream.close(); }
         }
         catch (IOException e) { throw new RuntimeException(e); }
-        finally { Timer.end("parse-movement-locations-yaml"); }
+        finally { Timer.end("parse-geographical-locations-yaml"); }
     }
 
     /** Can be called multiple times */
@@ -209,9 +218,9 @@ public class GeographicalLocation implements Serializable {
     // Public object API (of a location)
     // ----------------------------------------------------------------------------------------------------------------
 
-    public String getId() { return id; }
+    public GeographicalLocationId getId() { return id; }
     public String getDisplayNameForLanguage(String lang) { return displayNameForLanguage.get(lang);     }
-    public String toString() { return id; }
+    public String toString() { return id.toString(); }
 
     /**
      * If this is "2nd district vienna", return "Vienna, Austria" (but not "Europe, World" as that's too obvious).
