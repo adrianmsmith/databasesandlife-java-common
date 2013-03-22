@@ -151,6 +151,14 @@ public class DbTransaction {
             catch (ParseException e) { throw new RuntimeException(e); }
         }
         
+        public String[] getStringArray(String col) {
+            try {
+                Object[] a = (Object[]) rs.getArray(col).getArray();
+                return Arrays.copyOf(a, a.length, String[].class);
+            }
+            catch (SQLException e) { throw new RuntimeException(e); }
+        }
+        
         public YearMonthDay getYearMonthDay(String col) {
             try {
                 String str = rs.getString(col);
@@ -262,6 +270,8 @@ public class DbTransaction {
                     ps.setBytes(i+1, (byte[]) args[i]);
                 else if (args[i] instanceof Enum<?>)
                     ps.setString(i+1, ((Enum<?>) args[i]).name());
+                else if (args[i] instanceof String[])
+                    ps.setArray(i+1, connection.createArrayOf("varchar", (String[]) args[i]));
                 else 
                     throw new RuntimeException("sql='"+sql+
                         "': unexpected type for argument "+i+": "+args[i].getClass());
