@@ -158,17 +158,17 @@ public class GeographicalLocation implements Serializable {
     public static Map<String, GeographicalLocation> getContinentMap() {
         throwIfNotInit();
         Map<String, GeographicalLocation> result = new HashMap<String, GeographicalLocation>();
-        result.put("europe",   findForId("B"));
-        result.put("africa",   findForId("C"));
-        result.put("sAmerica", findForId("D"));
-        result.put("nAmerica", findForId("E"));
-        result.put("asia",     findForId("F"));
-        result.put("cAmerica", findForId("G"));
+        result.put("europe",   findForId(new GeographicalLocationId("B")));
+        result.put("africa",   findForId(new GeographicalLocationId("C")));
+        result.put("sAmerica", findForId(new GeographicalLocationId("D")));
+        result.put("nAmerica", findForId(new GeographicalLocationId("E")));
+        result.put("asia",     findForId(new GeographicalLocationId("F")));
+        result.put("cAmerica", findForId(new GeographicalLocationId("G")));
         return result;
     }
 
     /** Find a location for its ID. If not found, throw RuntimeException */
-    public static GeographicalLocation findForId(String id) {
+    public static GeographicalLocation findForId(GeographicalLocationId id) {
         throwIfNotInit();
         GeographicalLocation result = locationsForId.get(id);
         if (result == null) throw new RuntimeException("Location not found for id='" + id + "'");
