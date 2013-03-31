@@ -28,6 +28,7 @@ public class SingleEntryModelAdaptor<T> implements IModel<List<T>> {
         singleEntryModel.detach(); 
     }
 
+    @SuppressWarnings("unchecked")
     @Override public List<T> getObject() {
         return Arrays.asList(singleEntryModel.getObject()); 
     }
