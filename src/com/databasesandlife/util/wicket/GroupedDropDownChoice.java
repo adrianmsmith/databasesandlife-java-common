@@ -8,6 +8,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.select.IOptionRenderer;
 import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
@@ -17,42 +18,40 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
-public class GroupedDropDownChoice<T> extends FormComponentPanel<List<T>> {
+/**
+ * @param <T> The object type to be selected
+ */
+@SuppressWarnings("serial")
+public class GroupedDropDownChoice<T extends Serializable> extends FormComponentPanel<List<T>> {
 
-    public static class Group<T> implements Serializable {
-
+    public static class DropDownChoiceGroup<T> implements Serializable {
         private List<T> values;
         private String groupName;
-        
-        public Group(String groupName,List<T> values) {
-            this.values = values;
-            this.groupName = groupName;
-        }
-
-        public List<T> getValues(){
-            return values;
-        }
-        
-        public String getGroupName(){
-            return groupName;
-        }
-        
+        public DropDownChoiceGroup(String groupName,List<T> values) { this.values = values; this.groupName = groupName; }
+        public DropDownChoiceGroup(String groupName) { this(groupName, new ArrayList<T>()); }
+        public List<T> getValues(){ return values; }
+        public String getGroupName(){ return groupName; }
+        public void add(T item) { values.add(item); }
     }
 
-    private List<T> selectModel = new ArrayList<T>();
+    /** Used by wicket */ 
+    protected List<T> selectModel = new ArrayList<T>();
 	private Select<List<T>> select;
 	
-	public GroupedDropDownChoice(String wicketId, IModel<List<T>> model,List<Group<T>> values,final IOptionRenderer<T> renderer,String htmlId,boolean multiple){
-		super(wicketId, model);
+	protected GroupedDropDownChoice(String wicketId) {
+	    super(wicketId);
+	}
+	
+	protected void init(IModel<List<T>> model, List<DropDownChoiceGroup<T>> values, final IOptionRenderer<T> renderer, String htmlId) {
+		setModel(model);
 		select = new Select<List<T>>("select",new PropertyModel<List<T>>(this,"selectModel"));
 		if(!htmlId.isEmpty()) select.add(new AttributeModifier("id", htmlId));
-		if(multiple) select.add(new AttributeModifier("multiple","multiple"));
-		select.add(new AttributeModifier("class","abc"));
+		if(isMultiple()) select.add(new AttributeModifier("multiple","multiple"));
 		add(select);
-		ListView<Group<T>> groups = new ListView<Group<T>>("groups",values) {
+		ListView<DropDownChoiceGroup<T>> groups = new ListView<DropDownChoiceGroup<T>>("groups",values) {
 			@Override
-			protected void populateItem(ListItem<Group<T>> arg0) {
-				Group<T> g = arg0.getModelObject();
+			protected void populateItem(ListItem<DropDownChoiceGroup<T>> arg0) {
+				DropDownChoiceGroup<T> g = arg0.getModelObject();
 				WebMarkupContainer optgroup = new WebMarkupContainer("optgroup");
 				optgroup.add(new AttributeModifier("label",g.getGroupName()));
 				//for the sake of customization a list view with SelectOption objects
@@ -61,12 +60,12 @@ public class GroupedDropDownChoice<T> extends FormComponentPanel<List<T>> {
 				optgroup.add(new ListView<T>("select-options",g.getValues()){
 
 					@Override
-					protected void populateItem(ListItem<T> arg0) {
-						T value = arg0.getModelObject();
-						SelectOption<String> opt = new SelectOption<String>("select-option",new Model(renderer.getDisplayValue(value)));
+					protected void populateItem(ListItem<T> item) {
+						T value = item.getModelObject();
+						SelectOption<T> opt = new SelectOption<T>("select-option", Model.of(value));
 						opt.add(new AttributeModifier("class","abc"));
 						opt.add(new Label("option-text",renderer.getDisplayValue(value)));
-						arg0.add(opt);
+						item.add(opt);
 					}
 					
 				});
@@ -76,9 +75,27 @@ public class GroupedDropDownChoice<T> extends FormComponentPanel<List<T>> {
 		select.add(groups);
 	}
 	
+    /**
+     * @param model allow multiple selections, unless model is a {@link SingleEntryModelAdaptor}.
+     */
+    public GroupedDropDownChoice(
+        String wicketId, IModel<List<T>> model, List<DropDownChoiceGroup<T>> values, final IOptionRenderer<T> renderer, String htmlId
+    ){
+        super(wicketId);
+        init(model, values, renderer, htmlId);
+    }
+    
+    public boolean isMultiple() {
+        return ! (getModel() instanceof SingleEntryModelAdaptor);
+    }
+    
+    @Override protected void onComponentTag(ComponentTag tag) {
+        super.onComponentTag(tag);
+        tag.setName("span");  // So that clients can write <select wicket:id="xx"> and we generate <select> etc.
+    }
+    
 	@Override
 	protected void convertInput(){
 		setConvertedInput(select.getConvertedInput());
     }
-
 }
