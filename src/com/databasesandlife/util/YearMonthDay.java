@@ -98,4 +98,13 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     public static YearMonthDay newMinusInfinity() {
         return newForYYYYMMDD("1970-01-01");
     }
+    
+    public int calculateYearsDifference(YearMonthDay other){
+    	int difference = Math.abs(this.year - other.year);
+    	if(Math.abs(this.month - other.month) > 0){
+    		if(Math.abs(this.day - other.day) > 0) difference--;
+    	}
+    	return difference;
+    	
+    }
 }

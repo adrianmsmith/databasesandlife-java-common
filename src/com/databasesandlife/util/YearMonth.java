@@ -105,4 +105,16 @@ public class YearMonth implements Serializable {
         try { return new SimpleDateFormat("yyyy-MM").parse(toYYYYMM()); }
         catch (ParseException e) { throw new RuntimeException("unreachable", e); }
     }
+    
+    public int calculateYearsDifference(YearMonth other){
+    	int difference = Math.abs(this.year - other.year);
+    	if(this.month - other.month > 0){
+    		difference--;
+    	}
+    	return difference;
+    }
+    
+    public int calculateMonthsDifference(YearMonth other){
+    	return this.month > other.month ? 12-Math.abs(this.month - other.month) : Math.abs(this.month - other.month);
+    }
 }
