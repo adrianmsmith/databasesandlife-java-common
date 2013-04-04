@@ -159,10 +159,10 @@ public class DbTransaction {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
-        public Long[] getLongArray(String col) {
+        public Integer[] getIntegerArray(String col) {
             try {
                 Object[] a = (Object[]) rs.getArray(col).getArray();
-                return Arrays.copyOf(a, a.length, Long[].class);
+                return Arrays.copyOf(a, a.length, Integer[].class);
             }
             catch (SQLException e) { throw new RuntimeException(e); }
         }
@@ -288,10 +288,16 @@ public class DbTransaction {
                     ps.setString(i+1, ((Enum<?>) args[i]).name());
                 else if (args[i] instanceof String[])
                     ps.setArray(i+1, connection.createArrayOf("varchar", (String[]) args[i]));
-                else if (args[i] instanceof Long[])
-                    ps.setArray(i+1, connection.createArrayOf("varchar", (Long[]) args[i]));
+                else if (args[i] instanceof Integer[])
+                    ps.setArray(i+1, connection.createArrayOf("int", (Long[]) args[i]));
                 else if (args[i] instanceof Enum<?>[])
-                    ps.setArray(i+1, connection.createArrayOf("varchar", (Enum<?>[]) args[i]));
+                    switch (product) {
+                        case postgres:
+                            ps.setArray(i+1, connection.createArrayOf(postgresTypeForEnum.get(args[i].getClass().getComponentType()), (Enum<?>[]) args[i]));
+                            break;
+                        default:
+                            throw new RuntimeException("Enum Arrays are not supported for: " + "product");
+                    }
                 else 
                     throw new RuntimeException("sql='"+sql+
                         "': unexpected type for argument "+i+": "+args[i].getClass());
