@@ -302,7 +302,7 @@ public class DbTransaction {
                 else if (args[i] instanceof String[])
                     ps.setArray(i+1, connection.createArrayOf("varchar", (String[]) args[i]));
                 else if (args[i] instanceof Integer[])
-                    ps.setArray(i+1, connection.createArrayOf("int", (Long[]) args[i]));
+                    ps.setArray(i+1, connection.createArrayOf("int", (Integer[]) args[i]));
                 else if (args[i] instanceof Enum<?>[])
                     switch (product) {
                         case postgres:
