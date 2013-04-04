@@ -1,5 +1,6 @@
 package com.databasesandlife.util.jdbc;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -167,14 +168,6 @@ public class DbTransaction {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
-        public <T extends Enum<T>> T[] getEnumArray(String col, Class<? extends T[]> newType){
-            try {
-                Object[] a = (Object[]) rs.getArray(col).getArray();
-                return Arrays.copyOf(a, a.length, newType);
-            }
-            catch (SQLException e) { throw new RuntimeException(e); }
-        }
-        
         public YearMonthDay getYearMonthDay(String col) {
             try {
                 String str = rs.getString(col);
@@ -191,6 +184,26 @@ public class DbTransaction {
                 if (str == null) return null;
                 Method valueOfMethod = clazz.getMethod("valueOf", String.class);
                 return (T) valueOfMethod.invoke(null, str);
+            }
+            catch (SQLException e) { throw new RuntimeException(e); }
+            catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+            catch (InvocationTargetException e) { throw new RuntimeException(e); }
+            catch (IllegalAccessException e) { throw new RuntimeException(e); }
+        }
+
+        /**
+         * The SELECT must supply a VARCHAR[] as PostgreSQL JDBC driver does not implement ENUM[].
+         * For example <code>SELECT my_enum_array::VARCHAR[] ....</code>
+         */
+        @SuppressWarnings("unchecked")
+        public <T extends Enum<T>> T[] getEnumArray(String col, Class<? extends T> componentClass){
+            try {
+                Method valueOfMethod = componentClass.getMethod("valueOf", String.class);
+                Object[] stringArrayFromDb = (Object[]) rs.getArray(col).getArray();
+                T[] result = (T[]) Array.newInstance(componentClass, stringArrayFromDb.length);
+                for (int i = 0; i < stringArrayFromDb.length; i++)
+                    result[i] = (T) valueOfMethod.invoke(null, stringArrayFromDb[i]);
+                return result;
             }
             catch (SQLException e) { throw new RuntimeException(e); }
             catch (NoSuchMethodException e) { throw new RuntimeException(e); }
@@ -329,20 +342,21 @@ public class DbTransaction {
     }
     
     protected String getQuestionMarkForValue(Object value) {
-        if (value instanceof Enum<?>) {
-            switch (product) {
-                case postgres:
-                    String type = postgresTypeForEnum.get(value.getClass());
-                    if (type == null) throw new RuntimeException("Cannot convert Java Enum '" + value.getClass() + "' to " +
-                		"Postgres ENUM type: use addPostgresTypeForEnum method after DbTransaction constructor");
-                    return "?::" + type;
-
-                default:
-                    return "?";
+        if (product == DbServerProduct.postgres) {
+            if (value instanceof Enum<?>) {
+                String type = postgresTypeForEnum.get(value.getClass());
+                if (type == null) throw new RuntimeException("Cannot convert Java Enum '" + value.getClass() + "' to " +
+                    "Postgres ENUM type: use addPostgresTypeForEnum method after DbTransaction constructor");
+                return "?::" + type;
             }
-        } else {
-            return "?";
+            if (value instanceof Enum<?>[]) {
+                String type = postgresTypeForEnum.get(value.getClass().getComponentType());
+                if (type == null) throw new RuntimeException("Cannot convert Java Enum '" + value.getClass() + "' to " +
+                    "Postgres ENUM type: use addPostgresTypeForEnum method after DbTransaction constructor");
+                return "?::" + type + "[]";
+            }
         }
+        return "?";
     }
     
     /**
