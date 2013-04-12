@@ -35,7 +35,7 @@ public class SingleEntryModelAdaptor<T> implements IModel<List<T>> {
 
     @Override
     public void setObject(List<T> newList) {
-        if (newList.isEmpty()) singleEntryModel.setObject(null);
+        if (newList == null || newList.isEmpty()) singleEntryModel.setObject(null);
         else if (newList.size() == 1) singleEntryModel.setObject(newList.get(0));
         else throw new IllegalArgumentException("Expected <= 1 elements, found " + newList.size());
     }

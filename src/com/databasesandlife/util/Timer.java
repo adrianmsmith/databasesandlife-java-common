@@ -33,8 +33,8 @@ public class Timer {
         start.get().put(name, System.nanoTime());
     }
     
-    protected static String formatDurationNanos(long durationNanos) {
-        double seconds = durationNanos / (1000*1000*1000.0);
+    public static String formatDurationNanos(long durationNanoSeconds) {
+        double seconds = durationNanoSeconds / (1000*1000*1000.0);
         
         int minutes = (int) Math.floor(seconds / 60);
         seconds -= 60 * minutes;
