@@ -37,6 +37,7 @@ public class InputOutputStreamUtil {
         public byte[] byteArray;
     }
 
+    /** @deprecated use Apache Commons, IOUtils.copy instead */
     public static void copyBytesFromInputToOutputStream(OutputStream oStream, InputStream iStream)
     throws IOException {
         byte[] buffer = new byte[10000];
@@ -45,6 +46,7 @@ public class InputOutputStreamUtil {
            oStream.write(buffer, 0, bytesRead);
     }
 
+    /** @deprecated use Apache Commons, IOUtils.toByteArray(inputStream) instead */
     public static byte[] readBytesFromInputStream(InputStream iStream)
     throws IOException {
         ByteArrayOutputStream oStream = new ByteArrayOutputStream();
@@ -52,6 +54,7 @@ public class InputOutputStreamUtil {
         return oStream.toByteArray();
     }
 
+    /** @deprecated use Apache Commons, IOUtils.toString(reader) instead */
     public static String readStringFromReader(Reader iStream)
     throws IOException {
         CharArrayWriter oStream = new CharArrayWriter();
@@ -75,6 +78,7 @@ public class InputOutputStreamUtil {
         catch (IOException e) { throw new RuntimeException(e); }
     }
 
+    /** @deprecated use Apache Commons, FileUtils.write(File file, CharSequence data, String encoding) instead */
     public static void writeStringToFileUtf8(File f, String str)
     throws IOException {
         FileOutputStream o = new FileOutputStream(f);
@@ -113,6 +117,7 @@ public class InputOutputStreamUtil {
         return writer.toString();
     }
 
+    /** @deprecated use FileUtils.readFileToString in Apache Commons IO instead */
     public static String readUtf8(File file) {
         try {
             FileReader r = new FileReader(file);
