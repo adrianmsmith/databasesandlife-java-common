@@ -1,16 +1,16 @@
 package com.databasesandlife.util.hibernate;
 
-import com.databasesandlife.util.jdbc.DbTransaction;
-import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
-import com.databasesandlife.util.hibernate.testutil.HibernateSessionFactory;
-import com.databasesandlife.util.hibernate.testutil.PersistentObject;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
+
 import junit.framework.TestCase;
+
 import org.hibernate.Session;
+
+import com.databasesandlife.util.hibernate.testutil.HibernateSessionFactory;
+import com.databasesandlife.util.hibernate.testutil.PersistentObject;
+import com.databasesandlife.util.jdbc.DbTransaction;
+import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.

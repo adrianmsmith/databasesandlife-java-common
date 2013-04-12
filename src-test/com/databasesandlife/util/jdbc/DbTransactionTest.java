@@ -1,6 +1,5 @@
 package com.databasesandlife.util.jdbc;
 
-import java.awt.Choice;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
