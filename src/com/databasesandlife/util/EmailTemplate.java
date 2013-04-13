@@ -3,7 +3,6 @@ package com.databasesandlife.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +27,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+
+import org.apache.commons.io.IOUtils;
 
 /**
 
@@ -147,7 +148,7 @@ public class EmailTemplate {
     throws FileNotFoundInEmailTemplateDirectoryException {
         try {
             InputStream i = newInputStreamForBinaryFile(leafName);
-            return InputOutputStreamUtil.readStringFromReader(new InputStreamReader(i, "UTF-8"));
+            return IOUtils.toString(i, "UTF-8");
         }
         catch (IOException e) { throw new RuntimeException(e); }
     }

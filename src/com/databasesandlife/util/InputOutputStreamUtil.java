@@ -24,6 +24,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -37,7 +39,7 @@ public class InputOutputStreamUtil {
         public byte[] byteArray;
     }
 
-    /** @deprecated use Apache Commons, IOUtils.copy instead */
+    /** @deprecated use Apache Commons, {@link IOUtils#copy(InputStream, OutputStream)} instead */
     public static void copyBytesFromInputToOutputStream(OutputStream oStream, InputStream iStream)
     throws IOException {
         byte[] buffer = new byte[10000];
@@ -46,7 +48,7 @@ public class InputOutputStreamUtil {
            oStream.write(buffer, 0, bytesRead);
     }
 
-    /** @deprecated use Apache Commons, IOUtils.toByteArray(inputStream) instead */
+    /** @deprecated use Apache Commons, {@link IOUtils#toByteArray(InputStream)} instead */
     public static byte[] readBytesFromInputStream(InputStream iStream)
     throws IOException {
         ByteArrayOutputStream oStream = new ByteArrayOutputStream();
@@ -54,7 +56,7 @@ public class InputOutputStreamUtil {
         return oStream.toByteArray();
     }
 
-    /** @deprecated use Apache Commons, IOUtils.toString(reader) instead */
+    /** @deprecated use Apache Commons, {@link IOUtils#toString(Reader)} instead */
     public static String readStringFromReader(Reader iStream)
     throws IOException {
         CharArrayWriter oStream = new CharArrayWriter();
@@ -78,7 +80,7 @@ public class InputOutputStreamUtil {
         catch (IOException e) { throw new RuntimeException(e); }
     }
 
-    /** @deprecated use Apache Commons, FileUtils.write(File file, CharSequence data, String encoding) instead */
+    /** @deprecated use Apache Commons, {@link FileUtils#writeStringToFile(File, String, String)} instead */
     public static void writeStringToFileUtf8(File f, String str)
     throws IOException {
         FileOutputStream o = new FileOutputStream(f);
@@ -117,7 +119,7 @@ public class InputOutputStreamUtil {
         return writer.toString();
     }
 
-    /** @deprecated use FileUtils.readFileToString in Apache Commons IO instead */
+    /** @deprecated use {@link FileUtils#readFileToString(File, String)} with UTF-8 encoding instead */
     public static String readUtf8(File file) {
         try {
             FileReader r = new FileReader(file);
