@@ -13,6 +13,7 @@ import javax.swing.*;
  * @version $Revision$
  */
 
+@SuppressWarnings("serial")
 public class JAutoVanishingLabel
 extends JLabel {
 

@@ -34,6 +34,7 @@ import com.esotericsoftware.yamlbeans.YamlReader;
  * Each location has a parent location.
  * The exception is the "world" location, which has the ID "" and has parent=null.
  */
+@SuppressWarnings("serial")
 public class GeographicalLocation implements Serializable {
 
     public static class GeographicalLocationId implements Serializable {

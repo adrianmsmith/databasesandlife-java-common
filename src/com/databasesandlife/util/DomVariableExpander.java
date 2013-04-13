@@ -42,6 +42,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * @version $Revision$
  */
 
+@SuppressWarnings("serial")
 public class DomVariableExpander extends IdentityForwardingSaxHandler {
     
     public static class VariableNotFoundException extends RuntimeException {

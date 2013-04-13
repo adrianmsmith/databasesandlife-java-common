@@ -46,6 +46,7 @@ import org.apache.wicket.util.time.Duration;
  * @version $Revision$
  */
 
+@SuppressWarnings("serial")
 public class CountingUpThenAutoRefreshingLabel extends Panel {
     
     protected double countingUpDurationSeconds = 5;

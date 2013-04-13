@@ -39,6 +39,7 @@ import javax.swing.tree.*;
  * @version $Revision$
  */
 
+@SuppressWarnings("serial")
 public abstract class MasterDetailTreeNode
 implements TreeNode, java.io.Serializable {
     

@@ -10,6 +10,7 @@ import javax.swing.table.*;
  * @version $Revision$
  */
 
+@SuppressWarnings("serial")
 public class CachingTableModel 
 extends AbstractTableModel {
     

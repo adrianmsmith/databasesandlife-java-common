@@ -19,6 +19,7 @@ import org.w3c.dom.Element;
 
 import com.databasesandlife.util.DomVariableExpander.VariableNotFoundException;
 
+@SuppressWarnings("serial")
 public class DomVariableExpanderTest extends TestCase {
     
     public void testExpand() throws Exception {

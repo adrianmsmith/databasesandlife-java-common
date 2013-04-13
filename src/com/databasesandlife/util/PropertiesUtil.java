@@ -145,7 +145,7 @@ public class PropertiesUtil {
       * into a Properties object. */
     public static Properties newPropertiesForResourceBundle(ResourceBundle b) {
         Properties properties = new Properties();
-        for (Enumeration e = b.getKeys(); e.hasMoreElements(); ) {
+        for (Enumeration<?> e = b.getKeys(); e.hasMoreElements(); ) {
             String key = (String) e.nextElement(); // ResourceBundle key : String
             String value = b.getString(key);
             properties.setProperty(key, value);

@@ -82,6 +82,7 @@ import com.databasesandlife.util.YearMonthDay;
  * @version $Revision$
  */
 
+@SuppressWarnings("serial")
 public class DbTransaction {
     
     protected DbServerProduct product;

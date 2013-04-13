@@ -23,6 +23,7 @@ import com.databasesandlife.util.YearMonthDay;
  * }
  * </pre>
  */
+@SuppressWarnings("serial")
 public class YearMonthDayConverter implements IConverter<YearMonthDay>{
 
 	private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");

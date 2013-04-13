@@ -13,6 +13,7 @@ import com.databasesandlife.util.gwtsafe.ConfigurationException;
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class SvnUrlWithUsernamePassword implements Serializable {
 
     public SVNURL url;
