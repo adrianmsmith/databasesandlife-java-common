@@ -14,10 +14,11 @@ To develop / Eclipse
   - Runtime environment -> Add -> Tomcat 6
     - Download install into "eclipse/tomcat" (not just "eclipse"!)
 - Create new project, "Databases & Life Common"
-- Delete old "src"
-- Link "src", "src-junit"
-- Build path -> Add library -> Junit 3
-- Add all external JARs, in both "lib-compile" and "lib-test"
+- Delete the "src" directory which Eclipse creates
+- Project properties -> Build path
+  - Link "src", "src-junit" into the Subversion checkout
+  - Add library -> Junit 3
+  - Add all external JARs, in both "lib-compile" and "lib-test"
 - Create a MySQL database locally, "databasesandlife_common"
 - Alter database connections in DatabaseConnection test class to a local MySQL
 - Run "src-junit" 'as JUNIT' (try "debug as" in case JUNIT option is missing)
