@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
@@ -8,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -15,6 +17,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.transform.OutputKeys;
@@ -27,6 +30,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Element;
+
+import com.esotericsoftware.yamlbeans.YamlReader;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
@@ -127,5 +132,23 @@ public class InputOutputStreamUtil {
             finally { r.close(); }
         }
         catch (IOException e) { throw new RuntimeException(e); }
+    }
+
+    /** If class is "X.java" then parse the "X.yaml" */
+    @SuppressWarnings("unchecked")
+    public static Map<String,?> parseYamlConfig(Class<?> c) {
+        String name = c.getName().replaceAll("\\.", "/"); // e.g. "com/mypkg/MyClass"
+        InputStream stream = c.getClassLoader().getResourceAsStream(name + ".yaml");
+        if (stream == null) throw new IllegalArgumentException("No '.yaml' file for class '" + c.getName() + "'");
+        try {
+            BufferedReader yamlCharacterReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            YamlReader yamlParser = new YamlReader(yamlCharacterReader);
+            return (Map<String,?>) yamlParser.read();
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
+        finally { 
+            try { stream.close(); }
+            catch (IOException e) { } 
+        }
     }
 }
