@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.hibernate.dialect.PostgreSQLDialect;
 
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
@@ -266,6 +267,8 @@ public class DbTransaction {
     }
     
     protected PreparedStatement insertParamsToPreparedStatement(String sql, Object... args) {
+        Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        
         PreparedStatement ps = getPreparedStatement(sql);
         for (int i = 0; i < args.length; i++) {
             try {
@@ -291,11 +294,16 @@ public class DbTransaction {
                             break;
                         default:
                             Timestamp ts = new java.sql.Timestamp(((java.util.Date) args[i]).getTime());
-                            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                            ps.setTimestamp(i+1, ts, cal);
+                            ps.setTimestamp(i+1, ts, utc);
                     }
                 else if (args[i] instanceof YearMonthDay)
-                    ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD());
+                    switch (product) {
+                        case postgres: 
+                            ps.setDate(i+1, new java.sql.Date(((YearMonthDay) args[i]).getMidnightUtcAtStart().getTime()), utc); 
+                            break;
+                        default:
+                            ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD()); 
+                    }
                 else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
                 else if (args[i] instanceof Enum<?>)

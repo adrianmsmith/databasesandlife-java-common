@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +60,7 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     public Date getMidnightUtcAtStart() {
         try {
             SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+            f.setTimeZone(TimeZone.getTimeZone("UTC"));
             return f.parse(toYYYYMMDD());
         }
         catch (ParseException e) { throw new RuntimeException(e); }
@@ -107,5 +109,13 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     	}
     	return difference;
     	
+    }
+
+    public boolean isBefore(YearMonthDay other) {
+        return compareTo(other) < 0;
+    }
+
+    public boolean isAfter(YearMonthDay other) {
+        return compareTo(other) > 0;
     }
 }
