@@ -12,13 +12,12 @@ import com.databasesandlife.util.YearMonthDay;
 /**
  * Allows Wicket fields to have models of type {@link YearMonthDay}.
  *    <p>
- * To use, for example add the following method to the Wicket application:
+ * In HTML, use <code>&lt;input type="date"&gt;</code>. In Wicket, add the following to the application class:
  * <pre>
  * protected IConverterLocator newConverterLocator() {
  *   ConverterLocator locator = 
  *     (ConverterLocator) super.newConverterLocator();
- *   locator.set(YearMonthDay.class, 
- *     new YearMonthDayConverter(new SimpleDateFormat("dd.MM.yyyy")));
+ *   locator.set(YearMonthDay.class, new YearMonthDayConverter());
  *   return locator;
  * }
  * </pre>
@@ -29,9 +28,8 @@ public class YearMonthDayConverter implements IConverter<YearMonthDay>{
 	private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 	private SimpleDateFormat userFormat;
 	
-	public YearMonthDayConverter(SimpleDateFormat format){
-		userFormat = format;
-	}
+    public YearMonthDayConverter() { userFormat = format; }
+    public YearMonthDayConverter(SimpleDateFormat format) { userFormat = format; }
 	
 	@Override
 	public YearMonthDay convertToObject(String arg0, Locale arg1) {
@@ -39,7 +37,7 @@ public class YearMonthDayConverter implements IConverter<YearMonthDay>{
 		try {
 			return YearMonthDay.newForYYYYMMDD(format.format(userFormat.parse(arg0)));
 		} catch (ParseException e) {
-			throw new ConversionException(e).setResourceKey("YearMonthDay not valid");
+			throw new ConversionException(e).setResourceKey("invalid");
 		}
 	}
 
@@ -49,9 +47,7 @@ public class YearMonthDayConverter implements IConverter<YearMonthDay>{
  		try {
 			return userFormat.format(format.parse(arg0.toYYYYMMDD()));
 		} catch (ParseException e) {
-			throw new ConversionException(e).setResourceKey("YearMonthDay not valid");
+			throw new ConversionException(e).setResourceKey("invalid");
 		}
 	}
-
-
 }
