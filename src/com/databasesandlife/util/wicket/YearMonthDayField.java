@@ -9,9 +9,8 @@ import com.databasesandlife.util.YearMonthDay;
 @SuppressWarnings("serial")
 public class YearMonthDayField extends TextField<YearMonthDay> {
     
-    public YearMonthDayField(String wicketId, IModel<YearMonthDay> model) {
-        super(wicketId, model);
-    }
+    public YearMonthDayField(String wicketId) { super(wicketId, YearMonthDay.class); }
+    public YearMonthDayField(String wicketId, IModel<YearMonthDay> model) { super(wicketId, model, YearMonthDay.class); }
     
     @Override protected String getInputType() {
         return "date";
