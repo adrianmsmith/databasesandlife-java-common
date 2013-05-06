@@ -29,7 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.hibernate.dialect.PostgreSQLDialect;
 
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
