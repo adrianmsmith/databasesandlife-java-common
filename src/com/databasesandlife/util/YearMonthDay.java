@@ -111,11 +111,8 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     	
     }
 
-    public boolean isBefore(YearMonthDay other) {
-        return compareTo(other) < 0;
-    }
-
-    public boolean isAfter(YearMonthDay other) {
-        return compareTo(other) > 0;
-    }
+    public boolean isBefore(YearMonthDay other) { return compareTo(other) < 0; }
+    public boolean isAfter(YearMonthDay other) { return compareTo(other) > 0; }
+    public boolean isBeforeOrEqual(YearMonthDay other) { return compareTo(other) <= 0; }
+    public boolean isAfterOrEqual(YearMonthDay other) { return compareTo(other) >= 0; }
 }
