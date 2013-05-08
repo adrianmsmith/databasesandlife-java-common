@@ -580,6 +580,26 @@ public class DbTransaction {
         try { updateOrThrowUniqueConstraintViolation(table, cols, where, whereParams); }
         catch (UniqueConstraintViolation e) { } // ignore
     }
+
+    /**
+     * For just-in-time insertion of objects.
+     * @see <a href="http://www.databasesandlife.com/jit-inserting-rows-into-a-db/">"Just-in-time" inserting rows into a database (Databases &amp; Life)</a> 
+     */
+    public void insertOrUpdate(String table, Map<String, Object> cols, String... primaryKeyColumns) {
+        try { 
+            insertOrThrowUniqueConstraintViolation(table, cols);
+        }
+        catch (UniqueConstraintViolation e) {
+            StringBuilder where = new StringBuilder();
+            List<Object> params = new ArrayList<Object>(primaryKeyColumns.length);
+            if (where.length() > 0) where.append(" AND ");
+            for (String col : primaryKeyColumns) {
+                where.append(col); where.append(" = ?");
+                params.add(cols.get(col));
+            }
+            update(table, cols, where.toString(), params.toArray());
+        }
+    }
     
     public void rollback() {
         try {
