@@ -1,5 +1,6 @@
 package com.databasesandlife.util.wicket;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,13 +30,16 @@ public class SingleEntryModelAdaptor<T> implements IModel<List<T>> {
         singleEntryModel.detach(); 
     }
 
-    @SuppressWarnings("unchecked")
     @Override public List<T> getObject() {
-        return Arrays.asList(singleEntryModel.getObject()); 
+        // return Arrays.asList(..) doesn't work:
+        // the resulting array is actually MODIFIED by Wicket's Select object before being passed to setObject
+        T object = singleEntryModel.getObject();
+        List<T> result = new ArrayList<T>();
+        if (object != null) result.add(object);
+        return result;
     }
 
-    @Override
-    public void setObject(List<T> newList) {
+    @Override public void setObject(List<T> newList) {
         if (newList == null || newList.isEmpty()) singleEntryModel.setObject(null);
         else if (newList.size() == 1) singleEntryModel.setObject(newList.get(0));
         else throw new IllegalArgumentException("Expected <= 1 elements, found " + newList.size());
