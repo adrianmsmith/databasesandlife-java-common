@@ -22,6 +22,14 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     
     public int year, month, day;
     
+    protected YearMonthDay() { }
+    
+    public YearMonthDay(int year, int month, int day) {
+        this.year = year;
+        this.month = month;
+        this.day = day;
+    }
+        
     /** @param date "YYYY-MM-DD", not null */
     public static YearMonthDay newForYYYYMMDD(String date) {
         Matcher m = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})").matcher(date);
@@ -33,14 +41,6 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
         return result;
     }
     
-    public static YearMonthDay newForYYYYMMDD(long year, long month, long day) {
-        YearMonthDay result = new YearMonthDay();
-        result.year = (int) year;
-        result.month = (int) month;
-        result.day = (int) day;
-        return result;
-    }
-        
     /** @return "YYYY-MM-DD" */
     public String toYYYYMMDD() {
         return String.format("%04d-%02d-%02d", year, month, day);
@@ -122,15 +122,6 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     	
     }
     
-   
-    public static Date convertToDate(YearMonthDay yearMonthDay){
-        Calendar cal = Calendar.getInstance();
-        cal.set(yearMonthDay.year, yearMonthDay.month-1, yearMonthDay.day);
-        return cal.getTime();
-    }
-    
-
-
     public boolean isBefore(YearMonthDay other) { return compareTo(other) < 0; }
     public boolean isAfter(YearMonthDay other) { return compareTo(other) > 0; }
     public boolean isBeforeOrEqual(YearMonthDay other) { return compareTo(other) <= 0; }
