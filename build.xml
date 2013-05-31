@@ -34,8 +34,7 @@
     </javac>
     <copy todir="${compile-into}">
       <fileset dir="src">
-        <include name="**/*.properties"/>
-        <include name="**/*.java"/>
+        <include name="**/*"/>
       </fileset>
     </copy>
     <delete> <fileset dir="." includes="databasesandlife-util-incl-src-r*.jar"/> </delete>
