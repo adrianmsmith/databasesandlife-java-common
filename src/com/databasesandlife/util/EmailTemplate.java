@@ -87,12 +87,15 @@ class RegistrationEmailTemplate extends EmailTemplate {
 class RegistrationProcess {
   public registerNewUser(InternetAddress emailAddress, Locale language, String name, ... ) {
     String smtpServer = "localhost";
+    EmailTransaction tx = new EmailTransaction(smtpServer);
 
     Map&lt;String,String&gt; params = new HashMap&lt;String,String&gt;();
     params.put("USERNAME", name);
 
     RegistrationEmailTemplate tpl = new RegistrationEmailTemplate();
-    tpl.send(smtpServer, recipientEmailAddress, language, params);
+    tpl.send(tx, recipientEmailAddress, language, params);
+    
+    tx.commit();
   }
 }
 </pre></p>
@@ -281,7 +284,7 @@ public class EmailTemplate {
 
     /** Send an email based on this email template. */
     public void send(
-        String smtpServer, InternetAddress recipientEmailAddress, Locale locale,
+        EmailTransaction tx, InternetAddress recipientEmailAddress, Locale locale,
         Map<String,String> parameters, Attachment... attachments
     ) {
         try {
@@ -309,17 +312,14 @@ public class EmailTemplate {
             for (Attachment a : attachments) addAttachment(mainPart, a);
 
             // Create the message from the subject and body
-            Properties props = new Properties();
-            props.put("mail.smtp.host", smtpServer);
-            Session mailSession = Session.getDefaultInstance(props);
-            Message msg = new MimeMessage(mailSession);
+            Message msg = tx.newMimeMessage();
             msg.setFrom(new InternetAddress(readLocaleTextFile("from", locale, "txt")));
             msg.addRecipient(RecipientType.TO, recipientEmailAddress);
             msg.setSubject(subject);
             msg.setContent(mainPart);
 
             // Send the message
-            Transport.send(msg);
+            tx.send(msg);
         }
         catch (MessagingException e) { throw new RuntimeException(e); }
     }
