@@ -18,7 +18,11 @@ public class ErrorAttributeAppender extends AttributeAppender {
         if (componentHasError) {
             return super.newValue(currentValue, appendValue);
         }else{
-            return currentValue.replaceAll(appendValue, "");
+            if(currentValue!=null){
+                return currentValue.replaceAll(appendValue, "");
+            }else{
+                return "";
+            }
         }
     }
 
