@@ -1,7 +1,6 @@
 package com.databasesandlife.util.wicket;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.model.IModel;
