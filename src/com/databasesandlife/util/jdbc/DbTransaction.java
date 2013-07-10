@@ -213,13 +213,16 @@ public class DbTransaction {
         }
     }
     
-    protected static class DbQueryResultSet implements Iterator<DbQueryResultRow> {
+    public static class DbQueryResultRowIterator implements Iterator<DbQueryResultRow> {
         enum State { readingData, /** rs is actually one row forward of iterator */ peeked, finished };
         
         ResultSet rs;
         State state = State.readingData;
         
-        DbQueryResultSet(ResultSet rs) { this.rs = rs; }
+        protected DbQueryResultRowIterator(ResultSet rs) { 
+            this.rs = rs; 
+            hasNext(); // this forces the statement to really be executed; important for timing
+        }
         
         @Override public boolean hasNext() {
             try {
@@ -240,6 +243,29 @@ public class DbTransaction {
         
         @Override public void remove() {
             throw new UnsupportedOperationException();
+        }
+    }
+    
+    public abstract class DbQueryResultSet implements Iterable<DbQueryResultRow> {
+        /** 
+         * Reads all rows in the result set, finds the string column "stringColumnName" and creates objects of type "cl" by
+         * calling its constructor taking a single string argument. 
+         */
+        public <T> List<T> toObjectList(Class<T> cl, String stringColumnName) {
+            try {
+                Iterator<DbQueryResultRow> i = iterator();
+                List<T> result = new ArrayList<T>();
+                while (i.hasNext()) {
+                    String val = i.next().getString(stringColumnName);
+                    T obj = cl.getConstructor(String.class).newInstance(val);
+                    result.add(obj);
+                }
+                return result;
+            }
+            catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+            catch (IllegalAccessException e) { throw new RuntimeException(e); }
+            catch (InstantiationException e) { throw new RuntimeException(e); }
+            catch (InvocationTargetException e) { throw new RuntimeException(e); }
         }
     }
     
@@ -451,21 +477,24 @@ public class DbTransaction {
     }
     
     /** @return Never retuns null (but may return an empty iterable) */
-    public Iterable<DbQueryResultRow> query(final String sql, final Object... args) {
-        return new Iterable<DbQueryResultRow>() {
+    public DbQueryResultSet query(final String sql, final Object... args) {
+        return new DbQueryResultSet() {
             public Iterator<DbQueryResultRow> iterator() {
                 Timer.start("SQL: " + getSqlForLog(sql, args));
                 try {
                     PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
                     ResultSet rs = ps.executeQuery();
-                    Iterator<DbQueryResultRow> result = new DbQueryResultSet(rs);
-                    result.hasNext(); // this forces the statement to really be executed; important for timing
-                    return result;
+                    return new DbQueryResultRowIterator(rs);
                 }
                 catch (SQLException e) { throw new RuntimeException(getSqlForLog(sql, args) + ": " + e.getMessage(), e); }
                 finally { Timer.end("SQL: " + getSqlForLog(sql, args)); }
             }
         };
+    }
+    
+    /** @return Never retuns null (but may return an empty iterable) */
+    public DbQueryResultSet query(CharSequence sql, List<Object> args) {
+        return query(sql.toString(), args.toArray());
     }
     
     public void execute(String sql, Object... args) {
