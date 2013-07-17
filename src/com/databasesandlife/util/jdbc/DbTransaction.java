@@ -621,8 +621,8 @@ public class DbTransaction {
         catch (UniqueConstraintViolation e) {
             StringBuilder where = new StringBuilder();
             List<Object> params = new ArrayList<Object>(primaryKeyColumns.length);
-            if (where.length() > 0) where.append(" AND ");
             for (String col : primaryKeyColumns) {
+                if (where.length() > 0) where.append(" AND ");
                 where.append(col); where.append(" = ?");
                 params.add(cols.get(col));
             }
