@@ -17,6 +17,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 /**
+ * Drop-down where options are in groups; user may select only one element or multiple elements.
  * @param <T> The object type to be selected
  */
 @SuppressWarnings("serial")
@@ -35,10 +36,6 @@ public class GroupedDropDownChoice<T extends Serializable> extends FormComponent
     /** Used by wicket */ 
     protected List<T> selectModel = new ArrayList<T>();
 	private Select<List<T>> select;
-	
-	protected GroupedDropDownChoice(String wicketId) {
-	    super(wicketId);
-	}
 	
 	protected void init(IModel<List<T>> model, List<DropDownChoiceGroup<T>> values, final IOptionRenderer<T> renderer, String htmlId) {
 		setModel(model);
@@ -72,6 +69,10 @@ public class GroupedDropDownChoice<T extends Serializable> extends FormComponent
 		select.add(groups);
 	}
 	
+    protected GroupedDropDownChoice(String wicketId) {
+        super(wicketId);
+    }
+    
     /**
      * @param model allow multiple selections, unless model is a {@link SingleEntryModelAdaptor}.
      */
@@ -99,6 +100,14 @@ public class GroupedDropDownChoice<T extends Serializable> extends FormComponent
 	@Override
 	protected void onBeforeRender(){
 		selectModel = getModelObject();	//to pre-select the passed value
+		
+		// Select object tries to determine if it should set a List<X> or just an X, by inspecting the current model.
+		// If it's a Collection it sets List<X> otherwise X. But if it's null, it doesn't know, so just sets X.
+		// But our model is always List<X> so we get a ClassCastException if Select gives us an X.
+		// We could just say "if (null) { model=new List(); }" but that is unclean; what meaning does it have, if you
+		// want to select a list of things, for that list to be null? The correct value is, if nothing is selected, the empty list.
+		if (selectModel == null) throw new NullPointerException("model is null; use empty list instead");
+		
 		super.onBeforeRender();
 	}
 }
