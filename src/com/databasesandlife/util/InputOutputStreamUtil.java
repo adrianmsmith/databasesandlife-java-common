@@ -136,14 +136,14 @@ public class InputOutputStreamUtil {
 
     /** If class is "X.java" then parse the "X.yaml" */
     @SuppressWarnings("unchecked")
-    public static Map<String,?> parseYamlConfig(Class<?> c) {
+    public static Object parseYamlConfig(Class<?> c) {
         String name = c.getName().replaceAll("\\.", "/"); // e.g. "com/mypkg/MyClass"
         InputStream stream = c.getClassLoader().getResourceAsStream(name + ".yaml");
         if (stream == null) throw new IllegalArgumentException("No '.yaml' file for class '" + c.getName() + "'");
         try {
             BufferedReader yamlCharacterReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
             YamlReader yamlParser = new YamlReader(yamlCharacterReader);
-            return (Map<String,?>) yamlParser.read();
+            return yamlParser.read();
         }
         catch (IOException e) { throw new RuntimeException(e); }
         finally { 
