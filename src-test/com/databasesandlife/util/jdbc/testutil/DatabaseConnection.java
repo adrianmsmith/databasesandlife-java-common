@@ -8,17 +8,9 @@ import com.databasesandlife.util.jdbc.DbTransaction;
  */
 public class DatabaseConnection {
 
-    public static String getHostname()      { return System.getProperty("db.hostname", "localhost"); }
-    public static String getDatabaseName()  { return System.getProperty("db.name", "databasesandlife_common"); }
-    public static String getUsername()      { return System.getProperty("db.username", "root"); }
-    public static String getPassword()      { return System.getProperty("db.password", ""); }
-
-    public static String getJdbcUrl() {
-        return "jdbc:mysql://" + getHostname() + "/" + getDatabaseName() + 
-            "?user=" + getUsername() + "&password=" + getPassword();
-    }
-
-    public static DbTransaction newDbTransaction() {
-        return new DbTransaction(getJdbcUrl());
+    public static DbTransaction[] newDbTransactions() {
+        return new DbTransaction[] {
+            new DbTransaction("jdbc:mysql://localhost/databasesandlife_common?user=root&password=root"),
+        };
     }
 }

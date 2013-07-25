@@ -23,7 +23,8 @@ public class InsertOrFetcherTest extends TestCase {
     }
 
     public void testLoad() throws Exception {
-        DbTransaction tx = DatabaseConnection.newDbTransaction();
+        DbTransaction tx = DatabaseConnection.newDbTransactions()[0];
+        tx.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED");
         tx.execute("DROP TABLE IF EXISTS persistent_object");
         tx.execute("CREATE TABLE persistent_object(" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, key1 VARCHAR(100), key2 VARCHAR(100), data VARCHAR(20)," +

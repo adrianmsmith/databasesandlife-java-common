@@ -20,9 +20,9 @@ public class HibernateSessionFactory {
             configuration.setProperty("hibernate.dialect",                 "org.hibernate.dialect.MySQLDialect");
             configuration.setProperty("hibernate.cache.provider_class",    "org.hibernate.cache.NoCacheProvider");
             configuration.setProperty("hibernate.show_sql",                "true");
-            configuration.setProperty("hibernate.connection.url",          DatabaseConnection.getJdbcUrl());
-            configuration.setProperty("hibernate.connection.username",     DatabaseConnection.getUsername());
-            configuration.setProperty("hibernate.connection.password",     DatabaseConnection.getPassword());
+            configuration.setProperty("hibernate.connection.url",          "jdbc:mysql://localhost/databasesandlife_common");
+            configuration.setProperty("hibernate.connection.username",     "root");
+            configuration.setProperty("hibernate.connection.password",     "root");
             configuration.addClass(PersistentObject.class);
         }
         return configuration;
