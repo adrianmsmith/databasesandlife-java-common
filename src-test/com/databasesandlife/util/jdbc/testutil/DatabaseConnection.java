@@ -11,6 +11,7 @@ public class DatabaseConnection {
     public static DbTransaction[] newDbTransactions() {
         return new DbTransaction[] {
             new DbTransaction("jdbc:mysql://localhost/databasesandlife_common?user=root&password=root"),
+            new DbTransaction("jdbc:postgresql://localhost:5432/databasesandlife_common?user=postgres&password="),
         };
     }
 }
