@@ -23,8 +23,11 @@ public class InsertOrFetcherTest extends TestCase {
     }
 
     public void testLoad() throws Exception {
+        // For some reason old tx can't see newly inserted objects?
+        // even with:
+        //    tx.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED");
+
         DbTransaction tx = DatabaseConnection.newDbTransactions()[0];
-        tx.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED");
         tx.execute("DROP TABLE IF EXISTS persistent_object");
         tx.execute("CREATE TABLE persistent_object(" +
                 "id INT PRIMARY KEY AUTO_INCREMENT, key1 VARCHAR(100), key2 VARCHAR(100), data VARCHAR(20)," +
@@ -38,16 +41,19 @@ public class InsertOrFetcherTest extends TestCase {
 
         PersistentObject obj = InsertOrFetcher.load(PersistentObject.class, s, prototype, key);
         assertNotNull(obj);
+        tx = DatabaseConnection.newDbTransactions()[0];
         assertEquals(1, (int) tx.query("SELECT COUNT(*) AS c FROM persistent_object").iterator().next().getInt("c")); // really exists in database
 
         PersistentObject objSame = InsertOrFetcher.load(PersistentObject.class, s, prototype, key);
         assertNotNull(objSame);
+        tx = DatabaseConnection.newDbTransactions()[0];
         assertEquals(1, (int) tx.query("SELECT COUNT(*) AS c FROM persistent_object").iterator().next().getInt("c")); // didn't do another INSERT
         assertSame(obj, objSame);   // returned same object instance
 
         prototype.setKey2("different");
         PersistentObject objDifferent = InsertOrFetcher.load(PersistentObject.class, s, prototype, key);
         assertNotNull(objDifferent);
+        tx = DatabaseConnection.newDbTransactions()[0];
         assertEquals(2, (int) tx.query("SELECT COUNT(*) AS c FROM persistent_object").iterator().next().getInt("c")); // did do another INSERT
         assertNotSame(obj, objDifferent);  // return different object
         assertNotSame(obj.getId(), objDifferent.getId());  // return different object
