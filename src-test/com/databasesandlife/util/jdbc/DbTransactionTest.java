@@ -19,7 +19,7 @@ public class DbTransactionTest extends TestCase {
                 Iterator<DbQueryResultRow> i;
                 DbQueryResultRow row;
                 
-                String fromDual = tx.product == DbServerProduct.postgres ? "" : " FROM dual ";
+                String fromDual = tx.getFromDual();
                 
                 // no rows hasNext
                 i = tx.query("SELECT 1 "+fromDual+" WHERE 1=2").iterator();

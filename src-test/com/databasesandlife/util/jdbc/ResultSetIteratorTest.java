@@ -30,7 +30,18 @@ public class ResultSetIteratorTest extends TestCase {
         for (DbTransaction tx : DatabaseConnection.newDbTransactions()) {
             Connection connection = tx.getConnection();
             
-            connection.prepareStatement("DROP TABLE IF EXISTS ResultSetIteratorTest").execute();
+            switch (tx.product) {
+                case postgres:
+                case mysql:
+                    connection.prepareStatement("DROP TABLE IF EXISTS ResultSetIteratorTest").execute();
+                    break;
+                case sqlserver:
+                    connection.prepareStatement("if exists (select * from INFORMATION_SCHEMA.TABLES " +
+                		"where TABLE_NAME = 'ResultSetIteratorTest') drop table ResultSetIteratorTest").execute();
+                    break;
+                default: throw new RuntimeException();
+            }
+            
             connection.prepareStatement("CREATE TABLE ResultSetIteratorTest(intCol INTEGER)").execute();
             
             // no results

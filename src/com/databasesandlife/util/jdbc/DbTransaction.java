@@ -32,11 +32,12 @@ import org.apache.log4j.Logger;
 
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
+import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 /**
  * Represents a transaction against a database.
  *     <p>
- * MySQL and PostgreSQL are supported.
+ * MySQL, PostgreSQL and SQL Server are supported.
  *     <p>
  * An object is created with the JDBC URL to the database.
  * There is no factory for this type of object, simply store the string JDBC URL as opposed to a DbConnectionFactory.
@@ -90,7 +91,7 @@ public class DbTransaction {
     protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
     protected Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<Class<? extends Enum<?>>, String>();
     
-    public enum DbServerProduct { mysql, postgres };
+    public enum DbServerProduct { mysql, postgres, sqlserver };
     
     public interface DbTransactionFactory {
         /** Caller must call {@link DbTransaction#commit()} or {@link DbTransaction#rollback()}. */
@@ -437,11 +438,14 @@ public class DbTransaction {
             
             if (jdbcUrl.contains(":mysql")) product = DbServerProduct.mysql;
             else if (jdbcUrl.contains(":postgres")) product = DbServerProduct.postgres;
+            else if (jdbcUrl.contains(":sqlserver")) product = DbServerProduct.sqlserver;
             else throw new RuntimeException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
             
             switch (product) {   // load the classes so that getConnection recognizes the :mysql: etc part of JDBC url
                 case mysql: new com.mysql.jdbc.Driver(); break;
                 case postgres: new org.postgresql.Driver(); break;
+                case sqlserver: new SQLServerDriver(); break;
+                default: throw new RuntimeException();
             }
             
             connection = DriverManager.getConnection(jdbcUrl);
@@ -648,5 +652,17 @@ public class DbTransaction {
     
     public void rollbackIfConnectionStillOpen() {
         if (connection != null) rollback();
+    }
+
+    public String getFromDual() {
+        switch (product) {
+            case sqlserver:
+            case postgres:
+                return "";
+            case mysql:
+                return " FROM dual ";
+            default:
+                throw new RuntimeException();
+        }
     }
 }
