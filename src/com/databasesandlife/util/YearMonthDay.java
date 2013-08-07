@@ -61,8 +61,10 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
         return 384745 + toYYYYMMDD().hashCode();
     }
     
-    public static YearMonthDay newToday() {
-        return newForYYYYMMDD(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+    public static YearMonthDay newTodayUtc() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return newForYYYYMMDD(format.format(new Date()));
     }
     
     public Date getMidnightUtcAtStart() {
