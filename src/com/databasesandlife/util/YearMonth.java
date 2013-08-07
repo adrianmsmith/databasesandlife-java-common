@@ -25,6 +25,8 @@ public class YearMonth implements Serializable {
     }
 
     YearMonth() { }
+    
+    /** @param m 1 is january */
     public YearMonth(int y, int m) { year=y; month=m; }
 
     /** @return "YYYY-MM" form */
