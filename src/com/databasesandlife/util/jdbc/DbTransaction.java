@@ -376,7 +376,7 @@ public class DbTransaction {
         catch (SQLException e) { throw new RuntimeException(e); }
     }
     
-    protected String getQuestionMarkForValue(Object value) {
+    public String getQuestionMarkForValue(Object value) {
         if (product == DbServerProduct.postgres) {
             if (value instanceof Enum<?>) {
                 String type = postgresTypeForEnum.get(value.getClass());
@@ -506,6 +506,10 @@ public class DbTransaction {
         catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
     }
     
+    public void execute(CharSequence sql, List<Object> args) {
+        execute(sql.toString(), args.toArray());
+    }
+    
     public void insert(String table, Map<String, ?> cols) {
         if (cols.isEmpty() && product == DbServerProduct.postgres) {
             // if no columns:
@@ -613,7 +617,7 @@ public class DbTransaction {
         try { updateOrThrowUniqueConstraintViolation(table, cols, where, whereParams); }
         catch (UniqueConstraintViolation e) { } // ignore
     }
-
+    
     /**
      * For just-in-time insertion of objects.
      * @see <a href="http://www.databasesandlife.com/jit-inserting-rows-into-a-db/">"Just-in-time" inserting rows into a database (Databases &amp; Life)</a> 
