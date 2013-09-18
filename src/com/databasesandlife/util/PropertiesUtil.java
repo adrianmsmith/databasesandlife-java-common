@@ -166,7 +166,7 @@ public class PropertiesUtil {
     }
     
     public static Properties newPropertiesForClass(Class<?> c) {
-        return newPropertiesForResourceName(c.getPackage() + "." + c.getName());
+        return newPropertiesForResourceName(c.getName());
     }
     
     /**
