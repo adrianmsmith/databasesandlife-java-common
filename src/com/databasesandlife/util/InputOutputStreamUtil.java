@@ -135,7 +135,6 @@ public class InputOutputStreamUtil {
     }
 
     /** If class is "X.java" then parse the "X.yaml" */
-    @SuppressWarnings("unchecked")
     public static Object parseYamlConfig(Class<?> c) {
         String name = c.getName().replaceAll("\\.", "/"); // e.g. "com/mypkg/MyClass"
         InputStream stream = c.getClassLoader().getResourceAsStream(name + ".yaml");

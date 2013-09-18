@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -45,6 +46,13 @@ public class EmailTransaction {
             for (Message msg : messages) 
                 Transport.send(msg);
         }
+        catch (MessagingException e) { throw new RuntimeException(e); }
+    }
+    
+    public int getEmailCountForTesting() { return messages.size(); }
+    public String getEmailBodyForTesting(int idx) {
+        try { return (String) messages.get(idx).getContent(); }
+        catch (IOException e) { throw new RuntimeException(e); }
         catch (MessagingException e) { throw new RuntimeException(e); }
     }
 }
