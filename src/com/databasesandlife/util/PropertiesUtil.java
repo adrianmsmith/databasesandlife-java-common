@@ -165,6 +165,10 @@ public class PropertiesUtil {
         return PropertiesUtil.newPropertiesForResourceBundle(configRes);
     }
     
+    public static Properties newPropertiesForClass(Class<?> c) {
+        return newPropertiesForResourceName(c.getPackage() + "." + c.getName());
+    }
+    
     /**
      * @param name name for example "com.ucpag.components.x" where there
      * is a properties file called "x.properties"
