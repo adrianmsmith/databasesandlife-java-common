@@ -114,8 +114,10 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     
     public int calculateYearsDifference(YearMonthDay other){
     	int difference = Math.abs(this.year - other.year);
-    	if(Math.abs(this.month - other.month) > 0){
-    		if(Math.abs(this.day - other.day) > 0) difference--;
+    	if(this.month - other.month > 0 || other.month - this.month < 0){
+    		difference--;
+    	}else if(this.day - other.day > 0 || other.day - this.day < 0) {
+    		difference--;
     	}
     	return difference;
     	
