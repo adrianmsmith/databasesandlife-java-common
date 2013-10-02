@@ -176,6 +176,7 @@ public class DbTransaction {
             try {
                 String str = rs.getString(col);
                 if (str == null) return null;
+                if (str.length() > "YYYY-MM-DD".length()) str = str.substring(0, "YYYY-MM-DD".length()); // e.g. if col is datetime
                 return YearMonthDay.newForYYYYMMDD(str);
             }
             catch (SQLException e) { throw new RuntimeException(e); }
