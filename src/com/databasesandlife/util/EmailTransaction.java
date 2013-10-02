@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Message;
+import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -42,11 +43,16 @@ public class EmailTransaction {
     }
     
     public void commit() {
+        Timer.start("EmailTransaction-commit");
         try {
-            for (Message msg : messages) 
-                Transport.send(msg);
+            for (Message msg : messages) {
+                Timer.start("Send email to '" + msg.getRecipients(RecipientType.TO)[0]+"'");
+                try { Transport.send(msg); }
+                finally { Timer.end("Send email to '" + msg.getRecipients(RecipientType.TO)[0]+"'"); }
+            }
         }
         catch (MessagingException e) { throw new RuntimeException(e); }
+        finally { Timer.end("EmailTransaction-commit"); }
     }
     
     public int getEmailCountForTesting() { return messages.size(); }

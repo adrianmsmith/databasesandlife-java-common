@@ -19,11 +19,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -268,6 +270,14 @@ public class DbTransaction {
             catch (InstantiationException e) { throw new RuntimeException(e); }
             catch (InvocationTargetException e) { throw new RuntimeException(e); }
         }
+        
+        /** 
+         * Reads all rows in the result set, finds the string column "stringColumnName" and creates objects of type "cl" by
+         * calling its constructor taking a single string argument. 
+         */
+        public <T> Set<T> toObjectSet(Class<T> cl, String stringColumnName) {
+            return new HashSet<T>(toObjectList(cl, stringColumnName));
+        }
     }
     
     // ---------------------------------------------------------------------------------------------------------------
@@ -502,8 +512,10 @@ public class DbTransaction {
     }
     
     public void execute(String sql, Object... args) {
+        Timer.start("SQL: " + getSqlForLog(sql, args));
         try { insertParamsToPreparedStatement(sql, args).executeUpdate(); } // returns int = row count processed; we ignore
         catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
+        finally { Timer.end("SQL: " + getSqlForLog(sql, args)); };
     }
     
     public void execute(CharSequence sql, List<Object> args) {
@@ -619,12 +631,21 @@ public class DbTransaction {
     }
     
     /**
-     * For just-in-time insertion of objects.
+     * Inserts (colsToInsert + colsToUpdate) and, if that fails because the row already exists,
+     * updates (colsToUpdate) where (primaryKeyColumns out of colsToInsert).
      * @see <a href="http://www.databasesandlife.com/jit-inserting-rows-into-a-db/">"Just-in-time" inserting rows into a database (Databases &amp; Life)</a> 
      */
-    public void insertOrUpdate(String table, Map<String, Object> cols, String... primaryKeyColumns) {
-        try { 
-            insertOrThrowUniqueConstraintViolation(table, cols);
+    public void insertOrUpdate(
+        String table, 
+        Map<String, Object> colsToUpdate, 
+        Map<String, Object> colsToInsert,
+        String... primaryKeyColumns
+    ) {
+        try {
+            Map<String, Object> newRow = new HashMap<String, Object>();
+            newRow.putAll(colsToUpdate);
+            newRow.putAll(colsToInsert);
+            insertOrThrowUniqueConstraintViolation(table, newRow);
         }
         catch (UniqueConstraintViolation e) {
             StringBuilder where = new StringBuilder();
@@ -632,9 +653,9 @@ public class DbTransaction {
             for (String col : primaryKeyColumns) {
                 if (where.length() > 0) where.append(" AND ");
                 where.append(col); where.append(" = ?");
-                params.add(cols.get(col));
+                params.add(colsToInsert.get(col));
             }
-            update(table, cols, where.toString(), params.toArray());
+            update(table, colsToUpdate, where.toString(), params.toArray());
         }
     }
     

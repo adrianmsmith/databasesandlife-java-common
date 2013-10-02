@@ -17,7 +17,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.transform.OutputKeys;

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * @version $Revision$
  */
 @SuppressWarnings("serial")
-public class YearMonth implements Serializable {
+public class YearMonth implements Serializable, Comparable<YearMonth> {
 
     public int year, month;
 
@@ -119,5 +119,13 @@ public class YearMonth implements Serializable {
     
     public int calculateMonthsDifference(YearMonth other){
     	return this.month > other.month ? 12-Math.abs(this.month - other.month) : Math.abs(this.month - other.month);
+    }
+
+    @Override public int compareTo(YearMonth other) {
+        if (this.year < other.year) return -1;
+        if (this.year > other.year) return +1;
+        if (this.month < other.month) return -1;
+        if (this.month > other.month) return +1;
+        return 0;
     }
 }

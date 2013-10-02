@@ -94,14 +94,14 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     }
 
     @Override public int compareTo(YearMonthDay other) {
-        return getMidnightUtcAtStart().compareTo(other.getMidnightUtcAtStart());
-//        if (this.year < other.year) return -1;
-//        if (this.year > other.year) return +1;
-//        if (this.month < other.month) return -1;
-//        if (this.month > other.month) return +1;
-//        if (this.day < other.day) return -1;
-//        if (this.day > other.day) return +1;
-//        return 0;
+//        return getMidnightUtcAtStart().compareTo(other.getMidnightUtcAtStart());
+        if (this.year < other.year) return -1;
+        if (this.year > other.year) return +1;
+        if (this.month < other.month) return -1;
+        if (this.month > other.month) return +1;
+        if (this.day < other.day) return -1;
+        if (this.day > other.day) return +1;
+        return 0;
     }
 
     public YearMonthDay subtractDays(int dayCount) {
