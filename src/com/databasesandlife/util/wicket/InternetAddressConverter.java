@@ -21,7 +21,7 @@ public class InternetAddressConverter implements IConverter<InternetAddress> {
         else try {
             return new InternetAddress(str, true);
         } catch (AddressException e) {
-            throw new ConversionException(e).setResourceKey("invalid");
+            throw new ConversionException(e).setResourceKey("invalidEmailAddress").setVariable("email-address", str);
         }
     }
 
