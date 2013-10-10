@@ -513,10 +513,10 @@ public class DbTransaction {
     }
     
     public void execute(String sql, Object... args) {
-        Timer.start("SQL: " + getSqlForLog(sql, args));
+//        Timer.start("SQL: " + getSqlForLog(sql, args));
         try { insertParamsToPreparedStatement(sql, args).executeUpdate(); } // returns int = row count processed; we ignore
         catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
-        finally { Timer.end("SQL: " + getSqlForLog(sql, args)); };
+//        finally { Timer.end("SQL: " + getSqlForLog(sql, args)); };
     }
     
     public void execute(CharSequence sql, List<Object> args) {
