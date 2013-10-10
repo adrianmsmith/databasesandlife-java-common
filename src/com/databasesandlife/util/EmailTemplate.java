@@ -271,7 +271,7 @@ public class EmailTemplate {
     /** Return the plain text body of the last email which has been sent; or the empty string in case no emails have been sent. */
     static public String getLastBodyForTesting() { return lastBodyForTesting; }
 
-    /** Replaces variables such as ${XYZ} in the template */
+    /** Replaces variables such as ${XYZ} in the template. Variables which are not found remain in their original unreplaced form. */
     public static String replacePlainTextParameters(String template, Map<String,String> parameters) {
         for (Entry<String,String> paramEntry : parameters.entrySet())
             template = template.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
