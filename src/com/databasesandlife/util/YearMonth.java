@@ -33,6 +33,8 @@ public class YearMonth implements Serializable, Comparable<YearMonth> {
     public String toYYYYMM() {
         return String.format("%04d-%02d", year, month);
     }
+    
+    @Override public String toString() { return toYYYYMM(); }
 
     /** @param str "YYYY-MMxx" form where xx can be anything */
     public static YearMonth newForYYYYMM(String str) throws YearMonthParseException  {
@@ -127,5 +129,18 @@ public class YearMonth implements Serializable, Comparable<YearMonth> {
         if (this.month < other.month) return -1;
         if (this.month > other.month) return +1;
         return 0;
+    }
+
+    @Override public boolean equals(Object other) {
+        if (other == null) return false;
+        if ( ! (other instanceof YearMonth)) return false;
+        YearMonth o = (YearMonth) other;
+        if (year != o.year) return false;
+        if (month != o.month) return false;
+        return true;
+    }
+    
+    @Override public int hashCode() {
+        return 4564576 + toYYYYMM().hashCode();
     }
 }
