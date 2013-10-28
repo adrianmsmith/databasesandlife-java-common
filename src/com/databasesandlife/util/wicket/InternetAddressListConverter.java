@@ -23,6 +23,9 @@ import org.apache.wicket.util.convert.IConverter;
  *   }
  * }.setConvertEmptyInputStringToNull(false));
  * </pre>
+ * 
+ * @deprecated instead of using this, create a InteretAddressArrayConverter which wicket could use based on the run-time type;
+ *  (X[] is distinct from Y[] at runtime; but List&lt;X&gt; and List&lt;Y&gt; are not.
  */
 @SuppressWarnings("serial")
 public class InternetAddressListConverter implements IConverter<List<InternetAddress>> {
