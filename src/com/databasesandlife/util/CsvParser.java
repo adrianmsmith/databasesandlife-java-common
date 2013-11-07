@@ -12,8 +12,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.google.gdata.util.io.base.UnicodeReader;
@@ -56,6 +58,7 @@ import com.google.gdata.util.io.base.UnicodeReader;
 public class CsvParser {
 
     public interface CsvLineHandler {
+        /** @param line this object can be re-used between calls to reduce GC; extract values from it but do not store the object anywhere */
         void processCsvLine(Map<String, String> line) throws MalformedCsvException;
     }
 
@@ -65,15 +68,15 @@ public class CsvParser {
 
     protected class ArrayOfMapsLineHandler implements CsvLineHandler {
         List<Map<String,String>> result = new ArrayList<Map<String,String>>();
-        public void processCsvLine(Map<String, String> line) { result.add(line); }
+        public void processCsvLine(Map<String, String> line) { result.add(new HashMap<String, String>(line)); }
     }
 
     protected Charset defaultCharset = Charset.forName("UTF-8");
     protected Pattern fieldSeparatorRegexp = Pattern.compile(Pattern.quote(","));
     protected String fieldSeparator = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
-    protected String[] desiredFields = null;
-    protected String[] nonEmptyFields = null;
-    protected Pattern endOfDataRegex = Pattern.compile("^$");
+    protected Set<String> desiredFields = null;
+    protected Set<String> nonEmptyFields = null;
+    protected Pattern endOfDataRegex = null;
     protected boolean ignoreNotDesiredColumns = false;
     protected Pattern skipLinePattern = null;
 
@@ -84,10 +87,10 @@ public class CsvParser {
     public void setIgnoreNotDesiredColumns(boolean b){ this.ignoreNotDesiredColumns = b;}
     
     /** Any fields found outside of this list cause an error */ 
-    public void setDesiredFields(String... f) { desiredFields = f; }
+    public void setDesiredFields(String... f) { desiredFields = new HashSet<String>(Arrays.asList(f)); }
     
     /** Any fields here must be present and have non-empty values */ 
-    public void setNonEmptyFields(String... f) { nonEmptyFields = f; }
+    public void setNonEmptyFields(String... f) { nonEmptyFields = new HashSet<String>(Arrays.asList(f)); }
 
     public void parseAndCallHandler(CsvLineHandler lineHandler, BufferedReader r) throws MalformedCsvException {
         try {
@@ -100,24 +103,25 @@ public class CsvParser {
                         throw new MalformedCsvException("Column '" + desiredField + "' is missing");
                 if(!ignoreNotDesiredColumns)
 	                for (String foundField : fieldForColIdx)
-	                    if ( ! Arrays.asList(desiredFields).contains(foundField))
+	                    if ( ! desiredFields.contains(foundField))
 	                        throw new MalformedCsvException("Column '" + foundField + "' unexpected");
             }
 
             int lineNumber = 2;
+            Map<String, String> valueForField = new HashMap<String, String>();
             while (true) {
                 try {
                     String line = r.readLine();
-                    if (line == null || endOfDataRegex.matcher(line).matches()) break; // end of data
+                    if (line == null || (endOfDataRegex != null && endOfDataRegex.matcher(line).matches())) break; // end of data
                     if(skipLinePattern != null && skipLinePattern.matcher(line).matches()) continue;
                     String[] valueForColIdx = fieldSeparatorRegexp.split(line,-1);
                     if (valueForColIdx.length != fieldForColIdx.length) throw new MalformedCsvException("Expected " +
                         fieldForColIdx.length + " fields but found " + valueForColIdx.length + " fields");
-                    Map<String, String> valueForField = new HashMap<String, String>();
+                    valueForField.clear();
                     for (int c = 0; c < valueForColIdx.length; c++) {
                         String field = fieldForColIdx[c].replaceAll("\"", "");
                         String val = valueForColIdx[c].replaceAll("\"", "");
-                        if (nonEmptyFields != null && Arrays.asList(nonEmptyFields).contains(field))
+                        if (nonEmptyFields != null && nonEmptyFields.contains(field))
                             if (val.length() == 0) throw new MalformedCsvException("Column " + c + ", field '" + field + "': value may not be empty");
                         valueForField.put(field, val);
                     }
