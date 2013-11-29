@@ -114,6 +114,12 @@ public class DomParser {
         else throw new ConfigurationException("<" + node.getNodeName() + ">: found " +
                 resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
     }
+    
+    protected static String getOptionalSingleSubElementTextContent(Element node, String subNodeName) throws ConfigurationException {
+        Element el = getOptionalSingleSubElement(node, subNodeName);
+        if (el == null) return null;
+        else return el.getTextContent();
+    }
 
     protected static Set<String> parseSet(Element container, String elementName, String attribute)
     throws ConfigurationException {
