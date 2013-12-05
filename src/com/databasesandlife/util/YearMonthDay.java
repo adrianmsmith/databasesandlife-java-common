@@ -112,15 +112,17 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
         return newForYYYYMMDD("1970-01-01");
     }
     
+    public static YearMonthDay max(YearMonthDay a,YearMonthDay b) {
+    	return a.isAfter(b) ? a : b;
+    }
+    
+    public static YearMonthDay min(YearMonthDay a,YearMonthDay b) {
+    	return a.isAfter(b) ? b : a;
+    }
+    
     public int calculateYearsDifference(YearMonthDay other){
-    	int difference = Math.abs(this.year - other.year);
-    	if(this.month - other.month > 0 || other.month - this.month < 0){
-    		difference--;
-    	}else if(this.day - other.day > 0 || other.day - this.day < 0) {
-    		difference--;
-    	}
-    	return difference;
-    	
+    	int diff = (int)Math.floor(Math.abs((this.year*12 + this.month) - (other.year*12 + other.month))/12);
+    	return this.month == other.month && min(this,other).day > max(this,other).day ? diff -1 : diff;
     }
     
     public boolean isBefore(YearMonthDay other) { return compareTo(other) < 0; }
