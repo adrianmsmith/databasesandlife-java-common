@@ -50,12 +50,6 @@ public class DomParser {
         }
     }
 
-    protected static double parseMandatoryValue(Element container) throws ConfigurationException {
-        String val = getMandatorySingleSubElement(container, "value").getTextContent();
-        try { return Double.parseDouble(val); }
-        catch (NumberFormatException e) { throw new ConfigurationException("<value> of '" + val + "' is not a number"); }
-    }
-
     protected static String getMandatoryAttribute(Element node, String attributeName) throws ConfigurationException {
         Attr attributeNode = node.getAttributeNode(attributeName); 
         if (attributeNode == null)
@@ -95,7 +89,10 @@ public class DomParser {
         return result;
     }
 
-    /** @param subNodeName can be "*" */
+    /** 
+     * @param subNodeName can be "*" 
+     * @throws ConfigurationException if more than one element found
+     */
     protected static Element getMandatorySingleSubElement(Node node, String subNodeName) throws ConfigurationException {
         List<Element> resultList = getSubElements(node, subNodeName);
         if (resultList.size() != 1) throw new ConfigurationException("<" + node.getNodeName() + ">: found " +
@@ -106,6 +103,7 @@ public class DomParser {
     /** 
      * @param subNodeName can be "*"
      * @return null if element not found 
+     * @throws ConfigurationException if more than one element found
      */
     protected static Element getOptionalSingleSubElement(Element node, String subNodeName) throws ConfigurationException {
         List<Element> resultList = getSubElements(node, subNodeName);
@@ -115,6 +113,11 @@ public class DomParser {
                 resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
     }
     
+    /** 
+     * @param subNodeName can be "*"
+     * @return null if element not found 
+     * @throws ConfigurationException if more than one element found
+     */
     protected static String getOptionalSingleSubElementTextContent(Element node, String subNodeName) throws ConfigurationException {
         Element el = getOptionalSingleSubElement(node, subNodeName);
         if (el == null) return null;
