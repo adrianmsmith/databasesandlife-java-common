@@ -31,7 +31,7 @@ public class EmailTransaction {
         this.smtpServer = smtpServer;
     }
     
-    public MimeMessage newMimeMessage() {
+    public MimeMessage newMimeMessage(String from) {
         Properties props = new Properties();
         props.put("mail.smtp.host", smtpServer);
         Session mailSession = Session.getDefaultInstance(props);

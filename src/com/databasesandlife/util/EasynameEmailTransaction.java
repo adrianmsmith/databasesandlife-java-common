@@ -5,6 +5,7 @@ import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 /**
@@ -22,13 +23,23 @@ public class EasynameEmailTransaction extends EmailTransaction {
         this.emailBoxPasswordCleartext = emailBoxPasswordCleartext;
     }
     
-    @Override public MimeMessage newMimeMessage() {
+    @Override public MimeMessage newMimeMessage(String from) {
         Properties props = new Properties();
+//        props.put("mail.smtp.host", "smtp.easyname.eu");
+//        props.put("mail.smtp.socketFactory.port", "465");
+//        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+//        props.put("mail.smtp.auth", "true");
+//        props.put("mail.smtp.port", "465");
+    	
+    	props.put("mail.smtp.from", from);
         props.put("mail.smtp.host", "smtp.easyname.eu");
-        props.put("mail.smtp.socketFactory.port", "465");
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");
+        props.put("mail.smtp.auth", true);
+        props.put("mail.smtp.socketFactory.port", "465");
+        props.put("mail.smtp.socketFactory.class",
+				"javax.net.ssl.SSLSocketFactory");
+        props.put("mail.smtp.socketFactory.fallback", "false");
+        props.put("mail.smtp.starttls.enable", "true");
      
         Authenticator auth = new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {

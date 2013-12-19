@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -308,11 +309,12 @@ public class EmailTemplate {
             for (Attachment a : attachments) addAttachment(mainPart, a);
 
             // Create the message from the subject and body
-            Message msg = tx.newMimeMessage();
+            Message msg = tx.newMimeMessage(readLocaleTextFile("from", locale, "txt"));
             msg.setFrom(new InternetAddress(readLocaleTextFile("from", locale, "txt")));
             msg.addRecipient(RecipientType.TO, recipientEmailAddress);
             msg.setSubject(subject);
             msg.setContent(mainPart);
+            msg.setSentDate(new Date());
 
             // Send the message
             tx.send(msg);
