@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.wicket.model.IModel;
 
 /**
+ * Wraps an underlying model, but sets a pre-defined list in the case the user doesn't enter anything.
+ *   <p>
  * If the user enters greater than zero options, they are passed to the wrapped model.
  * Otherwise, if the user doesn't enter any options, some "default" list is set in the wrapped model.
  * The "default" list may be null. 
