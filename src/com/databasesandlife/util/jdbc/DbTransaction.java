@@ -172,6 +172,7 @@ public class DbTransaction {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
+        /** Reads column as string and expects "YYYY-MM-DD" format */
         public YearMonthDay getYearMonthDay(String col) {
             try {
                 String str = rs.getString(col);
