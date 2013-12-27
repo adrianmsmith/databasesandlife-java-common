@@ -101,7 +101,8 @@ public class DbTransaction {
     }
     
     public static class UniqueConstraintViolation extends Exception {
-        UniqueConstraintViolation(Throwable t) { super(t); }
+        public UniqueConstraintViolation() { super(); }
+        public UniqueConstraintViolation(Throwable t) { super(t); }
     }
     
     public static class DbQueryResultRow {
