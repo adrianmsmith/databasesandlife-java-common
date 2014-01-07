@@ -309,7 +309,7 @@ public class EmailTemplate {
             for (Attachment a : attachments) addAttachment(mainPart, a);
 
             // Create the message from the subject and body
-            Message msg = tx.newMimeMessage(readLocaleTextFile("from", locale, "txt"));
+            Message msg = tx.newMimeMessage();
             msg.setFrom(new InternetAddress(readLocaleTextFile("from", locale, "txt")));
             msg.addRecipient(RecipientType.TO, recipientEmailAddress);
             msg.setSubject(subject);

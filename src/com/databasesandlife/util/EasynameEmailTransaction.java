@@ -23,7 +23,7 @@ public class EasynameEmailTransaction extends EmailTransaction {
         this.emailBoxPasswordCleartext = emailBoxPasswordCleartext;
     }
     
-    @Override public MimeMessage newMimeMessage(String from) {
+    @Override public MimeMessage newMimeMessage() {
         Properties props = new Properties();
 //        props.put("mail.smtp.host", "smtp.easyname.eu");
 //        props.put("mail.smtp.socketFactory.port", "465");
@@ -31,7 +31,7 @@ public class EasynameEmailTransaction extends EmailTransaction {
 //        props.put("mail.smtp.auth", "true");
 //        props.put("mail.smtp.port", "465");
     	
-    	props.put("mail.smtp.from", from);
+    	//props.put("mail.smtp.from", from);
         props.put("mail.smtp.host", "smtp.easyname.eu");
         props.put("mail.smtp.port", "465");
         props.put("mail.smtp.auth", true);
