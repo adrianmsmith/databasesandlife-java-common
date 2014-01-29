@@ -121,7 +121,7 @@ public class DbTransaction {
         }
 
         public Boolean getBoolean(String col){
-            try { return rs.getBoolean(col); }
+            try { boolean result = rs.getBoolean(col); if (rs.wasNull()) return null; else return result; }
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
