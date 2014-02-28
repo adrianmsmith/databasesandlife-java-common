@@ -6,7 +6,9 @@ import com.databasesandlife.util.socialnetwork.linkedin.LinkedInClient;
 import com.databasesandlife.util.socialnetwork.twitter.TwitterClient;
 import com.databasesandlife.util.socialnetwork.xing.XingClient;
 
-public interface SocialClientFactory {
+import java.io.Serializable;
+
+public interface SocialClientFactory extends Serializable {
 
     public abstract XingClient getXingClient();
     public abstract LinkedInClient getLinkedInClient();
