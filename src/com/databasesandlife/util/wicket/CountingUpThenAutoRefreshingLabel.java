@@ -130,7 +130,8 @@ public class CountingUpThenAutoRefreshingLabel extends Panel {
     }
     
     protected void autoRefreshCallback(AjaxRequestTarget target) {
-        currentSelfUpdatingBehavior.stop();    // remove(..) doesn't seem to work; although I'm worried this could be a memory leak
+        // Not sure if this works; Eclipse suggested this when upgrading to Wicket 6
+        currentSelfUpdatingBehavior.stop(target);    // remove(..) doesn't seem to work; although I'm worried this could be a memory leak
         
         currentSelfUpdatingBehavior = new AbstractAjaxTimerBehavior(Duration.seconds(autoRefreshIntervalSeconds)) {
             protected void onTimer(AjaxRequestTarget target) { autoRefreshCallback(target); };
