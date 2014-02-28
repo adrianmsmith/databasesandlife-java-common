@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.databasesandlife.util.socialnetwork.*;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,15 +20,7 @@ import org.xml.sax.SAXException;
 
 import com.databasesandlife.util.YearMonth;
 import com.databasesandlife.util.YearMonth.YearMonthParseException;
-import com.databasesandlife.util.socialnetwork.Language;
-import com.databasesandlife.util.socialnetwork.PostId;
-import com.databasesandlife.util.socialnetwork.School;
-import com.databasesandlife.util.socialnetwork.SocialFriend;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUnavailableException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUserException;
-import com.databasesandlife.util.socialnetwork.SocialParser;
-import com.databasesandlife.util.socialnetwork.SocialUser;
-import com.databasesandlife.util.socialnetwork.Work;
+import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 
 @SuppressWarnings("serial")
 public class LinkedInParser extends SocialParser{
@@ -267,8 +260,8 @@ public class LinkedInParser extends SocialParser{
 	}
 
     @Override
-    protected PostId getPostId(String response) throws SocialNetworkUserException {
-        return new PostId(0);
+    protected SocialNetworkPostId getPostId(String response) throws SocialNetworkUserException {
+        return new SocialNetworkPostId(0);
     }
 
     private String[] getTextContents(NodeList nl){

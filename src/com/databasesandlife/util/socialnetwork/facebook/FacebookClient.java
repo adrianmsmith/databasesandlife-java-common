@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import com.databasesandlife.util.socialnetwork.*;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
@@ -21,33 +22,29 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import com.databasesandlife.util.socialnetwork.OAuthClient;
-import com.databasesandlife.util.socialnetwork.PostId;
-import com.databasesandlife.util.socialnetwork.SocialNetworkRequestTokenDatabase;
-import com.databasesandlife.util.socialnetwork.SocialNetworkToken;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUnavailableException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUserException;
-import com.databasesandlife.util.socialnetwork.SocialParser;
+import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 
 @SuppressWarnings("serial")
 public class FacebookClient extends OAuthClient {
 	
-	public FacebookClient(String appID, String appSecret) {
+	public FacebookClient(String appID, String appSecret, String[] connectionScope) {
 		super(appID, appSecret);
+        this.connectionScope = connectionScope;
 	}
 	
 	private final String graphUrl = "https://graph.facebook.com/";
 	
 	private final String FACEBOOK_FRIENDS_FIELDS = "friends.fields(education,work,first_name,last_name)";
 
-	
+    private String[] connectionScope;
+
 	/**
 	 * Posts something on your facebook wall<br>
 	 * <br>
 	 * for a list of keys see <a href="http://developers.facebook.com/docs/reference/api/post/">Facebook API</a>
 	 * @return true if successful otherwise false
 	 */
-	public PostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException{
+	public SocialNetworkPostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException{
         try {
             OAuthRequest request = new OAuthRequest(Verb.POST,graphUrl+"me/feed");
             if(message != null && !message.isEmpty()) request.addBodyParameter("message",message);
@@ -62,6 +59,7 @@ public class FacebookClient extends OAuthClient {
             throw new RuntimeException(e);
         }
     }
+
 
 	@Override
 	public String getUserInformation(Token accessToken,String fields) throws SocialNetworkUnavailableException{
@@ -143,9 +141,8 @@ public class FacebookClient extends OAuthClient {
 	}
 	
 	@Override
-	public String[] getScopeForConnection() { return new String[] {
-                "friends_about_me","user_work_history","xmpp_login","user_education_history",
-                "email","user_birthday","friends_education_history","friends_work_history","publish_stream" };
+	public String[] getScopeForConnection() {
+        return connectionScope;
 	}
 
 	@Override
@@ -154,7 +151,7 @@ public class FacebookClient extends OAuthClient {
 	}
 
     @Override
-    public void deletePost(SocialNetworkToken token, PostId id) throws SocialNetworkUserException {
+    public void deletePost(SocialNetworkToken token, SocialNetworkPostId id) throws SocialNetworkUserException {
         OAuthRequest post = new OAuthRequest(Verb.DELETE,graphUrl + id.getId());
         getOAuthService("", "").signRequest(token.getAccessToken(), post);
         post.send();

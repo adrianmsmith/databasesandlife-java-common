@@ -3,15 +3,15 @@ package com.databasesandlife.util.socialnetwork;
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
-public class PostId implements Serializable {
+public class SocialNetworkPostId implements Serializable {
 
     private String id;
 
-    public PostId(long id) {
+    public SocialNetworkPostId(long id) {
         this.id = String.valueOf(id);
     }
 
-    public PostId(String id) {
+    public SocialNetworkPostId(String id) {
         this.id = id;
     }
 

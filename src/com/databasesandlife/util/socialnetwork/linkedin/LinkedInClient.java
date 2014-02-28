@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
+import com.databasesandlife.util.socialnetwork.*;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.Token;
 import org.scribe.model.Verifier;
@@ -18,14 +19,7 @@ import org.scribe.utils.OAuthEncoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.databasesandlife.util.socialnetwork.OAuth2Request;
-import com.databasesandlife.util.socialnetwork.OAuthClient;
-import com.databasesandlife.util.socialnetwork.PostId;
-import com.databasesandlife.util.socialnetwork.SocialNetworkRequestTokenDatabase;
-import com.databasesandlife.util.socialnetwork.SocialNetworkToken;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUnavailableException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUserException;
-import com.databasesandlife.util.socialnetwork.SocialParser;
+import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 import com.google.gson.Gson;
 
 @SuppressWarnings("serial")
@@ -41,10 +35,10 @@ public class LinkedInClient extends OAuthClient{
 	
 	private final String linkedInUrl = "https://api.linkedin.com/v1/people/~";
 	
-	public PostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException{
+	public SocialNetworkPostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException{
 		String xml = xmlToString(createNewShareXml(message,title,description,link,"connections-only"));
 		OAuth2Request.doPost(getApiURL()+"/shares?oauth2_access_token="+token.getAccessToken().getToken(),xml);
-        return new PostId(0);
+        return new SocialNetworkPostId(0);
 	}
 
 	/**
@@ -210,7 +204,7 @@ public class LinkedInClient extends OAuthClient{
 	}
 
     @Override
-    public void deletePost(SocialNetworkToken token, PostId id) throws SocialNetworkUserException {
+    public void deletePost(SocialNetworkToken token, SocialNetworkPostId id) throws SocialNetworkUserException {
         throw new RuntimeException("Delete Post for Linkedin is currently not supported");
     }
 

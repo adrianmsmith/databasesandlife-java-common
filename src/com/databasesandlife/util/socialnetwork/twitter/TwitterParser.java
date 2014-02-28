@@ -1,19 +1,12 @@
 package com.databasesandlife.util.socialnetwork.twitter;
 
-import com.databasesandlife.util.socialnetwork.PostId;
-import com.databasesandlife.util.socialnetwork.SocialFriend;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUnavailableException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUserException;
-import com.databasesandlife.util.socialnetwork.SocialParser;
-import com.databasesandlife.util.socialnetwork.SocialUser;
+import com.databasesandlife.util.socialnetwork.*;
+import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 import com.google.gson.Gson;
 
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by mlinzmayer on 12.02.14.
- */
 public class TwitterParser extends SocialParser {
 
     @Override
@@ -23,13 +16,25 @@ public class TwitterParser extends SocialParser {
 
     @Override
     public SocialUser<?> getUserInformation(String json) throws SocialNetworkUnavailableException, SocialNetworkUserException {
-        return null;
+        Gson gson = new Gson();
+        Map values = gson.fromJson(json, Map.class);
+        TwitterUser user = new TwitterUser();
+        class TwitterSocialUserInit extends SocialUser<TwitterUserId> {
+            public TwitterSocialUserInit(Map data) throws SocialNetworkUserException {
+                id = new TwitterUserId((String) data.get("id_str"));
+                username = (String) data.get("screen_name");
+            }
+            @Override public Work[] getWork() { return new Work[0]; }
+            @Override public School[] getEducation() { return new School[0]; }
+        }
+        return new TwitterSocialUserInit(values);
     }
 
-    protected PostId getPostId(String response) throws SocialNetworkUserException {
+    protected SocialNetworkPostId getPostId(String response) throws SocialNetworkUserException {
+        System.out.println(response);
         Gson gson = new Gson();
         Map values = gson.fromJson(response,Map.class);
-        return new PostId(((Double) values.get("id")).longValue());
+        return new SocialNetworkPostId(((Double) values.get("id")).longValue());
     }
 
 }

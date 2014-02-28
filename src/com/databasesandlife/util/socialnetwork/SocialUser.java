@@ -13,6 +13,7 @@ public abstract class SocialUser<ID extends SocialUserExternalId> implements Ser
 	
     protected ID id;
 	protected String firstName, lastName;
+    protected String username;
 	protected YearMonthDay birthday;
 	protected InternetAddress emailAddress;
 	protected Gender gender = null;
@@ -29,6 +30,7 @@ public abstract class SocialUser<ID extends SocialUserExternalId> implements Ser
     public ID getId(){ return id;}
     public String getFirstName(){ return firstName;}
     public String getLastName(){ return lastName;}
+    /** currently just for twitter */ public String getUsername() { return username; }
 	public YearMonthDay getBirthday(){ return birthday;}
 	public InternetAddress getEmailAddress(){ return emailAddress;}
 	public Gender getGender(){ return gender;}

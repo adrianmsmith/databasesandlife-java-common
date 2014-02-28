@@ -12,14 +12,8 @@ import java.util.Map;
 
 import com.databasesandlife.util.Gender;
 import com.databasesandlife.util.YearMonthDay;
-import com.databasesandlife.util.socialnetwork.PostId;
-import com.databasesandlife.util.socialnetwork.SocialFriend;
-import com.databasesandlife.util.socialnetwork.SocialNetworkNotAuthorizedException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkTokenExpiredException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkTryLaterException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUnavailableException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUserException;
-import com.databasesandlife.util.socialnetwork.SocialParser;
+import com.databasesandlife.util.socialnetwork.*;
+import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 import com.google.gson.Gson;
 
 @SuppressWarnings({ "unchecked", "serial" })
@@ -117,15 +111,16 @@ public class FacebookParser extends SocialParser implements Serializable{
 	}
 
     @Override
-    protected PostId getPostId(String response) throws SocialNetworkUserException {
+    protected SocialNetworkPostId getPostId(String response) throws SocialNetworkUserException {
+        System.out.println(response);
         Gson gson = new Gson();
-        Map values = gson.fromJson(response,Map.class);
+        Map values = gson.fromJson(response,HashMap.class);
         if (values.get("error") != null) {
             if (Integer.parseInt(((Map)values.get("error")).get("code").toString()) == 506
                     && Integer.parseInt(((Map)values.get("error")).get("error_subcode").toString()) == 1455006) {
                 throw new SocialNetworkUserException("Failed to post because the message is the same as the last post.");
             }
         }
-        return new PostId(values.get("id").toString());
+        return new SocialNetworkPostId(values.get("id").toString());
     }
 }

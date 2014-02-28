@@ -64,6 +64,6 @@ public abstract class SocialParser implements Serializable{
 	
 	public abstract SocialUser<?> getUserInformation(String json) throws SocialNetworkUnavailableException,SocialNetworkUserException;
 
-    protected abstract PostId getPostId(String response) throws SocialNetworkUserException;
+    protected abstract SocialNetworkPostId getPostId(String response) throws SocialNetworkUserException;
 	
 }

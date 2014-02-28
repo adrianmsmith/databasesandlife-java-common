@@ -12,6 +12,8 @@ import com.databasesandlife.util.socialnetwork.SocialNetworkRequestTokenDatabase
 import com.databasesandlife.util.socialnetwork.SocialNetworkToken;
 import com.databasesandlife.util.wicket.UrlFromPageGenerator;
 
+import java.util.logging.Logger;
+
 @SuppressWarnings("serial")
 public class SocialNetworkIntermediatePage extends WebPage {
 
@@ -35,19 +37,22 @@ public class SocialNetworkIntermediatePage extends WebPage {
 				String code = params.getParameterValue("code").toOptionalString();
 				SocialNetworkRequestTokenDatabase tdb = ((SocialNetworkRequestTokenDatabase) WebSession.get());
 				UrlFromPageGenerator app = ((UrlFromPageGenerator)WebApplication.get());
-				if(network.equalsIgnoreCase("xing")){
+				if (network.equalsIgnoreCase("xing")) {
 					token = fac.getXingClient().buildAccessToken(tdb.getXingRequestToken(), verifier);
-				}else if(network.equalsIgnoreCase("linkedin")){
+				} else if (network.equalsIgnoreCase("linkedin")) {
 					token = fac.getLinkedInClient().buildTokenHomebrewed(code, app.newAbsoluteUrl(SocialNetworkIntermediatePage.this));
-				}else if(network.equalsIgnoreCase("facebook")){
+				} else if (network.equalsIgnoreCase("facebook")) {
 					token = fac.getFacebookClient().buildToken(code, app.newAbsoluteUrl(SocialNetworkIntermediatePage.this));
-				}else if(network.equalsIgnoreCase("google")){
+				} else if (network.equalsIgnoreCase("google")) {
 					token = fac.getGoogleClient().buildAccessToken(tdb.getGoogleRequestToken(), verifier);
-				}
+				} else if (network.equalsIgnoreCase("twitter")) {
+                    token = fac.getTwitterClient().buildAccessToken(tdb.getTwitterRequestToken(), verifier);
+                }
 			}
 			callback.onAuthentication(token);
 		}catch(Exception e){
-			callback.onFailure(e);
+            Logger.getAnonymousLogger().severe(e.getMessage());
+            callback.onFailure(e);
 		}
 	}
 }

@@ -6,20 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.databasesandlife.util.socialnetwork.*;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.databasesandlife.util.Gender;
 import com.databasesandlife.util.YearMonth;
 import com.databasesandlife.util.YearMonth.YearMonthParseException;
-import com.databasesandlife.util.socialnetwork.Language;
-import com.databasesandlife.util.socialnetwork.PostId;
-import com.databasesandlife.util.socialnetwork.School;
-import com.databasesandlife.util.socialnetwork.SocialFriend;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUnavailableException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUserException;
-import com.databasesandlife.util.socialnetwork.SocialParser;
-import com.databasesandlife.util.socialnetwork.SocialUser;
-import com.databasesandlife.util.socialnetwork.Work;
+import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 import com.databasesandlife.util.YearMonthDay;
 import com.google.gson.Gson;
 
@@ -158,8 +151,8 @@ public class XingParser extends SocialParser {
 	}
 
     @Override
-    protected PostId getPostId(String response) throws SocialNetworkUserException {
-        return new PostId(0);
+    protected SocialNetworkPostId getPostId(String response) throws SocialNetworkUserException {
+        return new SocialNetworkPostId(0);
     }
 
     private School[] getEducation(List<Map<String,?>> e) throws SocialNetworkUnavailableException{

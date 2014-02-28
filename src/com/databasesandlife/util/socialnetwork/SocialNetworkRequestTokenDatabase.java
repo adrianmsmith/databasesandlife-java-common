@@ -14,4 +14,7 @@ public interface SocialNetworkRequestTokenDatabase {
     
     public Token getGoogleRequestToken();
     public void setGoogleRequestToken(Token t);
+
+    public Token getTwitterRequestToken();
+    public void setTwitterRequestToken(Token t);
 }

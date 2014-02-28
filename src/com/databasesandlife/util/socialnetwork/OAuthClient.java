@@ -54,7 +54,7 @@ public abstract class OAuthClient implements Serializable{
 	/**
 	 * Used to post something on the wall/feed of the social network
 	 */
-	public abstract PostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException;
+	public abstract SocialNetworkPostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException;
 	
 	public abstract String[] getScopeForConnection();
 	
@@ -101,7 +101,7 @@ public abstract class OAuthClient implements Serializable{
 	
 	public abstract String getFieldsForUserInformation();
 
-    public abstract void deletePost(SocialNetworkToken token, PostId id) throws SocialNetworkUserException;
+    public abstract void deletePost(SocialNetworkToken token, SocialNetworkPostId id) throws SocialNetworkUserException;
 
 	public SocialUser<?> getUserInformation(Token accessToken) throws SocialNetworkUnavailableException, SocialNetworkUserException {
 	    return getParser().getUserInformation(getUserInformation(accessToken, getFieldsForUserInformation()));

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import com.databasesandlife.util.socialnetwork.*;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.GoogleApi;
 import org.scribe.model.OAuthRequest;
@@ -15,13 +16,7 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import com.databasesandlife.util.socialnetwork.OAuthClient;
-import com.databasesandlife.util.socialnetwork.PostId;
-import com.databasesandlife.util.socialnetwork.SocialNetworkRequestTokenDatabase;
-import com.databasesandlife.util.socialnetwork.SocialNetworkToken;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUnavailableException;
-import com.databasesandlife.util.socialnetwork.SocialNetworkUserException;
-import com.databasesandlife.util.socialnetwork.SocialParser;
+import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 
 @SuppressWarnings("serial")
 public class GoogleClient extends OAuthClient implements Serializable{
@@ -95,7 +90,7 @@ public class GoogleClient extends OAuthClient implements Serializable{
 	}
 
 	@Override
-	public PostId postToWall(SocialNetworkToken token, String message, String title,
+	public SocialNetworkPostId postToWall(SocialNetworkToken token, String message, String title,
                              String imageUrl, String description, URL link) throws SocialNetworkUnavailableException{
 		throw new RuntimeException("Method not supported by google");
 	}
@@ -109,7 +104,7 @@ public class GoogleClient extends OAuthClient implements Serializable{
 	}
 
     @Override
-    public void deletePost(SocialNetworkToken token, PostId id) throws SocialNetworkUserException {
+    public void deletePost(SocialNetworkToken token, SocialNetworkPostId id) throws SocialNetworkUserException {
         throw new RuntimeException("Delete Post for Google is currently not supported");
     }
 }
