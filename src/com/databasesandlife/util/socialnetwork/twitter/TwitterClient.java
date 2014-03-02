@@ -24,7 +24,7 @@ public class TwitterClient extends OAuthClient {
     public SocialNetworkPostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException {
         try {
             OAuthRequest post = new OAuthRequest(Verb.POST,tweetUrl);
-            post.addBodyParameter("status", OAuthEncoder.encode(message));
+            post.addBodyParameter("status",message);
             getOAuthService("","").signRequest(token.getAccessToken(), post);
             Response response = post.send();
             return new TwitterParser().getPostId(response.getBody());
