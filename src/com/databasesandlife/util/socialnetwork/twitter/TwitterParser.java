@@ -34,7 +34,7 @@ public class TwitterParser extends SocialParser {
         System.out.println(response);
         Gson gson = new Gson();
         Map values = gson.fromJson(response,Map.class);
-        return new SocialNetworkPostId(((Double) values.get("id")).longValue());
+        return new SocialNetworkPostId(values.get("id_str").toString());
     }
 
 }

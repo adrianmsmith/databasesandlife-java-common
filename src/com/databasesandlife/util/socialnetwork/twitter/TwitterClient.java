@@ -1,23 +1,14 @@
 package com.databasesandlife.util.socialnetwork.twitter;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-
-
 import com.databasesandlife.util.socialnetwork.*;
 import org.apache.wicket.protocol.http.WebSession;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.TwitterApi;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
-import org.scribe.model.Token;
-import org.scribe.model.Verb;
-import org.scribe.model.Verifier;
+import org.scribe.model.*;
 import org.scribe.oauth.OAuthService;
-
-import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 import org.scribe.utils.OAuthEncoder;
+
+import java.net.URL;
 
 public class TwitterClient extends OAuthClient {
 
