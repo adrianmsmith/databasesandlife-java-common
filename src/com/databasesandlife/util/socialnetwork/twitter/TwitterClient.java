@@ -17,6 +17,7 @@ import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
 import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
+import org.scribe.utils.OAuthEncoder;
 
 public class TwitterClient extends OAuthClient {
 
@@ -32,12 +33,10 @@ public class TwitterClient extends OAuthClient {
     public SocialNetworkPostId postToWall(SocialNetworkToken token, String title, String message, String imageUrl, String description, URL link) throws SocialNetworkUnavailableException {
         try {
             OAuthRequest post = new OAuthRequest(Verb.POST,tweetUrl);
-            post.addBodyParameter("status", URLEncoder.encode(message, "UTF-8").replace("+", " "));
+            post.addBodyParameter("status", OAuthEncoder.encode(message));
             getOAuthService("","").signRequest(token.getAccessToken(), post);
             Response response = post.send();
             return new TwitterParser().getPostId(response.getBody());
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
         } catch (SocialNetworkUserException e) {
             throw new RuntimeException(e);
         }

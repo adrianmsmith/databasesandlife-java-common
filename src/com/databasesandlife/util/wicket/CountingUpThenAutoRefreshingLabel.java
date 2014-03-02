@@ -1,14 +1,14 @@
 package com.databasesandlife.util.wicket;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.time.Duration;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 /**
  * A &lt;span&gt; label which firstly counts up towards its model's value, and secondly auto-refreshes that value. 
