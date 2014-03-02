@@ -44,9 +44,10 @@ public class TwitterClient extends OAuthClient {
     }
 
     public void deletePost(SocialNetworkToken token, SocialNetworkPostId id) throws SocialNetworkUserException {
-        OAuthRequest remove = new OAuthRequest(Verb.POST,removeUrl.replace("ID",String.valueOf(id)));
+        OAuthRequest remove = new OAuthRequest(Verb.POST,removeUrl.replace("ID",id.getId()));
         getOAuthService("","").signRequest(token.getAccessToken(),remove);
-        remove.send();
+        Response r = remove.send();
+        System.out.println(r.getBody());
     }
 
     @Override
