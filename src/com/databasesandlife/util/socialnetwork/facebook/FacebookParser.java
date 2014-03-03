@@ -1,20 +1,14 @@
 package com.databasesandlife.util.socialnetwork.facebook;
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.databasesandlife.util.Gender;
 import com.databasesandlife.util.YearMonthDay;
 import com.databasesandlife.util.socialnetwork.*;
-import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 import com.google.gson.Gson;
+
+import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @SuppressWarnings({ "unchecked", "serial" })
 public class FacebookParser extends SocialParser implements Serializable{
@@ -91,7 +85,7 @@ public class FacebookParser extends SocialParser implements Serializable{
 	        public FacebookSocialUserInit(Map<String,?> data) throws SocialNetworkUnavailableException {
                 setName(data.get("name").toString());
                 id = new FacebookUserId(data.get("id").toString());
-                setEmailAddress(data.get("email").toString());
+                if (data.get("email") != null) setEmailAddress(data.get("email").toString());
                 gender = (data.get("gender") != null) ? (data.get("gender").toString().equals("male") ? Gender.Male : Gender.Female) : null;
                 birthday = (data.get("birthday") != null) ? parseAmericanDate(data.get("birthday").toString()) : YearMonthDay.newMinusInfinity();
                 work = FacebookParser.this.getWork(data.get("work"));
