@@ -4,6 +4,12 @@ import java.util.Map;
 
 import org.apache.wicket.model.IModel;
 
+/**
+ * Model based on a map.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 @SuppressWarnings("serial")
 public class MapModel<K, V> implements IModel<V> {
     

@@ -7,6 +7,12 @@ import java.util.Locale;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 
+/**
+ * Wicket converter to allow user to enter URLs and display errors if they are not valid.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 @SuppressWarnings("serial")
 public class UrlConverter implements IConverter<URL> {
 

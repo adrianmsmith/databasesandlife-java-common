@@ -15,6 +15,9 @@ import org.apache.wicket.model.IModel;
  *    <p>
  * An object of this class allows the application to provide a Model&lt;X> but the multiple-value
  * text field (which is operating in single-value mode) to see a Model&lt;List&lt;X>>.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 @SuppressWarnings("serial")
 public class SingleEntryModelAdaptor<T> implements IModel<List<T>> {

@@ -19,6 +19,9 @@ import org.apache.wicket.model.IModel;
  * multiple="true" means we get multiple-select which we don't want. AND: If
  * there is no "" option then the "X" doesn't appear, so we allow that as a
  * valid option
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 @SuppressWarnings("serial")
 public class OptionalSingleValueChosenDropDown extends ListMultipleChoice<String> {

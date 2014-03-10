@@ -26,6 +26,9 @@ import org.apache.wicket.util.convert.IConverter;
  * 
  * @deprecated instead of using this, create a InteretAddressArrayConverter which wicket could use based on the run-time type;
  *  (X[] is distinct from Y[] at runtime; but List&lt;X&gt; and List&lt;Y&gt; are not.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 @SuppressWarnings("serial")
 public class InternetAddressListConverter implements IConverter<List<InternetAddress>> {

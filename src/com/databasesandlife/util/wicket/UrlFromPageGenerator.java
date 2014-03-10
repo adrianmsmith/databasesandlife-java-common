@@ -6,6 +6,11 @@ import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
+/**
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 public interface UrlFromPageGenerator {
 
     public URL newAbsoluteUrl(Class<? extends WebPage> pageClass, PageParameters pageParameters);

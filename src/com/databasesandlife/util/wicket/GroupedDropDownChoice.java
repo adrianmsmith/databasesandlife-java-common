@@ -19,6 +19,9 @@ import org.apache.wicket.model.PropertyModel;
 /**
  * Drop-down where options are in groups; user may select only one element or multiple elements.
  * @param <T> The object type to be selected
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 @SuppressWarnings("serial")
 public class GroupedDropDownChoice<T extends Serializable> extends FormComponentPanel<List<T>> {

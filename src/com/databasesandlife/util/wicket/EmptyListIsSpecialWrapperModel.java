@@ -12,6 +12,9 @@ import org.apache.wicket.model.IModel;
  * If the user enters greater than zero options, they are passed to the wrapped model.
  * Otherwise, if the user doesn't enter any options, some "default" list is set in the wrapped model.
  * The "default" list may be null. 
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
  */
 @SuppressWarnings("serial")
 public class EmptyListIsSpecialWrapperModel<T> implements IModel<List<T>> {

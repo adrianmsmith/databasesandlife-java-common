@@ -4,6 +4,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.model.Model;
 
+/**
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision$
+ */
 public class ErrorAttributeAppender extends AttributeAppender {
 
     private static final long serialVersionUID = 1L;
