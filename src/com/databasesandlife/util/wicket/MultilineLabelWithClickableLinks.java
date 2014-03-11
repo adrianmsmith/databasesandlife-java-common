@@ -1,14 +1,14 @@
 package com.databasesandlife.util.wicket;
 
-import java.io.Serializable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.Strings;
+
+import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** 
  * Displays the text in the model over multiple HTML lines, and makes links clickable. 
@@ -83,7 +83,7 @@ public class MultilineLabelWithClickableLinks extends Label {
     @Override public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
         String plainText = getDefaultModelObjectAsString();
         CharSequence htmlWithLinksMarkedup = encodeLinksToHtml(plainText); 
-        CharSequence htmlWIthLinksAndNewlines = Strings.toMultilineMarkup(htmlWithLinksMarkedup);
+        CharSequence htmlWIthLinksAndNewlines = htmlWithLinksMarkedup.toString().replace("\n","<br>");
         replaceComponentTagBody(markupStream, openTag, htmlWIthLinksAndNewlines);
     }
 }
