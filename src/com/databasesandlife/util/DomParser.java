@@ -131,6 +131,13 @@ public class DomParser {
         return result;
     }
 
+    protected static Set<String> parseSet(Element container, String elementName)
+    throws ConfigurationException {
+        Set<String> result = new HashSet<String>();
+        for (Element e : getSubElements(container, elementName)) result.add(e.getTextContent().trim());
+        return result;
+    }
+
     protected static Map<String, String> parseMap(Element container, String elementName, String keyAttribute, String valueAttribute)
     throws ConfigurationException {
         Map<String, String> result = new HashMap<String, String>();
