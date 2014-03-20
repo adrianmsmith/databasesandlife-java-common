@@ -19,8 +19,15 @@ import java.util.regex.Pattern;
 @SuppressWarnings("serial")
 public class MultilineLabelWithClickableLinks extends Label {
 
-    public MultilineLabelWithClickableLinks(final String id, Serializable label) { super(id, label); }
-    public MultilineLabelWithClickableLinks(final String id, IModel<?> model) { super(id, model); }
+    public MultilineLabelWithClickableLinks(final String id, Serializable label) {
+        super(id, label);
+        setEscapeModelStrings(false);
+    }
+
+    public MultilineLabelWithClickableLinks(final String id, IModel<?> model) {
+        super(id, model);
+        setEscapeModelStrings(false);
+    }
 
     /**
      * Matches "foo://foo.foo/foo".
@@ -83,7 +90,7 @@ public class MultilineLabelWithClickableLinks extends Label {
     @Override public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
         String plainText = getDefaultModelObjectAsString();
         CharSequence htmlWithLinksMarkedup = encodeLinksToHtml(plainText); 
-        CharSequence htmlWIthLinksAndNewlines = htmlWithLinksMarkedup.toString().replace("\n","<br>");
+        CharSequence htmlWIthLinksAndNewlines = htmlWithLinksMarkedup.toString().replace("\n", "<br>");
         replaceComponentTagBody(markupStream, openTag, htmlWIthLinksAndNewlines);
     }
 }
