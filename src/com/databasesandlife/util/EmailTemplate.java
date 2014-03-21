@@ -223,7 +223,7 @@ public class EmailTemplate {
         return result;
     }
 
-    protected void addAttachment(Multipart container, final Attachment attachment) throws MessagingException {
+    public static BodyPart newAttachmentBodyPart(final Attachment attachment) throws MessagingException {
         DataSource dataSource = new DataSource() {
             @Override public String getContentType() { return attachment.getMimeType(); }
             @Override public InputStream getInputStream() { return attachment.newInputStream(); }
@@ -235,8 +235,8 @@ public class EmailTemplate {
         filePart.setDataHandler(new DataHandler(dataSource));
         filePart.setFileName(attachment.getLeafNameInclExtension());
         filePart.setDisposition(Part.ATTACHMENT);
-
-        container.addBodyPart(filePart);
+        
+        return filePart;
     }
 
     // --------------------------------------------------------------------------------------------------------
@@ -306,7 +306,7 @@ public class EmailTemplate {
             messageTextPart.setContent(messageText);
             Multipart mainPart = new MimeMultipart("mixed");
             mainPart.addBodyPart(messageTextPart);
-            for (Attachment a : attachments) addAttachment(mainPart, a);
+            for (Attachment a : attachments) mainPart.addBodyPart(newAttachmentBodyPart(a));
 
             // Create the message from the subject and body
             Message msg = tx.newMimeMessage();
