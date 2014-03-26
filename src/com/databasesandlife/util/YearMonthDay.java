@@ -129,4 +129,12 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     public boolean isAfter(YearMonthDay other) { return compareTo(other) > 0; }
     public boolean isBeforeOrEqual(YearMonthDay other) { return compareTo(other) <= 0; }
     public boolean isAfterOrEqual(YearMonthDay other) { return compareTo(other) >= 0; }
+
+    /** @param formatString Can contain "yyyy" "MM" "dd" */
+    public String format(String formatString) {
+        formatString = formatString.replace("yyyy", String.format("%04d", year));
+        formatString = formatString.replace("MM", String.format("%02d", month));
+        formatString = formatString.replace("dd", String.format("%02d", day));
+        return formatString;
+    }
 }
