@@ -48,6 +48,10 @@ public class InternetAddressListConverter implements IConverter<List<InternetAdd
 
     @Override
     public String convertToString(List<InternetAddress> val, Locale arg1) {
+        return convertEmailAddressListToString(val);
+    }
+    
+    public static String convertEmailAddressListToString(List<InternetAddress> val) {
         StringBuilder result = new StringBuilder();
         if (val != null)
             for (InternetAddress a : val) {
