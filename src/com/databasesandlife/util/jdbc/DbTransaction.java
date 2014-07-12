@@ -640,8 +640,8 @@ public class DbTransaction {
      */
     public void insertOrUpdate(
         String table, 
-        Map<String, Object> colsToUpdate, 
-        Map<String, Object> colsToInsert,
+        Map<String, ?> colsToUpdate, 
+        Map<String, ?> colsToInsert,
         String... primaryKeyColumns
     ) {
         try {
