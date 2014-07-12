@@ -40,4 +40,11 @@ public class DomElementReplacer extends DomParser {
             else replace(e, elementName, replace);
         }
     }
+    
+    public static boolean contains(Element doc, String elementName) {
+        for (Element e : getSubElements(doc, "*")) 
+            if (e.getNodeName().equals(elementName)) return true;
+            else if (contains(e, elementName)) return true;
+        return false;
+    }
 }
