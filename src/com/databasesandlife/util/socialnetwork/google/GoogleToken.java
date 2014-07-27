@@ -11,23 +11,23 @@ import com.databasesandlife.util.socialnetwork.SocialNetworkToken;
 @SuppressWarnings("serial")
 public class GoogleToken extends SocialNetworkToken {
 
-	public GoogleToken(Token t) {
-		super(t);
-	}
+    public GoogleToken(Token t) {
+        super(t);
+    }
 
-	@Override
-	public OAuthClient getClient(SocialClientFactory fac) {
-		return fac.getGoogleClient();
-	}
+    @Override
+    public OAuthClient getClient(SocialClientFactory fac) {
+        return fac.getGoogleClient();
+    }
 
-	@Override
-	public SocialNetwork getSocialNetwork() {
-	    return SocialNetwork.Google;
-	}
+    @Override
+    public SocialNetwork getSocialNetwork() {
+        return SocialNetwork.Google;
+    }
 
-	@Override
-	public String getScope() {
-		return "";
-	}
+    @Override
+    public String getScope() {
+        return "";
+    }
 
 }

@@ -7,17 +7,17 @@ import com.databasesandlife.util.socialnetwork.Work;
 @SuppressWarnings("serial")
 public class FacebookSocialUser extends SocialUser<FacebookUserId> {
 
-	protected Work[] work;
-	protected School[] edu;
-	
-	@Override
-	public Work[] getWork() {
-		return work;
-	}
+    protected Work[] work;
+    protected School[] edu;
+    
+    @Override
+    public Work[] getWork() {
+        return work;
+    }
 
-	@Override
-	public School[] getEducation() {
-		return edu;
-	}
+    @Override
+    public School[] getEducation() {
+        return edu;
+    }
 
 }

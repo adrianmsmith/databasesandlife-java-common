@@ -26,7 +26,7 @@ import com.databasesandlife.util.socialnetwork.SocialNetworkPostId;
 public class LinkedInParser extends SocialParser{
 
     @Override
-	public List<SocialFriend<?>> getFriends(String json) throws SocialNetworkUnavailableException{
+    public List<SocialFriend<?>> getFriends(String json) throws SocialNetworkUnavailableException{
         class LinkedInFriendInit extends LinkedInFriend {
             public LinkedInFriendInit(Element e) {
                 id = new LinkedInUserId(e.getElementsByTagName("id").item(0).getTextContent());
@@ -43,77 +43,77 @@ public class LinkedInParser extends SocialParser{
             }
         }
         
-		List<SocialFriend<?>> friends = new ArrayList<SocialFriend<?>>();
-		try{
-			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document d = db.parse(new InputSource(new StringReader(json)));
-			Element friendsList = d.getDocumentElement();
-			validateResponse(friendsList, json);
-			List<Element> persons = getElementList(friendsList.getElementsByTagName("person"));
-			for(Element e : persons){
-				LinkedInFriend lif = new LinkedInFriendInit(e);
-				lif.parseSearchData();
-				friends.add(lif);
-			}
-			return friends;
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException(e);
-		} catch (SAXException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}catch(Exception e){
-			throw new SocialNetworkUnavailableException(e);
-		}
-	}
-	
-	private School[] getEducation(Element edu) throws SocialNetworkUnavailableException{
-	    class LinkedInSchool extends School {
-	        public LinkedInSchool(Element e) {
+        List<SocialFriend<?>> friends = new ArrayList<SocialFriend<?>>();
+        try{
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document d = db.parse(new InputSource(new StringReader(json)));
+            Element friendsList = d.getDocumentElement();
+            validateResponse(friendsList, json);
+            List<Element> persons = getElementList(friendsList.getElementsByTagName("person"));
+            for(Element e : persons){
+                LinkedInFriend lif = new LinkedInFriendInit(e);
+                lif.parseSearchData();
+                friends.add(lif);
+            }
+            return friends;
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }catch(Exception e){
+            throw new SocialNetworkUnavailableException(e);
+        }
+    }
+    
+    private School[] getEducation(Element edu) throws SocialNetworkUnavailableException{
+        class LinkedInSchool extends School {
+            public LinkedInSchool(Element e) {
                 name = getFirstTextContentOrNull(e,"school-name");
                 id = getFirstTextContentOrNull(e, "id");
                 this.startDate = getMonth(e.getElementsByTagName("start-date"));
                 this.endDate = getMonth(e.getElementsByTagName("end-date"));
                 type = "High School";
                 concentration = getFirstTextContentOrNull(e, "field-of-study");
-	        }
-	    }
-	    
-		try{
-			List<Element> educations = getElementList(edu.getElementsByTagName("education"));
-			School[] edus = new School[educations.size()];
-			for(int i = 0;i<educations.size();i++) edus[i] = new LinkedInSchool(educations.get(i));
-			return edus;
-		}catch(Exception e){
-			throw new SocialNetworkUnavailableException(e);
-		}
-	}
-	
-	private String getFirstTextContentOrNull(Element e,String tagName){
-		NodeList list = e.getElementsByTagName(tagName);
-		if(list.getLength() > 0){
-			return list.item(0).getTextContent();
-		}else{
-			return null;
-		}
-	}
-	
-	private YearMonth getMonth(NodeList nl){
-		try{
-			if(nl.getLength() > 0){
-				Element date = (Element) nl.item(0);
-				return YearMonth.newForYYYYMM(date.getTextContent().replaceAll("\\s","")+"-01");
-			}else{
-				return null;
-			}
-		}catch(DOMException e){
-			throw new RuntimeException(e);
-		}catch(YearMonthParseException e){
-			throw new RuntimeException(e);
-		}
-	}
-	
-	private Work[] getWork(Element w) throws SocialNetworkUnavailableException{
+            }
+        }
+        
+        try{
+            List<Element> educations = getElementList(edu.getElementsByTagName("education"));
+            School[] edus = new School[educations.size()];
+            for(int i = 0;i<educations.size();i++) edus[i] = new LinkedInSchool(educations.get(i));
+            return edus;
+        }catch(Exception e){
+            throw new SocialNetworkUnavailableException(e);
+        }
+    }
+    
+    private String getFirstTextContentOrNull(Element e,String tagName){
+        NodeList list = e.getElementsByTagName(tagName);
+        if(list.getLength() > 0){
+            return list.item(0).getTextContent();
+        }else{
+            return null;
+        }
+    }
+    
+    private YearMonth getMonth(NodeList nl){
+        try{
+            if(nl.getLength() > 0){
+                Element date = (Element) nl.item(0);
+                return YearMonth.newForYYYYMM(date.getTextContent().replaceAll("\\s","")+"-01");
+            }else{
+                return null;
+            }
+        }catch(DOMException e){
+            throw new RuntimeException(e);
+        }catch(YearMonthParseException e){
+            throw new RuntimeException(e);
+        }
+    }
+    
+    private Work[] getWork(Element w) throws SocialNetworkUnavailableException{
         class LinkedInWork extends Work {
             public LinkedInWork(Element e) throws YearMonthParseException {
                 NodeList companyList = e.getElementsByTagName("company");
@@ -140,40 +140,40 @@ public class LinkedInParser extends SocialParser{
             }
         }
 
-	    try{
-			List<Element> works = getElementList(w.getElementsByTagName("position"));
-			Work[] work = new Work[works.size()];
-			for(int i = 0;i<works.size();i++){
-				work[i] = new LinkedInWork(works.get(i));
-			}
-			return work;
-		}catch(Exception e){
-			throw new SocialNetworkUnavailableException(e);
-		}
-	}
-	
-	private YearMonth getYearMonthForWork(Element e) throws YearMonthParseException{
-		String year = getFirstTextContentOrNull(e, "year");
-		String month = getFirstTextContentOrNull(e, "month");
-		if(year != null && month != null){
-			return YearMonth.newForYYYYMM(year.replaceAll("\\s", "") + "-" + String.format("%02d", Integer.parseInt(month.replaceAll("\\s", ""))));
-		}else{
-			return null;
-		}
-	}
+        try{
+            List<Element> works = getElementList(w.getElementsByTagName("position"));
+            Work[] work = new Work[works.size()];
+            for(int i = 0;i<works.size();i++){
+                work[i] = new LinkedInWork(works.get(i));
+            }
+            return work;
+        }catch(Exception e){
+            throw new SocialNetworkUnavailableException(e);
+        }
+    }
+    
+    private YearMonth getYearMonthForWork(Element e) throws YearMonthParseException{
+        String year = getFirstTextContentOrNull(e, "year");
+        String month = getFirstTextContentOrNull(e, "month");
+        if(year != null && month != null){
+            return YearMonth.newForYYYYMM(year.replaceAll("\\s", "") + "-" + String.format("%02d", Integer.parseInt(month.replaceAll("\\s", ""))));
+        }else{
+            return null;
+        }
+    }
 
-	private List<Element> getElementList(NodeList nl){
-		List<Element> le = new ArrayList<Element>();
-		for(int i = 0;i<nl.getLength();i++){
-			if(nl.item(i) instanceof Element) le.add((Element)nl.item(i));
-		}
-		return le;
-	}
-	
-	@Override
-	public SocialUser<LinkedInUserId> getUserInformation(String json) throws SocialNetworkUnavailableException{
-	    class LinkedInSocialUserInit extends LinkedInSocialUser {
-	        public LinkedInSocialUserInit(Element person) throws SocialNetworkUnavailableException {
+    private List<Element> getElementList(NodeList nl){
+        List<Element> le = new ArrayList<Element>();
+        for(int i = 0;i<nl.getLength();i++){
+            if(nl.item(i) instanceof Element) le.add((Element)nl.item(i));
+        }
+        return le;
+    }
+    
+    @Override
+    public SocialUser<LinkedInUserId> getUserInformation(String json) throws SocialNetworkUnavailableException{
+        class LinkedInSocialUserInit extends LinkedInSocialUser {
+            public LinkedInSocialUserInit(Element person) throws SocialNetworkUnavailableException {
                 firstName = getElementList(person.getElementsByTagName("first-name")).get(0).getTextContent();
                 lastName = getElementList(person.getElementsByTagName("last-name")).get(0).getTextContent();
                 id = new LinkedInUserId(person.getElementsByTagName("id").item(0).getTextContent());
@@ -238,26 +238,26 @@ public class LinkedInParser extends SocialParser{
                     }
                     qualifications = skills.toArray(new String[0]);
                 }
-	        }
-	    }
-	    
-		try {
-			DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document d = db.parse(new InputSource(new StringReader(json)));
-			Element person = d.getDocumentElement();
-			validateResponse(person, json);
-			LinkedInSocialUser lif = new LinkedInSocialUserInit(person);
-			return lif;
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException(e);
-		} catch (SAXException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}catch(Exception e){
-			throw new SocialNetworkUnavailableException(e);
-		}
-	}
+            }
+        }
+        
+        try {
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document d = db.parse(new InputSource(new StringReader(json)));
+            Element person = d.getDocumentElement();
+            validateResponse(person, json);
+            LinkedInSocialUser lif = new LinkedInSocialUserInit(person);
+            return lif;
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }catch(Exception e){
+            throw new SocialNetworkUnavailableException(e);
+        }
+    }
 
     @Override
     protected SocialNetworkPostId getPostId(String response) throws SocialNetworkUserException {
@@ -265,26 +265,26 @@ public class LinkedInParser extends SocialParser{
     }
 
     private String[] getTextContents(NodeList nl){
-		List<String> textContents = new ArrayList<String>();
-		if(nl.getLength() > 0){
-			for(int i = 0;i<nl.getLength();i++){
-				if(nl.item(i) instanceof Element){
-					textContents.add(nl.item(i).getTextContent());
-				}
-			}
-			return textContents.toArray(new String[0]);
-		}else return new String[0];
-	}
-	
-	private void validateResponse(Element errorCandidate,String text){
-		if(errorCandidate.getElementsByTagName("error").getLength() != 0){
-//			String message = errorCandidate.getElementsByTagName("message").item(0).getTextContent();
-//			Gson gson = new Gson();
-//			Map m = gson.fromJson(message, Map.class);
-//			int errorCode = Integer.parseInt(m.get("errorCode").toString());
-//			if(errorCode == 1000 || errorCode == 1001) throw new RuntimeException("Invalid URL parameter or bad request");
-			throw new RuntimeException("Bad Request: " + text);
-		}
-	}
+        List<String> textContents = new ArrayList<String>();
+        if(nl.getLength() > 0){
+            for(int i = 0;i<nl.getLength();i++){
+                if(nl.item(i) instanceof Element){
+                    textContents.add(nl.item(i).getTextContent());
+                }
+            }
+            return textContents.toArray(new String[0]);
+        }else return new String[0];
+    }
+    
+    private void validateResponse(Element errorCandidate,String text){
+        if(errorCandidate.getElementsByTagName("error").getLength() != 0){
+//          String message = errorCandidate.getElementsByTagName("message").item(0).getTextContent();
+//          Gson gson = new Gson();
+//          Map m = gson.fromJson(message, Map.class);
+//          int errorCode = Integer.parseInt(m.get("errorCode").toString());
+//          if(errorCode == 1000 || errorCode == 1001) throw new RuntimeException("Invalid URL parameter or bad request");
+            throw new RuntimeException("Bad Request: " + text);
+        }
+    }
 
 }

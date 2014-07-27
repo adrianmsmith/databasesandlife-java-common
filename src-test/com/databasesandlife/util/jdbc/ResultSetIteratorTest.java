@@ -37,7 +37,7 @@ public class ResultSetIteratorTest extends TestCase {
                     break;
                 case sqlserver:
                     connection.prepareStatement("if exists (select * from INFORMATION_SCHEMA.TABLES " +
-                		"where TABLE_NAME = 'ResultSetIteratorTest') drop table ResultSetIteratorTest").execute();
+                        "where TABLE_NAME = 'ResultSetIteratorTest') drop table ResultSetIteratorTest").execute();
                     break;
                 default: throw new RuntimeException();
             }

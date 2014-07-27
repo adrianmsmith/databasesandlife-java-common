@@ -8,8 +8,8 @@ import com.databasesandlife.util.socialnetwork.SocialUserExternalId;
 public class LinkedInUserId extends SocialUserExternalId {
     public LinkedInUserId(String x) { super(x); }
 
-	@Override
-	public SocialNetwork getSocialNetwork() {
-	    return SocialNetwork.LinkedIn;
-	}
+    @Override
+    public SocialNetwork getSocialNetwork() {
+        return SocialNetwork.LinkedIn;
+    }
 }

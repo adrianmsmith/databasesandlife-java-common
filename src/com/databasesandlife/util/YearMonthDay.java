@@ -113,16 +113,16 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     }
     
     public static YearMonthDay max(YearMonthDay a,YearMonthDay b) {
-    	return a.isAfter(b) ? a : b;
+        return a.isAfter(b) ? a : b;
     }
     
     public static YearMonthDay min(YearMonthDay a,YearMonthDay b) {
-    	return a.isAfter(b) ? b : a;
+        return a.isAfter(b) ? b : a;
     }
     
     public int calculateYearsDifference(YearMonthDay other){
-    	int diff = (int)Math.floor(Math.abs((this.year*12 + this.month) - (other.year*12 + other.month))/12);
-    	return this.month == other.month && min(this,other).day > max(this,other).day ? diff -1 : diff;
+        int diff = (int)Math.floor(Math.abs((this.year*12 + this.month) - (other.year*12 + other.month))/12);
+        return this.month == other.month && min(this,other).day > max(this,other).day ? diff -1 : diff;
     }
     
     public boolean isBefore(YearMonthDay other) { return compareTo(other) < 0; }

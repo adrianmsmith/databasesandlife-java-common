@@ -16,7 +16,7 @@ import com.databasesandlife.util.socialnetwork.SocialNetworkToken;
  */
 public interface SocialNetworkCallback extends Serializable{
 
-	public void onAuthentication(SocialNetworkToken networkToken);
-	
-	public void onFailure(Exception e);
+    public void onAuthentication(SocialNetworkToken networkToken);
+    
+    public void onFailure(Exception e);
 }

@@ -30,14 +30,14 @@ public class EasynameEmailTransaction extends EmailTransaction {
 //        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 //        props.put("mail.smtp.auth", "true");
 //        props.put("mail.smtp.port", "465");
-    	
-    	//props.put("mail.smtp.from", from);
+        
+        //props.put("mail.smtp.from", from);
         props.put("mail.smtp.host", "smtp.easyname.eu");
         props.put("mail.smtp.port", "465");
         props.put("mail.smtp.auth", true);
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class",
-				"javax.net.ssl.SSLSocketFactory");
+                                "javax.net.ssl.SSLSocketFactory");
         props.put("mail.smtp.socketFactory.fallback", "false");
         props.put("mail.smtp.starttls.enable", "true");
      

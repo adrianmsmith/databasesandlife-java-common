@@ -9,6 +9,6 @@ import java.util.List;
  */
 public interface Futureable<T> extends Runnable{
 
-	public List<T> getResult() throws SocialNetworkUnavailableException,SocialNetworkUserException;
-	
+    public List<T> getResult() throws SocialNetworkUnavailableException,SocialNetworkUserException;
+    
 }

@@ -8,8 +8,8 @@ import com.databasesandlife.util.socialnetwork.SocialUserExternalId;
 public class XingUserId extends SocialUserExternalId {
     public XingUserId(String x) { super(x); }
 
-	@Override
-	public SocialNetwork getSocialNetwork() {
-	    return SocialNetwork.Xing;
-	}
+    @Override
+    public SocialNetwork getSocialNetwork() {
+        return SocialNetwork.Xing;
+    }
 }

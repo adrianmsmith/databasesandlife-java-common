@@ -102,9 +102,9 @@ public class CsvParser {
                     if ( ! containsField(Arrays.asList(fieldForColIdx),desiredField))
                         throw new MalformedCsvException("Column '" + desiredField + "' is missing");
                 if(!ignoreNotDesiredColumns)
-	                for (String foundField : fieldForColIdx)
-	                    if ( ! desiredFields.contains(foundField))
-	                        throw new MalformedCsvException("Column '" + foundField + "' unexpected");
+                        for (String foundField : fieldForColIdx)
+                            if ( ! desiredFields.contains(foundField))
+                                throw new MalformedCsvException("Column '" + foundField + "' unexpected");
             }
 
             int lineNumber = 2;
@@ -180,10 +180,10 @@ public class CsvParser {
     }
     
     private boolean containsField(List<String> desired,String field){
-    	for(String s : desired){
-    		if(s.replaceAll("\"", "").equals(field)) return true;
-    	}
-    	return false;
+        for(String s : desired){
+                if(s.replaceAll("\"", "").equals(field)) return true;
+        }
+        return false;
     }
     
 }

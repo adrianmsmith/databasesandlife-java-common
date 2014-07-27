@@ -8,8 +8,8 @@ import com.databasesandlife.util.socialnetwork.SocialUserExternalId;
 public class FacebookUserId extends SocialUserExternalId {
     public FacebookUserId(String x) { super(x); }
 
-	@Override
-	public SocialNetwork getSocialNetwork() {
-	    return SocialNetwork.Facebook;
-	}
+    @Override
+    public SocialNetwork getSocialNetwork() {
+        return SocialNetwork.Facebook;
+    }
 }

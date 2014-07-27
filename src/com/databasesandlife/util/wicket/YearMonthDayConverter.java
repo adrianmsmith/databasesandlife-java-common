@@ -28,29 +28,29 @@ import com.databasesandlife.util.YearMonthDay;
 @SuppressWarnings("serial")
 public class YearMonthDayConverter implements IConverter<YearMonthDay>{
 
-	private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-	private SimpleDateFormat userFormat;
-	
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat userFormat;
+    
     public YearMonthDayConverter() { userFormat = format; }
     public YearMonthDayConverter(SimpleDateFormat format) { userFormat = format; }
-	
-	@Override
-	public YearMonthDay convertToObject(String arg0, Locale arg1) {
-		if(arg0 == null) return null;
-		try {
-			return YearMonthDay.newForYYYYMMDD(format.format(userFormat.parse(arg0)));
-		} catch (ParseException e) {
-			throw new ConversionException(e).setResourceKey("invalid");
-		}
-	}
+    
+    @Override
+    public YearMonthDay convertToObject(String arg0, Locale arg1) {
+        if(arg0 == null) return null;
+        try {
+            return YearMonthDay.newForYYYYMMDD(format.format(userFormat.parse(arg0)));
+        } catch (ParseException e) {
+            throw new ConversionException(e).setResourceKey("invalid");
+        }
+    }
 
-	@Override
-	public String convertToString(YearMonthDay arg0, Locale arg1) {
-		if(arg0 == null) return null;
- 		try {
-			return userFormat.format(format.parse(arg0.toYYYYMMDD()));
-		} catch (ParseException e) {
-			throw new ConversionException(e).setResourceKey("invalid");
-		}
-	}
+    @Override
+    public String convertToString(YearMonthDay arg0, Locale arg1) {
+        if(arg0 == null) return null;
+        try {
+            return userFormat.format(format.parse(arg0.toYYYYMMDD()));
+        } catch (ParseException e) {
+            throw new ConversionException(e).setResourceKey("invalid");
+        }
+    }
 }

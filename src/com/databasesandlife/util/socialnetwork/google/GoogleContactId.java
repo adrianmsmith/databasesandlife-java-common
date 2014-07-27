@@ -7,9 +7,9 @@ import com.databasesandlife.util.socialnetwork.SocialUserExternalId;
 public class GoogleContactId extends SocialUserExternalId {
     public GoogleContactId(String x) { super(x); }
 
-	@Override
-	public SocialNetwork getSocialNetwork() {
-	    return SocialNetwork.Google;
-	}
-	
+    @Override
+    public SocialNetwork getSocialNetwork() {
+        return SocialNetwork.Google;
+    }
+    
 }

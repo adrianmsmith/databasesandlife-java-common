@@ -124,7 +124,7 @@ public class CountingUpThenAutoRefreshingLabel extends Panel {
         result += "var element = document.getElementById(\"" + label.getMarkupId() + "\");\n";
         result += "var targetValue = " + (Integer) getDefaultModelObject() + ";\n";
         result += "CountingUpThenAutoRefreshLabel_continueCounting(countingUpDurationSeconds, countingUpRefreshIntervalSeconds, tendencyThreshold, " +
-        		"thousandSeparator, element, targetValue, targetValue);\n";
+                "thousandSeparator, element, targetValue, targetValue);\n";
         
         return result;
     }

@@ -26,9 +26,9 @@ public class DomVariableExpanderTest extends TestCase {
         
         // Parse XML template
         String xmlTemplate = 
-    		"<foo attr='abc $var ${var2}'>" +
-    		" Some text $var ${var2}" +
-    		"</foo>";
+            "<foo attr='abc $var ${var2}'>" +
+            " Some text $var ${var2}" +
+            "</foo>";
         InputStream xmlTemplateInputStream = new ReaderInputStream(new StringReader(xmlTemplate));
         Element template = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlTemplateInputStream).getDocumentElement();
         

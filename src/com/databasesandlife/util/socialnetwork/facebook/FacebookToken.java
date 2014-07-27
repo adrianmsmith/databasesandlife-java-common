@@ -11,23 +11,23 @@ import com.databasesandlife.util.socialnetwork.SocialNetworkToken;
 @SuppressWarnings("serial")
 public class FacebookToken extends SocialNetworkToken {
 
-	public FacebookToken(Token t) {
-		super(t);
-	}
+    public FacebookToken(Token t) {
+        super(t);
+    }
 
-	@Override
-	public OAuthClient getClient(SocialClientFactory fac) {
-		return fac.getFacebookClient();
-	}
+    @Override
+    public OAuthClient getClient(SocialClientFactory fac) {
+        return fac.getFacebookClient();
+    }
 
-	@Override
-	public SocialNetwork getSocialNetwork() {
-	    return SocialNetwork.Facebook;
-	}
+    @Override
+    public SocialNetwork getSocialNetwork() {
+        return SocialNetwork.Facebook;
+    }
 
-	@Override
-	public String getScope() {
-		return "";
-	}
+    @Override
+    public String getScope() {
+        return "";
+    }
 
 }
