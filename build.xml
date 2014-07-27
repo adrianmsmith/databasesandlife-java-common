@@ -50,6 +50,7 @@
         access="public"
         stylesheetfile="javadoc.css">
       <link href="http://download.oracle.com/javase/6/docs/api"/>
+      <link href="http://javamail.kenai.com/nonav/javadocs"/>
       <link href="http://docs.jboss.org/hibernate/core/3.5/javadocs"/>
       <link href="http://google-web-toolkit.googlecode.com/svn/javadoc/1.6"/>
       <link href="http://wicket.apache.org/apidocs/1.4"/>
@@ -71,14 +72,10 @@
   <target name="upload-to-blog" depends="create-javadoc,create-zip" description="Uploads Javadoc and ZIP to databaseandlife.com">
     <exec executable="lftp">
       <arg value="-e"/>
-      <arg value="mput databasesandlife-java-util.zip -O www.databasesandlife.com/blog-attachments/"/> 
-      <arg value="-u"/>
-      <arg value="107ftp1,hwgfos"/>
-      <arg value="e10106-ftp.services.easyname.eu"/>
-    </exec>
-    <exec executable="lftp">
-      <arg value="-e"/>
-      <arg value="mirror --reverse --delete generated-javadoc www.databasesandlife.com/blog-attachments/databasesandlife-util-javadoc"/>
+      <arg value="
+         set ftp:ssl-allow false &amp;&amp;
+         mput databasesandlife-java-util.zip -O www.databasesandlife.com/blog-attachments/ &amp;&amp;
+         mirror --reverse --delete generated-javadoc www.databasesandlife.com/blog-attachments/databasesandlife-util-javadoc"/>
       <arg value="-u"/>
       <arg value="107ftp1,hwgfos"/>
       <arg value="e10106-ftp.services.easyname.eu"/>
