@@ -29,15 +29,25 @@ public class WebEncodingUtils {
         return result;
     }
 
-    /** @return "a=b&c=d" */
-    public static CharSequence encodeGetParameters(Map<String, String> params) {
+    /** 
+     * @param params values are either String or String[]
+     * @return "a=b&c=d" 
+     */
+    public static CharSequence encodeGetParameters(Map<String, Object> params) {
         try {
             StringBuilder result = new StringBuilder();
-            for (Entry<String, String> entry : params.entrySet()) {
-                if (result.length() > 0) result.append("&");
-                result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-                result.append("=");
-                result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            for (Entry<String, Object> entry : params.entrySet()) {
+                String[] values;
+                if (entry.getValue() instanceof String) values = new String[] { (String) entry.getValue() };
+                else if (entry.getValue() instanceof String[]) values = (String[]) entry.getValue();
+                else throw new RuntimeException("Unexpected type of key '" + entry.getKey() + "': " + entry.getValue().getClass());
+                
+                for (String value : values) {
+                    if (result.length() > 0) result.append("&");
+                    result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                    result.append("=");
+                    result.append(URLEncoder.encode(value, "UTF-8"));
+                }
             }
             return result;
         }
