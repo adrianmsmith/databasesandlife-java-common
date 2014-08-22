@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,18 +9,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.apache.wicket.util.io.IOUtils;
+import org.w3c.dom.*;
 
 import com.databasesandlife.util.gwtsafe.ConfigurationException;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.*;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
 public class DomParser {
+
+    private static final XPath xpath = XPathFactory.newInstance().newXPath();
 
     /** @param elementNames can be "*" */
     protected static List<Element> getSubElements(Node container, String... elementNames) {
@@ -144,5 +157,75 @@ public class DomParser {
         for (Element e : getSubElements(container, elementName))
             result.put(getMandatoryAttribute(e, keyAttribute), getMandatoryAttribute(e, valueAttribute));
         return result;
+    }
+
+    //========== XPath API ===========
+
+    public static XPathExpression getExpression(String expression)
+    throws XPathExpressionException {
+        return xpath.compile(expression);
+    }
+
+    public static NodeList getNodesFromXPath(Document document, String expression)
+    throws XPathExpressionException {
+        return (NodeList) getExpression(expression).evaluate(document, XPathConstants.NODESET);
+    }
+
+    public static NodeList getNodesFromXPath(Element root, String expression)
+    throws XPathExpressionException {
+        return getNodesFromXPath(root.getOwnerDocument(), expression);
+    }
+
+    public static List<Element> getElementsFromXPath(Document document, String expression)
+    throws XPathExpressionException {
+        return toElementList(getNodesFromXPath(document, expression));
+    }
+
+    public static List<Element> getElementsFromXPath(Element root, String expression)
+    throws XPathExpressionException {
+        return getElementsFromXPath(root.getOwnerDocument(), expression);
+    }
+
+    public static List<Element> toElementList(NodeList nl) {
+        List<Element> elements = new ArrayList<Element>(nl.getLength());
+        for (int i = 0; i < nl.getLength(); i++) {
+            Node n = nl.item(i);
+            if (n instanceof Element) {
+                elements.add((Element) n);
+            }
+        }
+        return elements;
+    }
+
+    public static Element getElementFromXPath(Document document, String expression)
+    throws XPathExpressionException {
+        return (Element) getExpression(expression).evaluate(document, XPathConstants.NODE);
+    }
+
+    public static Element getElementFromXPath(Element root, String expression)
+    throws XPathExpressionException {
+        return (Element) getExpression(expression).evaluate(root, XPathConstants.NODE);
+    }
+
+    public static Element from(File f) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        return db.parse(f).getDocumentElement();
+    }
+
+    public static Element from(InputStream f) throws ParserConfigurationException, IOException, SAXException {
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        return db.parse(f).getDocumentElement();
+    }
+
+    public static void persist(Document document, File f) throws TransformerException {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(f));
+            InputOutputStreamUtil.prettyPrintXml(writer, document.getDocumentElement());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(writer);
+        }
     }
 }
