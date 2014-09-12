@@ -98,6 +98,8 @@ public class DbTransaction {
     public interface DbTransactionFactory {
         /** Caller must call {@link DbTransaction#commit()} or {@link DbTransaction#rollback()}. */
         public DbTransaction newDbTransaction();
+
+        public DbTransaction newReadOnlyDbTransaction();
     }
     
     public static class UniqueConstraintViolation extends Exception {
@@ -469,7 +471,7 @@ public class DbTransaction {
                 "connection is NOT OK: "+e.getMessage(), e);
         }
     }
-    
+
     public void addPostgresTypeForEnum(Class<? extends Enum<?>> enumClass, String postgresType) {
         postgresTypeForEnum.put(enumClass, postgresType);
     }
