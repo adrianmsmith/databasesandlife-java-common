@@ -32,8 +32,6 @@ import javax.xml.xpath.*;
  */
 public class DomParser {
 
-    private static final XPath xpath = XPathFactory.newInstance().newXPath();
-
     /** @param elementNames can be "*" */
     protected static List<Element> getSubElements(Node container, String... elementNames) {
         boolean allElementsDesired = "*".equals(elementNames[0]);
@@ -163,6 +161,7 @@ public class DomParser {
 
     public static XPathExpression getExpression(String expression)
     throws XPathExpressionException {
+        XPath xpath = XPathFactory.newInstance().newXPath();
         return xpath.compile(expression);
     }
 
