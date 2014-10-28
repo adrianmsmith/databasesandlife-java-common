@@ -33,10 +33,10 @@ public class WebEncodingUtils {
      * @param params values are either String or String[]
      * @return "a=b&c=d" 
      */
-    public static CharSequence encodeGetParameters(Map<String, Object> params) {
+    public static CharSequence encodeGetParameters(Map<String, ?> params) {
         try {
             StringBuilder result = new StringBuilder();
-            for (Entry<String, Object> entry : params.entrySet()) {
+            for (Entry<String, ?> entry : params.entrySet()) {
                 String[] values;
                 if (entry.getValue() instanceof String) values = new String[] { (String) entry.getValue() };
                 else if (entry.getValue() instanceof String[]) values = (String[]) entry.getValue();
