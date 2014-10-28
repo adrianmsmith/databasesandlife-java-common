@@ -111,9 +111,9 @@ public class XingParser extends SocialParser {
                         String parsedProfileUrl = userMap.get("permalink") != null ? userMap.get("permalink").toString() : "";
     
                         Map<String,String> languages = (Map<String,String>)userMap.get("languages");
-                        List<Language> langs = new ArrayList<Language>();
+                        List<LanguageSkill> langs = new ArrayList<LanguageSkill>();
                         for(Entry<String,String> e : languages.entrySet()){
-                            langs.add(new Language(e.getKey().toString(),e.getValue() != null ? e.getValue().toString() : ""));
+                            langs.add(new LanguageSkill(e.getKey().toString(),e.getValue() != null ? e.getValue().toString() : ""));
                         }
                         
                         this.id = new XingUserId(parsedId);
@@ -136,7 +136,7 @@ public class XingParser extends SocialParser {
                         country = parsedCountry;
                         pictureUrl = pictureLarge;
                         this.profileUrl = parsedProfileUrl;
-                        this.languages = langs.toArray(new Language[0]);
+                        this.languages = langs.toArray(new LanguageSkill[0]);
                         List<String> qualis = (List<String>) eduMap.get("qualifications");
                         this.qualifications = qualis.toArray(new String[0]);
                     }catch (YearMonthParseException e) {

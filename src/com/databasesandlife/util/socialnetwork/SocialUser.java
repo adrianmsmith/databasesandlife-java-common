@@ -23,7 +23,7 @@ public abstract class SocialUser<ID extends SocialUserExternalId> implements Ser
     protected String country;
     protected String mobilePhone;
     protected String pictureUrl;
-    protected Language[] languages;
+    protected LanguageSkill[] languages;
     protected String[] qualifications;
     protected String profileUrl;
     
@@ -41,7 +41,7 @@ public abstract class SocialUser<ID extends SocialUserExternalId> implements Ser
     public String getMobilePhoneNumber(){ return mobilePhone;}
     public String getPictureUrl(){ return pictureUrl;}
     public String getProfileUrl(){ return profileUrl;}
-    public Language[] getLanguages(){ return languages;}
+    public LanguageSkill[] getLanguages(){ return languages;}
     public String[] getQualifications(){ return qualifications == null ? new String[0] : qualifications;}
     
     public abstract Work[] getWork();

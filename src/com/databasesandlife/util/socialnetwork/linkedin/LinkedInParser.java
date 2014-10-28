@@ -189,13 +189,13 @@ public class LinkedInParser extends SocialParser{
                 NodeList languagesList = person.getElementsByTagName("languages");
                 if(languagesList.getLength() > 0 ){
                     String[] langs = getTextContents(((Element)languagesList.item(0)).getElementsByTagName("name"));
-                    Language[] l = new Language[langs.length];
+                    LanguageSkill[] l = new LanguageSkill[langs.length];
                     for(int i = 0;i < langs.length;i++){
-                        l[i] = new Language(langs[i], "");
+                        l[i] = new LanguageSkill(langs[i], "");
                     }
                     languages = l;
                 }else{
-                    languages = new Language[0];
+                    languages = new LanguageSkill[0];
                 }
                 
                 Node pictureUrls = person.getElementsByTagName("picture-urls").getLength() > 0 ? 

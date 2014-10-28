@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.Locale;
 
 @SuppressWarnings("serial")
-public class Language implements Serializable{
+public class LanguageSkill implements Serializable{
     
-    public Language(String language,String skillLevel){
+    public LanguageSkill(String language,String skillLevel){
         if(language.length() == 2){
             this.language = new Locale(language).getDisplayLanguage();
         }else{
