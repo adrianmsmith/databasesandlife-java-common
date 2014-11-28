@@ -653,10 +653,12 @@ public class DbTransaction {
             insertOrThrowUniqueConstraintViolation(table, newRow);
         }
         catch (UniqueConstraintViolation e) {
+            if (colsToUpdate.isEmpty()) return;
             StringBuilder where = new StringBuilder();
             List<Object> params = new ArrayList<Object>(primaryKeyColumns.length);
+            where.append(" TRUE ");
             for (String col : primaryKeyColumns) {
-                if (where.length() > 0) where.append(" AND ");
+                where.append(" AND ");
                 where.append(col); where.append(" = ?");
                 params.add(colsToInsert.get(col));
             }
