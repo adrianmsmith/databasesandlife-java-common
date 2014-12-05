@@ -527,12 +527,30 @@ public class DbTransaction {
         execute(sql.toString(), args.toArray());
     }
     
+    protected void appendSetClauses(StringBuilder sql, List<Object> params, Map<String, ?> cols) {
+        sql.append(" SET ");
+        for (Entry<String, ?> c : cols.entrySet()) {
+            if (params.size() > 0) sql.append(", ");
+            sql.append(c.getKey());
+            sql.append(" = ");
+            sql.append(getQuestionMarkForValue(c.getValue()));
+            params.add(c.getValue());
+        }
+    }
+    
     public void insert(String table, Map<String, ?> cols) {
         if (cols.isEmpty() && product == DbServerProduct.postgres) {
             // if no columns:
             //     MySQL:      INSERT INTO mytable () VALUES ();
             //     PostgreSQL: INSERT INTO mytable DEFAULT VALUES;
             execute("INSERT INTO "+table+" DEFAULT VALUES");
+        } else if (product == DbServerProduct.mysql) { // statement is easier to read, therefore easier to debug
+            StringBuilder sql = new StringBuilder();
+            List<Object> params = new ArrayList<Object>();
+            sql.append(" INSERT INTO ");
+            sql.append(table);
+            appendSetClauses(sql, params, cols);
+            execute(sql, params);
         } else {
             StringBuilder keys = new StringBuilder();
             StringBuilder questionMarks = new StringBuilder();
@@ -597,21 +615,14 @@ public class DbTransaction {
         StringBuilder sql = new StringBuilder();
         List<Object> params = new ArrayList<Object>();
         
-        sql.append("UPDATE ");
+        sql.append(" UPDATE ");
         sql.append(table);
-        sql.append(" SET ");
-        for (Entry<String, ?> c : cols.entrySet()) {
-            if (params.size() > 0) sql.append(", ");
-            sql.append(c.getKey());
-            sql.append(" = ");
-            sql.append(getQuestionMarkForValue(c.getValue()));
-            params.add(c.getValue());
-        }
+        appendSetClauses(sql, params, cols);
         sql.append(" WHERE ");
         sql.append(where);
         params.addAll(Arrays.asList(whereParams));
         
-        execute(sql.toString(), params.toArray());
+        execute(sql, params);
     }
     
     public void updateOrThrowUniqueConstraintViolation(String table, Map<String, ?> cols, String where, Object... whereParams)
