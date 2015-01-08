@@ -98,13 +98,16 @@ public class DbTransaction {
     public interface DbTransactionFactory {
         /** Caller must call {@link DbTransaction#commit()} or {@link DbTransaction#rollback()}. */
         public DbTransaction newDbTransaction();
-
-        public DbTransaction newReadOnlyDbTransaction();
     }
     
     public static class UniqueConstraintViolation extends Exception {
         public UniqueConstraintViolation() { super(); }
         public UniqueConstraintViolation(Throwable t) { super(t); }
+    }
+    
+    public static class SqlException extends RuntimeException {
+        public SqlException(String x) { super(x); }
+        public SqlException(String x, Throwable t) { super(x, t); }
     }
     
     public static class DbQueryResultRow {
@@ -254,7 +257,7 @@ public class DbTransaction {
         }
     }
     
-    public abstract class DbQueryResultSet implements Iterable<DbQueryResultRow> {
+    public abstract static class DbQueryResultSet implements Iterable<DbQueryResultRow> {
         /** 
          * Reads all rows in the result set, finds the string column "stringColumnName" and creates objects of type "cl" by
          * calling its constructor taking a single string argument. 
@@ -505,7 +508,7 @@ public class DbTransaction {
                     ResultSet rs = ps.executeQuery();
                     return new DbQueryResultRowIterator(rs);
                 }
-                catch (SQLException e) { throw new RuntimeException(getSqlForLog(sql, args) + ": " + e.getMessage(), e); }
+                catch (SQLException e) { throw new SqlException(getSqlForLog(sql, args) + ": " + e.getMessage(), e); }
                 finally { Timer.end("SQL: " + getSqlForLog(sql, args)); }
             }
         };

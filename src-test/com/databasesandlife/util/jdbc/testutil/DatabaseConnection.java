@@ -7,6 +7,8 @@ import com.databasesandlife.util.jdbc.DbTransaction;
  * @version $Revision$
  */
 public class DatabaseConnection {
+    
+    public static final String mysql = "jdbc:mysql://localhost/databasesandlife_common?user=root&password=root";
 
     public static DbTransaction[] newDbTransactions() {
         return new DbTransaction[] {
