@@ -1,12 +1,16 @@
 package com.databasesandlife.util;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
@@ -52,6 +56,18 @@ public class WebEncodingUtils {
             return result;
         }
         catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
+    }
+    
+    public static boolean isResponseSuccess(int responseCode) {
+        return responseCode >= 200 && responseCode < 300; 
+    }
+    
+    public static boolean isResponseSuccess(HttpURLConnection c) { 
+        try { return isResponseSuccess(c.getResponseCode()); }
+        catch (IOException e) { 
+            Logger.getLogger(WebEncodingUtils.class).warn("HTTP request to '" + c.getURL() + "' unsuccessful", e);
+            return false;
+        }
     }
     
     // For GET parameters:
