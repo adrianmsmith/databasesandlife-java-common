@@ -9,37 +9,46 @@ import com.databasesandlife.util.jdbc.DbTransaction.DbTransactionFactory;
 import com.databasesandlife.util.jdbc.DbTransaction.SqlException;
 
 /**
+ * Read-only access to a database, which re-connects to the database if the connection is lost.
+ * 
+ * <p>Is thread-safe, you can use this from multiple threads</p>
+ * 
+ * <p>It is assumed that the results of one query are read before the next one begins.
+ * Starting a new query can close the old database connection when reconnecting, meaning reads from previous queries
+ * might not work.</p>
+ * 
  * @see com.databasesandlife.util.jdbc.DbTransaction
  */
 public class ReadOnlyReconnectingDbConnection {
     
     protected DbTransactionFactory fac;
-    protected DbTransaction tx;
+    protected ThreadLocal<DbTransaction> tx = new ThreadLocal<DbTransaction>();
 
     public ReadOnlyReconnectingDbConnection(DbTransactionFactory fac) {
         this.fac = fac;
-        this.tx = fac.newDbTransaction();
     }
     
     protected abstract class ReconnectingDbQueryResultSet extends DbQueryResultSet {
         protected abstract DbQueryResultSet query();
         
         @Override public Iterator<DbQueryResultRow> iterator() {
-            try { return query().iterator(); }
-            catch (SqlException e) {
-                try { tx.rollbackIfConnectionStillOpen(); }
-                catch (Exception e2) { }
-                
-                tx = fac.newDbTransaction();
-                return query().iterator(); 
+            if (tx.get() != null) {
+                try { return query().iterator(); }
+                catch (SqlException e) { 
+                    try { tx.get().rollbackIfConnectionStillOpen(); }
+                    catch (Exception e2) { }
+                }
             }
+            
+            tx.set(fac.newDbTransaction());
+            return query().iterator(); 
         }
     }
 
     public DbQueryResultSet query(final String sql, final Object... args) {
         return new ReconnectingDbQueryResultSet() {
             @Override protected DbQueryResultSet query() {
-                return tx.query(sql, args);
+                return tx.get().query(sql, args);
             }
         };
     }

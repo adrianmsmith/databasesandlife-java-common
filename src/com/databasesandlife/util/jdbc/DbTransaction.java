@@ -68,7 +68,9 @@ import com.microsoft.sqlserver.jdbc.SQLServerDriver;
  * Although opening a connection each time is not as efficient as using a connection pool, this class is extremely simple,
  * which has advantages both in terms or reliability, maintainability and also speed. (For example, C3P0 has &gt; 50 KLOC).
  * Opening a connection to MySQL is fast.
- * </p> 
+ * </p>
+ * 
+ * <p>DbTransaction objects are not thread safe; do not use them from multiple threads simultaneously.</p>
  * 
  * <p>Example usage:
  * <pre>

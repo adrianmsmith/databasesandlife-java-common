@@ -9,12 +9,14 @@ import com.databasesandlife.util.jdbc.DbTransaction;
 public class DatabaseConnection {
     
     public static final String mysql = "jdbc:mysql://localhost/databasesandlife_common?user=root&password=root";
+    public static final String postgresql = "jdbc:postgresql://localhost/jobwebsite?user=postgres&password=postgres";
+    public static final String sqlserver = "jdbc:sqlserver://localhost;database=databasesandlife_common;user=adrianx;password=adrian";
 
     public static DbTransaction[] newDbTransactions() {
         return new DbTransaction[] {
-            new DbTransaction("jdbc:mysql://localhost/databasesandlife_common?user=root&password=root"),
-            new DbTransaction("jdbc:postgresql://localhost:5433/databasesandlife_common?user=postgres&password=piyrwqetuo"),
-            new DbTransaction("jdbc:sqlserver://localhost;database=databasesandlife_common;user=adrianx;password=adrian"),
+            new DbTransaction(mysql),
+            new DbTransaction(postgresql),
+            new DbTransaction(sqlserver),
         };
     }
 }
