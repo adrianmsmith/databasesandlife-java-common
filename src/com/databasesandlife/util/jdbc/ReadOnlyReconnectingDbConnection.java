@@ -18,6 +18,8 @@ import com.databasesandlife.util.jdbc.DbTransaction.SqlException;
  * might not work.</p>
  * 
  * @see com.databasesandlife.util.jdbc.DbTransaction
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @version $Revision: 2248 $
  */
 public class ReadOnlyReconnectingDbConnection {
     
