@@ -88,7 +88,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerDriver;
  */
 
 @SuppressWarnings("serial")
-public class DbTransaction {
+public class DbTransaction implements DbQueryable {
     
     protected DbServerProduct product;
     protected Connection connection;    // null means already committed
