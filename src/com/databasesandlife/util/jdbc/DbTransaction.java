@@ -88,13 +88,18 @@ import com.microsoft.sqlserver.jdbc.SQLServerDriver;
  */
 
 @SuppressWarnings("serial")
-public class DbTransaction implements DbQueryable {
+public class DbTransaction implements DbQueryable, AutoCloseable {
     
     protected DbServerProduct product;
     protected Connection connection;    // null means already committed
     protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
     protected Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<Class<? extends Enum<?>>, String>();
-    
+
+    @Override
+    public void close() throws Exception {
+        rollbackIfConnectionStillOpen();
+    }
+
     public enum DbServerProduct { mysql, postgres, sqlserver };
     
     public interface DbTransactionFactory {
