@@ -96,7 +96,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     protected Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<Class<? extends Enum<?>>, String>();
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         rollbackIfConnectionStillOpen();
     }
 
