@@ -429,6 +429,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             boolean isConstraintViolation = false;
             if (exception.getMessage().contains("Duplicate entry")) isConstraintViolation = true;               // MySQL
             if (exception.getMessage().contains("violates unique constraint")) isConstraintViolation = true;    // PostgreSQL
+            if (exception.getMessage().contains("verletzt Unique-Constraint")) isConstraintViolation = true;    // PostgreSQL German
             
             if (isConstraintViolation) {
                 if (initialState != null) {
