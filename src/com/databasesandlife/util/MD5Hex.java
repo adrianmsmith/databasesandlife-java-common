@@ -1,10 +1,12 @@
 package com.databasesandlife.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -19,29 +21,12 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 
 /**
+ * For strings, UTF-8 bytes are used.
+ * 
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
 public class MD5Hex {
-
-    /** Try and indicate to garbage collector that intermediate string is no longer needed after byte[] produced */
-    public static byte[] bytesFromStringBuilder(StringBuilder inputString) {
-        try {
-            int length = inputString.length();
-            byte[] result = new byte[length];
-            int minIncl = 0;
-            while (minIncl < length) {
-                int maxExcl = minIncl + 1000000;
-                if (maxExcl > length) maxExcl = length;
-                int blockLength = maxExcl - minIncl;
-                String srcStr = inputString.substring(minIncl, maxExcl);
-                System.arraycopy(srcStr.getBytes("US-ASCII"), 0, result, minIncl, blockLength);
-                minIncl = maxExcl;
-            }
-            return result;
-        }
-        catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
-    }
 
     public static String bytesToHex(byte[] bytes) {
         StringBuffer hexString = new StringBuffer();
@@ -63,21 +48,13 @@ public class MD5Hex {
         catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); }
     }
 
-    /** @param stuff UTF-8 bytes are used */
     public static String md5(String stuff) {
-        try {
-            return md5(stuff.getBytes("UTF-8"));
-        }
+        try { return md5(stuff.getBytes("UTF-8")); }
         catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
     }
 
-    /**
-     * This is capable of handling very large strings without creating any intermediate large objects such
-     * as Strings. As a consequence of the implementation, ASCII bytes are used not UTF-8 bytes.
-     * @see #md5(String) md5(String) - for the normal case of using UTF-8 bytes
-     */
-    public static String md5(StringBuilder stuff) {
-        return md5(bytesFromStringBuilder(stuff));
+    public static String md5(CharSequence stuff) {
+        return md5(stuff.toString());
     }
 
     /** @param stuff client must close this input stream */
