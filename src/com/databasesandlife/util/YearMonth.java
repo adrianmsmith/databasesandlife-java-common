@@ -38,7 +38,7 @@ public class YearMonth implements Serializable, Comparable<YearMonth> {
 
     /** @param str "YYYY-MMxx" form where xx can be anything */
     public static YearMonth newForYYYYMM(String str) throws YearMonthParseException  {
-        if (str == null) str = ""; // so that exception message is reasonable, and not NullPointerException
+        if (str == null) return null;
         Matcher m = Pattern.compile("^(\\d{4})-(\\d{2}).*$").matcher(str);
         if ( ! m.matches()) throw new YearMonthParseException("String '"+str+"' isn't 'YYYY-MMxx' date");
         YearMonth result = new YearMonth();
