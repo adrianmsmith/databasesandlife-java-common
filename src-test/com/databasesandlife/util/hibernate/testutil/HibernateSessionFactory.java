@@ -1,6 +1,5 @@
 package com.databasesandlife.util.hibernate.testutil;
 
-import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
