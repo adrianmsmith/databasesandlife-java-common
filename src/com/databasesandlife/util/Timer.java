@@ -65,13 +65,14 @@ public class Timer {
     // ------------------------------------------------------------------------------------------------------------------------
 
     public static class TimerResult {
-        long millis;
-        int iterPerSecond;
+        private long millis;
+        private int iterPerSecond;
 
         public String toString() { return String.format("%.3f seconds (%,d per second)", millis/1000.0, iterPerSecond); }
+        public long toItersPerSecond() { return iterPerSecond; }
     }
 
-    /** @param minimumDurationMillis thousanths of a second */
+    /** @param minimumDurationMillis thousandths of a second */
     public static TimerResult measureWallclockMilliseconds(Runnable task, long minimumDurationMillis) {
         long startTime = System.currentTimeMillis();
         long endTime = startTime + minimumDurationMillis;
