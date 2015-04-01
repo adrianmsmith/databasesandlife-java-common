@@ -363,13 +363,15 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                     ps.setArray(i+1, connection.createArrayOf("varchar", (String[]) args[i]));
                 else if (args[i] instanceof Integer[])
                     ps.setArray(i+1, connection.createArrayOf("int", (Integer[]) args[i]));
+                else if (args[i] instanceof Long[])
+                    ps.setArray(i+1, connection.createArrayOf("int", (Long[]) args[i]));
                 else if (args[i] instanceof Enum<?>[])
                     switch (product) {
                         case postgres:
                             ps.setArray(i+1, connection.createArrayOf(postgresTypeForEnum.get(args[i].getClass().getComponentType()), (Enum<?>[]) args[i]));
                             break;
                         default:
-                            throw new RuntimeException("Enum Arrays are not supported for: " + "product");
+                            throw new RuntimeException("Enum Arrays are not supported for: " + product);
                     }
                 else 
                     throw new RuntimeException("sql='"+sql+
