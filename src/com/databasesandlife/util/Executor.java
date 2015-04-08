@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 
 public class Executor {
 
+    @SuppressWarnings("deprecation")
     public static void run(String command) {
         try {
             Process p = Runtime.getRuntime().exec(command);
