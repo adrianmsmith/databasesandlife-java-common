@@ -1,6 +1,6 @@
 To develop / Eclipse
 
-- Download Java 1.5 or higher
+- Download Java (see build.xml for which version)
 - Download Eclipse
 - Preferences in Eclipse
   - Text Editors
