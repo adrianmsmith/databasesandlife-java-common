@@ -22,9 +22,9 @@ public class Executor {
                 throw new ReturnCodeNotZeroException("Return code for command '" + command + "' is '" + returnCode + "'");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
