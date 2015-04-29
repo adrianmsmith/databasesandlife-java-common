@@ -209,25 +209,21 @@ public class DomParser {
         return (Element) getExpression(expression).evaluate(root, XPathConstants.NODE);
     }
 
-    public static Element from(File f) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        return db.parse(f).getDocumentElement();
-    }
-
-    public static Element from(InputStream f) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        return db.parse(f).getDocumentElement();
-    }
-
-    public static void persist(Document document, File f) throws TransformerException {
-        BufferedWriter writer = null;
+    public static Element from(File f) throws ConfigurationException {
         try {
-            writer = new BufferedWriter(new FileWriter(f));
-            InputOutputStreamUtil.prettyPrintXml(writer, document.getDocumentElement());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(writer);
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            return db.parse(f).getDocumentElement();
         }
+        catch (ParserConfigurationException | IOException e) { throw new RuntimeException(e); }
+        catch (SAXException e) { throw new ConfigurationException(e); }
+    }
+
+    public static Element from(InputStream f) throws ConfigurationException {
+        try {
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            return db.parse(f).getDocumentElement();
+        }
+        catch (ParserConfigurationException | IOException e) { throw new RuntimeException(e); }
+        catch (SAXException e) { throw new ConfigurationException(e); }
     }
 }
