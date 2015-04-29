@@ -4,16 +4,18 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class Executor {
 
+    /** @param currentDirectoryOrNull if not null, what should the 'current directory' of the new process be? */
     @SuppressWarnings("deprecation")
-    public static void run(String command) {
+    public static void run(String command, File currentDirectoryOrNull) {
         try {
-            Process p = Runtime.getRuntime().exec(command);
+            Process p = Runtime.getRuntime().exec(command, null, currentDirectoryOrNull);
             Thread stdoutThread = spawnFor(new ProcessStreamReaderRunnable(p.getInputStream(), Priority.INFO));
             Thread stderrThread = spawnFor(new ProcessStreamReaderRunnable(p.getErrorStream(), Priority.ERROR));
             stdoutThread.start();
@@ -29,6 +31,10 @@ public class Executor {
         }
     }
 
+    public static void run(String command) {
+        run(command, null);
+    }
+    
     private static Thread spawnFor(Runnable r) {
         Thread t = new Thread(r);
         t.setDaemon(true);
@@ -59,6 +65,7 @@ public class Executor {
         }
     }
 
+    @SuppressWarnings("serial")
     public static class ReturnCodeNotZeroException extends RuntimeException {
         public ReturnCodeNotZeroException(String message) {
             super(message);
