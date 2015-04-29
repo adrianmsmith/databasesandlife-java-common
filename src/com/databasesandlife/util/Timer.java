@@ -2,15 +2,19 @@ package com.databasesandlife.util;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 /**
  * Times a calculation.
+ *    <p>
+ * Usage:
+ * <pre>try (Timer t = new Timer("doing something")) { ... }</pre>
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
-public class Timer {
+public class Timer implements AutoCloseable {
 
     static Logger logger = Logger.getLogger(Timer.class);
     static ThreadLocal<Map<String, Long>> start = new ThreadLocal<Map<String, Long>>();
@@ -88,4 +92,10 @@ public class Timer {
         result.iterPerSecond = (int) (1000.0 * iterations / durationMillis);
         return result;
     }
+
+    // ------------------------------------------------------------------------------------------------------------------------
+    
+    protected String name;
+    public Timer(String x) { Timer.start(name = x); }
+    @Override public void close()  { Timer.end(name); }
 }
