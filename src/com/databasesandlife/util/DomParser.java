@@ -152,6 +152,14 @@ public class DomParser {
         return result;
     }
 
+    protected static Map<String, String> parseMap(Element container, String elementName, String keyAttribute)
+    throws ConfigurationException {
+        Map<String, String> result = new HashMap<String, String>();
+        for (Element e : getSubElements(container, elementName))
+            result.put(getMandatoryAttribute(e, keyAttribute), e.getTextContent());
+        return result;
+    }
+
     //========== XPath API ===========
 
     public static XPathExpression getExpression(String expression)
