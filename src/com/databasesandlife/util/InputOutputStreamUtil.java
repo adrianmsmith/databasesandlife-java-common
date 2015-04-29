@@ -149,4 +149,11 @@ public class InputOutputStreamUtil {
             catch (IOException e) { } 
         }
     }
+
+    public static void writeXmlToFile(File out, Element xml) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(out), "UTF-8")) {
+            prettyPrintXml(writer, xml);
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
+    }
 }
