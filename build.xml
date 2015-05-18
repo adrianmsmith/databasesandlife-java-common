@@ -7,18 +7,9 @@
     <exec executable="svn" outputproperty="svn.info.output">
       <arg line="info"/>
     </exec>
-    <exec executable="perl" inputstring="${svn.info.output}" outputproperty="svn.url">
+    <exec executable="perl" inputstring="${svn.info.output}" outputproperty="revision.number">
       <arg value="-e"/>
-      <arg value="while (&lt;>) { if (/URL: (.+)/) { print $1; exit; } }"/>
-    </exec>
-    <echo>Using SVN URL: ${svn.url}</echo>
-
-    <exec executable="svn" outputproperty="svn.log.output">
-      <arg line="log -q ${svn.url}"/>
-    </exec>
-    <exec executable="perl" inputstring="${svn.log.output}" outputproperty="revision.number">
-      <arg value="-e"/>
-      <arg value="while (&lt;>) { if (/^r(\d+)/) { print $1; exit; } }"/>
+      <arg value="while (&lt;>) { if (/Last Changed Rev: (.+)/) { print $1; exit; } }"/>
     </exec>
     <echo>Will use Subversion revision r${revision.number}</echo>
   </target>
