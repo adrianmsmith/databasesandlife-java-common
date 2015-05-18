@@ -13,7 +13,7 @@ To develop / Eclipse
   - Refresh workspace on startup
   - Runtime environment -> Add -> Tomcat 6
     - Download install into "eclipse/tomcat" (not just "eclipse"!)
-- Create new project, "Databases & Life Common"
+- Create new "Java Proejct", "Databases & Life Common"
 - Delete the "src" directory which Eclipse creates
 - Project properties -> Build path
   - Link "src", "src-junit" into the Subversion checkout
