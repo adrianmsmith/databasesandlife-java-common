@@ -7,16 +7,16 @@ import com.databasesandlife.util.jdbc.DbTransaction;
  * @version $Revision$
  */
 public class DatabaseConnection {
-    
+
     public static final String mysql = "jdbc:mysql://localhost/databasesandlife_common?user=root&password=root";
-    public static final String postgresql = "jdbc:postgresql://localhost/jobwebsite?user=postgres&password=postgres";
-    public static final String sqlserver = "jdbc:sqlserver://localhost;database=databasesandlife_common;user=adrianx;password=adrian";
+    public static final String postgresql = "jdbc:postgresql://localhost/databasesandlife_common?user=postgres&password=postgres";
+//    public static final String sqlserver = "jdbc:sqlserver://localhost;database=databasesandlife_common;user=adrianx;password=adrian";
 
     public static DbTransaction[] newDbTransactions() {
         return new DbTransaction[] {
             new DbTransaction(mysql),
             new DbTransaction(postgresql),
-            new DbTransaction(sqlserver),
+//            new DbTransaction(sqlserver),
         };
     }
 }

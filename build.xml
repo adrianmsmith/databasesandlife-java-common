@@ -1,7 +1,5 @@
 <project name="databasesandlife-util" basedir=".">
 
-  <property name="compile-into" location="build-tmp/java-classes"/>
-
   <target name="find-revision">
     <echo>Finding Subversion revision number...</echo>
     <exec executable="svn" outputproperty="svn.info.output">
@@ -15,21 +13,58 @@
   </target>
 
   <target name="create-jar" depends="find-revision" description="Creates 'databasesandlife-util-incl-src-rNNN.jar'">
-    <delete dir="${compile-into}"/> <!-- force a clean compile -->
-    <mkdir dir="${compile-into}"/>
-    <javac source="1.7" encoding="UTF-8" srcdir="src" destdir="${compile-into}" debug="on" deprecation="on">
+    <delete dir="build-tmp/java-classes"/> <!-- force a clean compile -->
+    <mkdir dir="build-tmp/java-classes"/>
+    <javac source="1.7" encoding="UTF-8" srcdir="src" destdir="build-tmp/java-classes" debug="on" includeantruntime="false" deprecation="on">
       <compilerarg value="-Xlint:unchecked"/>
       <classpath>
         <fileset dir="lib-compile" includes="*.jar"/>
       </classpath> 
     </javac>
-    <copy todir="${compile-into}">
+    <copy todir="build-tmp/java-classes">
       <fileset dir="src">
         <include name="**/*"/>
       </fileset>
     </copy>
     <delete> <fileset dir="." includes="databasesandlife-util-incl-src-r*.jar"/> </delete>
-    <jar jarfile="databasesandlife-util-incl-src-r${revision.number}.jar" basedir="${compile-into}"/>
+    <jar jarfile="databasesandlife-util-incl-src-r${revision.number}.jar" basedir="build-tmp/java-classes"/>
+  </target>
+
+  <target name="run-junits" description="Runs JUnit unit tests" depends="create-jar">
+    <delete dir="build-tmp/junit-classes"/>
+    <mkdir dir="build-tmp/junit-classes"/>
+    <delete dir="build-tmp/junit-results"/>
+    <mkdir dir="build-tmp/junit-results"/>
+    <javac source="1.7" destdir="build-tmp/junit-classes" includeantruntime="false" debug="on" encoding="UTF-8">
+      <src path="src-test"/>
+      <classpath>
+        <fileset dir=".">
+          <include name="databasesandlife-util-incl-src-r*.jar"/>
+          <include name="lib-compile/*.jar"/>
+          <include name="lib-test/*.jar"/>
+        </fileset>
+      </classpath>
+    </javac>
+    <junit haltonfailure="yes">
+      <classpath>
+        <pathelement location="build-tmp/junit-classes"/>
+        <pathelement location="src"/>
+        <pathelement location="src-test"/>
+        <fileset dir=".">
+          <include name="databasesandlife-util-incl-src-r*.jar"/>
+          <include name="lib-compile/*.jar"/>
+          <include name="lib-test/*.jar"/>
+        </fileset>
+      </classpath>
+
+      <formatter type="brief" usefile="false"/>
+
+      <batchtest fork="yes" todir="build-tmp/junit-results">
+        <fileset dir="src-test">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
   </target>
 
   <target name="create-javadoc" description="Create Javadoc into 'generated-javadoc' directory">

@@ -21,9 +21,9 @@ public class EmailTemplateTest extends TestCase {
         
         EmailTransaction tx = new EmailTransaction("localhost");
         
-        new MyEmailTemplate().send(tx, new InternetAddress(recipient), new Locale("de"),
-            params, new ByteArrayAttachment("attachment.txt", "text/plain", "Hello".getBytes()));
-        System.out.println("One email has been sent to '" + recipient + "'.");
+//        new MyEmailTemplate().send(tx, new InternetAddress(recipient), new Locale("de"),
+//            params, new ByteArrayAttachment("attachment.txt", "text/plain", "Hello".getBytes()));
+//        System.out.println("One email has been sent to '" + recipient + "'.");
         
         EmailTemplate.setLastBodyForTestingInsteadOfSendingEmails();
         new MyEmailTemplate().send(tx, new InternetAddress(recipient), new Locale("de"),
