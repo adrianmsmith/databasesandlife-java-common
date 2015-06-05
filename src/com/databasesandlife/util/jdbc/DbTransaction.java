@@ -169,6 +169,18 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             catch (ParseException e) { throw new RuntimeException(e); }
         }
         
+        public Date getDateOnly(String col) {
+            try { 
+                String str = rs.getString(col);
+                if (str == null) return null;
+                SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+                f.setTimeZone(TimeZone.getTimeZone("UTC"));
+                return f.parse(str);
+            }
+            catch (SQLException e) { throw new RuntimeException(e); }
+            catch (ParseException e) { throw new RuntimeException(e); }
+        }
+        
         public String[] getStringArray(String col) {
             try {
                 Object[] a = (Object[]) rs.getArray(col).getArray();
