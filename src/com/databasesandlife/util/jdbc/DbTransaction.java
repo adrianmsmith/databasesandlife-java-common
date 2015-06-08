@@ -1,5 +1,7 @@
 package com.databasesandlife.util.jdbc;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -157,6 +159,33 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
+        /**
+         * for the bytea/blob data type - returns the stream, does not convert to byte[]
+         * @param col column name
+         * @return InputStream
+         */
+        public InputStream getBinaryStream(String col){
+            try { InputStream result = rs.getBinaryStream(col); if (rs.wasNull()) return null; else return result; }
+            catch (SQLException e) { throw new RuntimeException(e); }
+        }
+        
+        /**
+         * for the bytea/blob data type - returns byte[]
+         * @param col column name
+         * @return byte[];
+         */
+        public byte[] getByteArray(String col){
+            try {
+                byte[] result = rs.getBytes(col);
+                if (rs.wasNull())
+                    return null;
+                else 
+                    return result;
+            } catch (SQLException e) { 
+                throw new RuntimeException(e); 
+            }
+        }
+
         public Date getDate(String col) {
             try { 
                 String str = rs.getString(col);
