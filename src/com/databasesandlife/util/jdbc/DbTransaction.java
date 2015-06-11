@@ -33,6 +33,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.joda.time.JodaTimePermission;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
@@ -236,6 +240,17 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             }
             catch (SQLException e) { throw new RuntimeException(e); }
         }
+        
+        public LocalTime getLocalTime(String col) {
+            try {                
+                String str = rs.getString(col);
+                if (str == null) return null;
+                
+                return LocalTime.parse(str);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         @SuppressWarnings("unchecked")    
         public <T extends Enum<T>> T getEnum(String col, Class<T> clazz) {
@@ -395,6 +410,14 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                             break;
                         default:
                             ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD()); 
+                    }
+                else if (args[i] instanceof LocalTime)
+                    switch (product) {
+                        case mysql:
+                            throw new RuntimeException("joda.LocalTime is not implemented for mysql yet");
+                        default:
+                            LocalTime lt = (LocalTime)args[i];
+                            ps.setTime(i+1, new java.sql.Time(lt.toDateTimeToday().getMillis()));
                     }
                 else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
