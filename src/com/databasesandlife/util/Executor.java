@@ -11,11 +11,18 @@ import java.io.InputStreamReader;
 
 public class Executor {
 
-    /** @param currentDirectoryOrNull if not null, what should the 'current directory' of the new process be? */
+    /** 
+     * @param command can be String or String[]
+     * @param currentDirectoryOrNull if not null, what should the 'current directory' of the new process be? 
+     */
     @SuppressWarnings("deprecation")
-    public static void run(String command, File currentDirectoryOrNull) {
+    protected static void run(Object command, File currentDirectoryOrNull) {
         try {
-            Process p = Runtime.getRuntime().exec(command, null, currentDirectoryOrNull);
+            Process p;
+            if (command instanceof String) p = Runtime.getRuntime().exec((String)command, null, currentDirectoryOrNull);
+            else if (command instanceof String[]) p = Runtime.getRuntime().exec((String[])command, null, currentDirectoryOrNull);
+            else throw new RuntimeException("comamnd must be String or String[], is " + command.getClass());
+            
             Thread stdoutThread = spawnFor(new ProcessStreamReaderRunnable(p.getInputStream(), Priority.INFO));
             Thread stderrThread = spawnFor(new ProcessStreamReaderRunnable(p.getErrorStream(), Priority.ERROR));
             stdoutThread.start();
@@ -30,10 +37,11 @@ public class Executor {
             throw new RuntimeException(e);
         }
     }
-
-    public static void run(String command) {
-        run(command, null);
-    }
+    
+    public static void run(String[] command, File currentDirectoryOrNull) { run((Object)command, currentDirectoryOrNull); }
+    public static void run(String command, File currentDirectoryOrNull) { run((Object)command, currentDirectoryOrNull); }
+    public static void run(String[] command) { run(command, null); }
+    public static void run(String command) { run(command, null); }
     
     private static Thread spawnFor(Runnable r) {
         Thread t = new Thread(r);
