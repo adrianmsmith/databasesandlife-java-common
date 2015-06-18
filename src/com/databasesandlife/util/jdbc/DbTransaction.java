@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -467,7 +468,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         catch (SQLException e) { throw new RuntimeException(e); }
     }
     
-    public String getQuestionMarkForValue(Object value) {
+    protected String getQuestionMarkForValue(Object value) {
         if (product == DbServerProduct.postgres) {
             if (value instanceof Enum<?>) {
                 String type = postgresTypeForEnum.get(value.getClass());
@@ -771,5 +772,25 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             default:
                 throw new RuntimeException();
         }
+    }
+    
+    /** Writes "foo IN (?,?,?)" */
+    public <V> void appendIn(Appendable sql, List<? super V> sqlParams, String field, Collection<? extends V> values) {
+        try {
+            if (values.isEmpty())
+                sql.append("FALSE");
+            else {
+                boolean first = true;
+                sql.append(field);
+                sql.append(" IN (");
+                for (V v : values) {
+                    if (first) first=false; else sql.append(",");
+                    sql.append(getQuestionMarkForValue(v));
+                    sqlParams.add(v);
+                }
+                sql.append(")");
+            }
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
     }
 }
