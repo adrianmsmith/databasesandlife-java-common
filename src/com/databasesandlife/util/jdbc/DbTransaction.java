@@ -206,6 +206,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         @SuppressWarnings("deprecation")
         public Date getDateOnly(String col) {
             YearMonthDay yearMonthDay = getYearMonthDay(col);
+            if (yearMonthDay == null) return null;
             return new Date(yearMonthDay.year - 1900, yearMonthDay.month - 1, yearMonthDay.day);                
         }
         
