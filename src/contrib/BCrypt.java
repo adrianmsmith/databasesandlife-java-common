@@ -22,6 +22,8 @@ import java.security.SecureRandom;
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.Timer.TimerResult;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * BCrypt implements OpenBSD-style Blowfish password hashing using
  * the scheme described in "A Future-Adaptable Password Scheme" by
@@ -426,6 +428,7 @@ public class BCrypt {
      * @param x the base64-encoded value
      * @return  the decoded value of x
      */
+    @SuppressFBWarnings("INT_BAD_COMPARISON_WITH_NONNEGATIVE_VALUE")
     private static byte char64(char x) {
         if ((int)x < 0 || (int)x > index_64.length)
             return -1;

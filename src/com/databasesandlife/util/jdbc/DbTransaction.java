@@ -43,6 +43,8 @@ import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
 import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Represents a transaction against a database.
  *     <p>
@@ -139,6 +141,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
 
+        @SuppressFBWarnings("NP_BOOLEAN_RETURN_NULL") // We want to return null here, this is by design 
         public Boolean getBoolean(String col){
             try { boolean result = rs.getBoolean(col); if (rs.wasNull()) return null; else return result; }
             catch (SQLException e) { throw new RuntimeException(e); }

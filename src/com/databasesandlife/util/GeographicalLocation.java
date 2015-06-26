@@ -42,7 +42,7 @@ public class GeographicalLocation implements Serializable {
         public GeographicalLocationId(String id) { this.id = id; } 
         public String getId() { return id; }
         @Override public int hashCode() { return 4753 + id.hashCode(); }
-        @Override public boolean equals(Object obj) { return ((GeographicalLocationId) obj).id.equals(id); }
+        @Override public boolean equals(Object obj) { return obj != null && ((GeographicalLocationId) obj).id.equals(id); }
         @Override public String toString() { return id; }
     }
 

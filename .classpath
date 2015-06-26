@@ -36,5 +36,6 @@
 	<classpathentry kind="lib" path="lib-compile/yamlbeans-1.06.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib-compile/joda-time-2.8.jar"/>
+	<classpathentry kind="lib" path="lib-compile/findbugs-3.0.1.jar"/>
 	<classpathentry kind="output" path="build-tmp/eclipse"/>
 </classpath>

@@ -2,6 +2,8 @@ package com.databasesandlife.util;
 
 import java.util.Iterator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A future is the response of a calculation which is done in the background (in a thread).
  *     <p>
@@ -25,6 +27,7 @@ public abstract class Future<T> {
     
     public static class FutureComputationTimedOutException extends Exception { }
     
+    @SuppressFBWarnings("SC_START_IN_CTOR")
     public Future() {
         thread = new Thread(new Runnable() {
             @Override public void run() { 

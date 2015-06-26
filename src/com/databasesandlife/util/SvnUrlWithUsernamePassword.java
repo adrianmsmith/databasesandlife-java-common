@@ -14,7 +14,7 @@ import com.databasesandlife.util.gwtsafe.ConfigurationException;
  * @version $Revision$
  */
 @SuppressWarnings("serial")
-public class SvnUrlWithUsernamePassword implements Serializable {
+public class SvnUrlWithUsernamePassword {
 
     public SVNURL url;
     public String username, password;
