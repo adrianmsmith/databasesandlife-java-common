@@ -348,6 +348,12 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         public <T> Set<T> toObjectSet(Class<T> cl, String stringColumnName) {
             return new HashSet<T>(toObjectList(cl, stringColumnName));
         }
+
+        public Set<Long> toLongSet(String columnName) {
+            Set<Long> result = new HashSet<Long>();
+            for (DbQueryResultRow row : this) result.add(row.getLong(columnName));
+            return result;
+        }
     }
     
     // ---------------------------------------------------------------------------------------------------------------
