@@ -620,6 +620,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         }
     }
     
+    @SuppressFBWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
     public void insert(String table, Map<String, ?> cols) {
         if (cols.isEmpty() && product == DbServerProduct.postgres) {
             // if no columns:
