@@ -740,7 +740,8 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             where.append(" TRUE ");
             for (String col : primaryKeyColumns) {
                 where.append(" AND ");
-                where.append(col); where.append(" = ?");
+                where.append(col);
+                where.append(" = ").append(getQuestionMarkForValue(colsToInsert.get(col)));
                 params.add(colsToInsert.get(col));
             }
             update(table, colsToUpdate, where.toString(), params.toArray());
