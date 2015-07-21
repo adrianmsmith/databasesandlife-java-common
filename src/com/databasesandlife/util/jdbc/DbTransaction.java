@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.joda.time.JodaTimePermission;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -209,13 +210,6 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             catch (ParseException e) { throw new RuntimeException(e); }
         }
         
-        @SuppressWarnings("deprecation")
-        public Date getDateOnly(String col) {
-            YearMonthDay yearMonthDay = getYearMonthDay(col);
-            if (yearMonthDay == null) return null;
-            return new Date(yearMonthDay.year - 1900, yearMonthDay.month - 1, yearMonthDay.day);                
-        }
-        
         public String[] getStringArray(String col) {
             try {
                 Object[] a = (Object[]) rs.getArray(col).getArray();
@@ -243,6 +237,17 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
+        public LocalDate getLocalDate(String col) {
+            try {                
+                String str = rs.getString(col);
+                if (str == null) return null;
+                
+                return LocalDate.parse(str);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         public LocalTime getLocalTime(String col) {
             try {                
                 String str = rs.getString(col);
@@ -421,12 +426,13 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                     }
                 else if (args[i] instanceof LocalTime)
                     switch (product) {
-                        case mysql:
-                            throw new RuntimeException("joda.LocalTime is not implemented for mysql yet");
-                        default:
+                        case postgres:
                             LocalTime lt = (LocalTime)args[i];
                             ps.setTime(i+1, new java.sql.Time(lt.toDateTimeToday().getMillis()));
+                        default: throw new UnsupportedOperationException();
                     }
+                else if (args[i] instanceof LocalDate)
+                    ps.setDate(i+1, new java.sql.Date(((LocalDate) args[i]).toDate().getTime()), utc); 
                 else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
                 else if (args[i] instanceof Enum<?>)
