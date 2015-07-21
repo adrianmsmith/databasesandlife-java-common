@@ -38,6 +38,9 @@ import org.joda.time.JodaTimePermission;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 
 import com.databasesandlife.util.Timer;
 import com.databasesandlife.util.YearMonthDay;
@@ -556,6 +559,17 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
 
     public void addPostgresTypeForEnum(Class<? extends Enum<?>> enumClass, String postgresType) {
         postgresTypeForEnum.put(enumClass, postgresType);
+    }
+    
+    public DSLContext jooq() {
+        SQLDialect d;
+        switch (product) {
+            case mysql: d = SQLDialect.MYSQL; break;
+            case postgres: d = SQLDialect.POSTGRES; break;
+            default: throw new RuntimeException();
+        }
+        
+        return DSL.using(getConnection(), d);
     }
     
     public static String getSqlForLog(String sql, Object[] args) {
