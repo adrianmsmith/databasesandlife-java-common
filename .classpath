@@ -35,7 +35,11 @@
 	<classpathentry kind="lib" path="lib-compile/wicket-util-6.6.0.jar"/>
 	<classpathentry kind="lib" path="lib-compile/yamlbeans-1.06.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="lib-compile/joda-time-2.8.jar"/>
+	<classpathentry kind="lib" path="lib-compile/joda-time-2.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.joda.org/joda-time/apidocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib-compile/findbugs-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib-compile/jooq-3.6.2.jar"/>
 	<classpathentry kind="output" path="build-tmp/eclipse"/>
