@@ -13,7 +13,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
 /**
- *
+ * Pagination widget compatible with twitter bootstrap.
+ * 
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */
@@ -42,7 +43,7 @@ public class PaginationWidget extends Panel {
             protected void populateItem(ListItem<Integer> item) {
                 int destPageIdx = item.getModelObject();
                 Link<?> link = c.newLinkToPageIdx("link", destPageIdx); 
-                if (destPageIdx == pageIdx) link.add(new AttributeAppender("class", new Model<String>("active"), " "));
+                if (destPageIdx == pageIdx) item.add(new AttributeAppender("class", new Model<String>("active"), " "));
                 link.add(new Label("pageNo", "" + (1 + destPageIdx)));
                 item.add(link);
             } 
