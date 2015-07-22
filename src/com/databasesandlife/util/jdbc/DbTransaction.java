@@ -125,6 +125,11 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         public UniqueConstraintViolation(Throwable t) { super(t); }
     }
     
+    public static class ForeignKeyConstraintViolation extends Exception {
+        public ForeignKeyConstraintViolation() { super(); }
+        public ForeignKeyConstraintViolation(Throwable t) { super(t); }
+    }
+    
     public static class SqlException extends RuntimeException {
         public SqlException(String x) { super(x); }
         public SqlException(String x, Throwable t) { super(x, t); }
@@ -503,20 +508,24 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
      * If "exception" represents a violation exception it is thrown and the connection is rolled back to "initialState",
      * otherwise the original exception is re-thrown.
      */
-    protected void rollbackToSavepointAndThrowUniqueConstraintViolation(Savepoint initialState, RuntimeException exception) 
-    throws UniqueConstraintViolation {
+    protected void rollbackToSavepointAndThrowConstraintViolation(Savepoint initialState, RuntimeException exception) 
+    throws UniqueConstraintViolation, ForeignKeyConstraintViolation {
         try {
-            boolean isConstraintViolation = false;
-            if (exception.getMessage().contains("Duplicate entry")) isConstraintViolation = true;               // MySQL
-            if (exception.getMessage().contains("violates unique constraint")) isConstraintViolation = true;    // PostgreSQL
-            if (exception.getMessage().contains("verletzt Unique-Constraint")) isConstraintViolation = true;    // PostgreSQL German
+            boolean isUniqueConstraintViolation = false, isForeignKeyConstraintViolation = false;;
+            if (exception.getMessage().contains("Duplicate entry")) isUniqueConstraintViolation = true;            // MySQL
+            if (exception.getMessage().contains("violates unique constraint")) isUniqueConstraintViolation = true; // PostgreSQL
+            if (exception.getMessage().contains("verletzt Unique-Constraint")) isUniqueConstraintViolation = true; // PostgreSQL German
+            if (exception.getMessage().contains("foreign key constraint")) isForeignKeyConstraintViolation = true; // MySQL, PostgreSQL 
+            if (exception.getMessage().contains("verletzt Fremdschl")) isForeignKeyConstraintViolation = true;     // PostgreSQL German
             
-            if (isConstraintViolation) {
+            if (isUniqueConstraintViolation || isForeignKeyConstraintViolation) {
                 if (initialState != null) {
                     connection.rollback(initialState);
                     connection.releaseSavepoint(initialState);
                 }
-                throw new UniqueConstraintViolation(exception);
+                if (isUniqueConstraintViolation) throw new UniqueConstraintViolation(exception);
+                else if (isForeignKeyConstraintViolation) throw new ForeignKeyConstraintViolation(exception);
+                else throw new RuntimeException();
             }
             else {
                 throw exception;
@@ -619,10 +628,25 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     }
     
     public void execute(String sql, Object... args) {
-//        Timer.start("SQL: " + getSqlForLog(sql, args));
         try { insertParamsToPreparedStatement(sql, args).executeUpdate(); } // returns int = row count processed; we ignore
         catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
-//        finally { Timer.end("SQL: " + getSqlForLog(sql, args)); };
+    }
+    
+    /** For normal delete where you don't expect a possible foreign key constraint violation, use {@link #execute(String, Object...)} instead */
+    public void deleteOrThrowForeignKeyConstraintViolation(String table, String where, Object... args) throws ForeignKeyConstraintViolation {
+        try {
+            Savepoint initialState = null;
+            if (product == DbServerProduct.postgres) initialState = connection.setSavepoint();
+            try { 
+                execute("DELETE FROM " + table + " WHERE " + where, args);
+                if (initialState != null) connection.releaseSavepoint(initialState);
+            }
+            catch (RuntimeException e) { 
+                rollbackToSavepointAndThrowConstraintViolation(initialState, e); 
+            }
+        }
+        catch (UniqueConstraintViolation e) { throw new RuntimeException("Unreachable", e); }
+        catch (SQLException e) { throw new RuntimeException(e); }
     }
     
     public void execute(CharSequence sql, List<Object> args) {
@@ -679,9 +703,10 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 if (initialState != null) connection.releaseSavepoint(initialState);
             }
             catch (RuntimeException e) { 
-                rollbackToSavepointAndThrowUniqueConstraintViolation(initialState, e); 
+                rollbackToSavepointAndThrowConstraintViolation(initialState, e); 
             }
         }
+        catch (ForeignKeyConstraintViolation e) { throw new RuntimeException(e); }
         catch (SQLException e) { throw new RuntimeException(e); }
     }
     
@@ -725,9 +750,10 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 if (initialState != null) connection.releaseSavepoint(initialState);
             }
             catch (RuntimeException e) { 
-                rollbackToSavepointAndThrowUniqueConstraintViolation(initialState, e); 
+                rollbackToSavepointAndThrowConstraintViolation(initialState, e); 
             }
         }
+        catch (ForeignKeyConstraintViolation e) { throw new RuntimeException(e); }
         catch (SQLException e) { throw new RuntimeException(e); }
     }
     
