@@ -2,35 +2,29 @@ package com.databasesandlife.util.wicket;
 
 import java.util.Locale;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.lang.Args;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-/**
- * Converter to convert String to LocalTime and vice versa.
- *
- * @author Reko Jokelainen / Nitor Creations
- */
+@SuppressWarnings("serial")
 public class LocalDateConverter implements IConverter<LocalDate> {
 
     private final String pattern;
 
     public LocalDateConverter(String pattern) {
-        this.pattern = Args.notNull(pattern, "Pattern");
+        this.pattern = pattern;
     }
 
-    private DateTimeFormatter getFormatter() {
-        return DateTimeFormat.forPattern(pattern);
+    private DateTimeFormatter getFormatter(Locale locale) {
+        return DateTimeFormat.forPattern(pattern).withLocale(locale);
     }
 
     @Override
     public LocalDate convertToObject(String value, Locale locale) {
         try {
-            return LocalDate.parse(value, getFormatter());
+            return LocalDate.parse(value, getFormatter(locale));
         } catch (final RuntimeException e) {
             throw new ConversionException(e.getMessage(), e);
         }
@@ -38,11 +32,6 @@ public class LocalDateConverter implements IConverter<LocalDate> {
 
     @Override
     public String convertToString(LocalDate value, Locale locale) {
-        return value == null ? "" : value.toString(getFormatter());
+        return value == null ? "" : value.toString(getFormatter(locale));
     }
-
-    public String getPattern() {
-        return pattern;
-    }
-
 }

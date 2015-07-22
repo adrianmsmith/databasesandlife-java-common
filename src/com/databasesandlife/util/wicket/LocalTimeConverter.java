@@ -2,43 +2,29 @@ package com.databasesandlife.util.wicket;
 
 import java.util.Locale;
 
+import org.apache.wicket.util.convert.ConversionException;
+import org.apache.wicket.util.convert.IConverter;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import org.apache.wicket.util.convert.ConversionException;
-import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.lang.Args;
-
-/**
- * Converter to convert String to LocalTime and vice versa.
- *
- * @author Reko Jokelainen / Nitor Creations
- */
+@SuppressWarnings("serial")
 public class LocalTimeConverter implements IConverter<LocalTime> {
-
-    private static final long serialVersionUID = 1L;
-
-    public static final String DEFAULT_PATTERN = "HH:MM";
 
     private final String pattern;
 
-    public LocalTimeConverter() {
-        this(DEFAULT_PATTERN);
-    }
-
     public LocalTimeConverter(String pattern) {
-        this.pattern = Args.notNull(pattern, "Pattern");
+        this.pattern = pattern;
     }
 
-    private DateTimeFormatter getFormatter() {
-        return DateTimeFormat.forPattern(pattern);
+    private DateTimeFormatter getFormatter(Locale locale) {
+        return DateTimeFormat.forPattern(pattern).withLocale(locale);
     }
 
     @Override
     public LocalTime convertToObject(String value, Locale locale) {
         try {
-            return LocalTime.parse(value, getFormatter());
+            return LocalTime.parse(value, getFormatter(locale));
         } catch (final RuntimeException e) {
             throw new ConversionException(e.getMessage(), e);
         }
@@ -46,11 +32,6 @@ public class LocalTimeConverter implements IConverter<LocalTime> {
 
     @Override
     public String convertToString(LocalTime value, Locale locale) {
-        return value == null ? "" : value.toString(getFormatter());
+        return value == null ? "" : value.toString(getFormatter(locale));
     }
-
-    public String getPattern() {
-        return pattern;
-    }
-
 }
