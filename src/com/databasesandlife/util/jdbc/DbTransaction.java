@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.JodaTimePermission;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jooq.DSLContext;
@@ -430,14 +431,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                             ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD()); 
                     }
                 else if (args[i] instanceof LocalTime)
-                    switch (product) {
-                        case postgres:
-                            LocalTime lt = (LocalTime)args[i];
-                            ps.setTime(i+1, new java.sql.Time(lt.toDateTimeToday().getMillis()));
-                        default: throw new UnsupportedOperationException();
-                    }
+                    ps.setTime(i+1, new java.sql.Time(((LocalTime) args[i]).toDateTimeToday().getMillis()));
                 else if (args[i] instanceof LocalDate)
-                    ps.setDate(i+1, new java.sql.Date(((LocalDate) args[i]).toDate().getTime()), utc); 
+                    ps.setDate(i+1, new java.sql.Date(((LocalDate) args[i]).toDateTimeAtStartOfDay(DateTimeZone.forID("UTC")).toDate().getTime()), utc); 
                 else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
                 else if (args[i] instanceof Enum<?>)
