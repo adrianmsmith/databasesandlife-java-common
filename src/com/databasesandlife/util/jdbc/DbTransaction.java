@@ -500,6 +500,19 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         return "?";
     }
     
+    public static boolean isUniqueConstraintViolation(String msg) {
+        if (msg.contains("Duplicate entry")) return true;            // MySQL
+        if (msg.contains("violates unique constraint")) return true; // PostgreSQL
+        if (msg.contains("verletzt Unique-Constraint")) return true; // PostgreSQL German
+        return false;
+    }
+    
+    public static boolean isForeignKeyConstraintViolation(String msg) {
+        if (msg.contains("foreign key constraint")) return true; // MySQL, PostgreSQL 
+        if (msg.contains("verletzt Fremdschl")) return true;     // PostgreSQL German
+        return false;
+    }
+    
     /**
      * If "exception" represents a violation exception it is thrown and the connection is rolled back to "initialState",
      * otherwise the original exception is re-thrown.
@@ -507,12 +520,8 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     protected void rollbackToSavepointAndThrowConstraintViolation(Savepoint initialState, RuntimeException exception) 
     throws UniqueConstraintViolation, ForeignKeyConstraintViolation {
         try {
-            boolean isUniqueConstraintViolation = false, isForeignKeyConstraintViolation = false;;
-            if (exception.getMessage().contains("Duplicate entry")) isUniqueConstraintViolation = true;            // MySQL
-            if (exception.getMessage().contains("violates unique constraint")) isUniqueConstraintViolation = true; // PostgreSQL
-            if (exception.getMessage().contains("verletzt Unique-Constraint")) isUniqueConstraintViolation = true; // PostgreSQL German
-            if (exception.getMessage().contains("foreign key constraint")) isForeignKeyConstraintViolation = true; // MySQL, PostgreSQL 
-            if (exception.getMessage().contains("verletzt Fremdschl")) isForeignKeyConstraintViolation = true;     // PostgreSQL German
+            boolean isUniqueConstraintViolation = isUniqueConstraintViolation(exception.getMessage());
+            boolean isForeignKeyConstraintViolation = isForeignKeyConstraintViolation(exception.getMessage());
             
             if (isUniqueConstraintViolation || isForeignKeyConstraintViolation) {
                 if (initialState != null) {
