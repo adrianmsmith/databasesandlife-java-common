@@ -769,7 +769,7 @@ public class BCrypt {
             }
         }
         Hasher hasher = new Hasher();
-        TimerResult time = Timer.measureWallclockMilliseconds(hasher, 1000); // 1 second
+        TimerResult time = Timer.measureWallclockTime(hasher, 1000); // 1 second
         System.out.println("Hashed: " + hasher.hashed);
         System.out.println("Time: " + time.toString());
     }
