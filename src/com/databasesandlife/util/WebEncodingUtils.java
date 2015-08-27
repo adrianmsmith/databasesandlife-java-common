@@ -22,6 +22,7 @@ public class WebEncodingUtils {
         x = x.replaceAll("&", "&amp;");
         x = x.replaceAll(">", "&gt;");
         x = x.replaceAll("<", "&lt;");
+        x = x.replaceAll("\n", "<br/>");
         return x;
     }
 
