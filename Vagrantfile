@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
+  config.vm.hostname = "databasesandlife-java-common"
   config.vm.box = "ericmann/trusty64"    # 15.04 doesn't have jetty, only jetty8
   config.vm.synced_folder ".", "/vagrant"
   
