@@ -1,0 +1,26 @@
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd">
+ <head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+ </head>
+ <body>
+  <wicket:panel>
+   <script>
+      $(function() {
+          function showPosition(position) {
+              $("#AskUserForLatitudeLongitudeForm #latitude").val(position.coords.latitude);
+              $("#AskUserForLatitudeLongitudeForm #longitude").val(position.coords.longitude);
+              $("#AskUserForLatitudeLongitudeForm button").click();
+          }
+          
+          if (navigator.geolocation) 
+              navigator.geolocation.getCurrentPosition(showPosition);
+      });
+   </script>
+   <form wicket:id="form" method="get" style="display:none" id="AskUserForLatitudeLongitudeForm">
+    <input id="latitude"  wicket:id="latitude"  placeholder="latitude">
+    <input id="longitude" wicket:id="longitude" placeholder="longitude">
+    <button wicket:id="submit" type="submit">Submit</button>
+   </form>
+  </wicket:panel>
+ </body>
+</html>
