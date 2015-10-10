@@ -33,7 +33,7 @@ public class GoogleAnalyticsAsyncWidget extends Panel {
     public GoogleAnalyticsAsyncWidget(String wicketId, String googleAccountId, boolean useTheOldGoogleAnalyticsApi) {
         super(wicketId);
 
-        String setAccountJs = "var googleAnalyticsAsyncWidgetGoogleAccount = '" + googleAccountId + "'";
+        String setAccountJs = "var googleAnalyticsAsyncWidgetGoogleAccount = '" + googleAccountId + "';";
         Component setAccount = new Label("setAccount", setAccountJs).setEscapeModelStrings(false);
         add(setAccount);
         WebMarkupContainer oldGoogleAnalyticsBlock = new WebMarkupContainer("javascript");
