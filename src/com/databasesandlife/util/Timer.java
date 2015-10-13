@@ -69,16 +69,19 @@ public class Timer implements AutoCloseable {
     // ------------------------------------------------------------------------------------------------------------------------
 
     public static class TimerResult {
-        private long millis;
+        private long millisPerIter;
         private double iterPerSecond;
 
-        public String toString() { return String.format("%.3f seconds (%.1f per second)", millis/1000.0, iterPerSecond); }
-        public double getSecondsPerIter() { return millis / 1_000.0; }
+        public String toString() { return String.format("%.3f seconds (%.1f per second)", millisPerIter/1000.0, iterPerSecond); }
+        public double getSecondsPerIter() { return millisPerIter / 1_000.0; }
         public double getItersPerSecond() { return iterPerSecond; }
     }
 
     /** @param minimumDurationMillis thousandths of a second */
     public static TimerResult measureWallclockTime(Runnable task, long minimumDurationMillis) {
+        // Ignore the first iteration, e.g. on one unit test it took 0.7 seconds one-time to do class loading of the class under test
+        task.run();
+        
         long startTime = System.currentTimeMillis();
         long endTime = startTime + minimumDurationMillis;
         int iterations = 0;
@@ -87,9 +90,9 @@ public class Timer implements AutoCloseable {
             task.run();
         }
         long durationMillis = System.currentTimeMillis() - startTime;
-        
+
         TimerResult result = new TimerResult();
-        result.millis = durationMillis / iterations;
+        result.millisPerIter = durationMillis / iterations;
         result.iterPerSecond = 1000.0 * iterations / durationMillis;
         return result;
     }
