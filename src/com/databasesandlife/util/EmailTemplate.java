@@ -1,10 +1,14 @@
 package com.databasesandlife.util;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,11 +22,13 @@ import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.LoggerFactory;
 
 /**
 
@@ -281,6 +287,15 @@ public class EmailTemplate {
         EmailTransaction tx, InternetAddress recipientEmailAddress, Locale locale,
         Map<String,String> parameters, Attachment... attachments
     ) {
+        EmailAddressWrapper container = new EmailAddressWrapper();
+        container.addRecipient(recipientEmailAddress);
+        send(tx, container, locale, parameters, attachments);
+    }
+    /** Send an email based on this email template, to multiple recipients. */
+    public void send(
+        EmailTransaction tx, EmailAddressWrapper recipientEmailAddresses, Locale locale,
+        Map<String,String> parameters, Attachment... attachments
+    ) {
         try {
             // Read the subject
             String subject = readLocaleTextFile("subject", locale, "txt");
@@ -308,7 +323,9 @@ public class EmailTemplate {
             // Create the message from the subject and body
             Message msg = tx.newMimeMessage();
             msg.setFrom(new InternetAddress(readLocaleTextFile("from", locale, "txt")));
-            msg.addRecipient(RecipientType.TO, recipientEmailAddress);
+            for (EmailAddressAndType wrapper : recipientEmailAddresses.getAllRecipients()) {
+                msg.addRecipient(wrapper.type, wrapper.address);
+            }
             msg.setSubject(subject);
             msg.setContent(mainPart);
             msg.setSentDate(new Date());
@@ -317,5 +334,84 @@ public class EmailTemplate {
             tx.send(msg);
         }
         catch (MessagingException e) { throw new RuntimeException(e); }
+    }
+    public static class EmailAddressWrapper{
+        private final Set<InternetAddress> toRecipients, ccRecipients, bccRecipients;
+        /**
+         * This class serves to pass multiple and different types of recipients as receivers to an email.
+         * */
+        public EmailAddressWrapper() {
+            toRecipients = new HashSet<>();
+            ccRecipients = new HashSet<>();
+            bccRecipients = new HashSet<>();
+        }
+        /**
+         * This method adds the specified type of recipient
+         * */
+        public void addRecipient(InternetAddress emailAddress, RecipientType type) {
+            if(emailAddress == null)
+                return;
+            if(type == RecipientType.BCC)
+                bccRecipients.add(emailAddress);
+            if(type == RecipientType.CC)
+                ccRecipients.add(emailAddress);
+            if(type == RecipientType.TO)
+                toRecipients.add(emailAddress);
+        }
+        /**
+         * Returns a boolean to indicate success or failure. If email has invalid format it will not be accepted
+         * */
+        public boolean addRecipient(String validEmailAddress, RecipientType type) {
+            try {
+                this.addRecipient(new InternetAddress(validEmailAddress), type);
+                return true;
+            } catch (AddressException e) {
+                LoggerFactory.getLogger(getClass()).warn("--- addRecipient(string, type) -- could not add email {} to recipients ", validEmailAddress, e);
+            }
+            return false;
+        }
+
+        /**
+         * This method add a TO type of recipient<br>
+         * Returns a boolean to indicate success or failure. If email has invalid format it will not be accepted
+         * */
+        public boolean addRecipient(String validEmailAddress) {
+            return addRecipient(validEmailAddress, RecipientType.TO);
+        }
+        /**
+         * 
+         * This method add a TO type of recipient<br>
+         * */
+        public void addRecipient(InternetAddress emailAddress) {
+            addRecipient(emailAddress, RecipientType.TO);
+        }
+        
+        public boolean hasRecipients() {
+            return !toRecipients.isEmpty() || !ccRecipients.isEmpty() || !bccRecipients.isEmpty();
+        }
+        public List<EmailAddressAndType> getAllRecipients() {
+            List<EmailAddressAndType> recipients = new ArrayList<>();
+            for (InternetAddress internetAddress : toRecipients) {
+                recipients.add(new EmailAddressAndType(internetAddress, RecipientType.TO));
+            }
+            for (InternetAddress internetAddress : ccRecipients) {
+                recipients.add(new EmailAddressAndType(internetAddress, RecipientType.CC));
+            }
+            for (InternetAddress internetAddress : bccRecipients) {
+                recipients.add(new EmailAddressAndType(internetAddress, RecipientType.BCC));
+            }
+            return recipients;
+        }
+        
+    }
+    private static class EmailAddressAndType{
+        private InternetAddress address;
+        private RecipientType type;
+        public EmailAddressAndType(InternetAddress address, RecipientType type) {
+            super();
+            this.address = address;
+            this.type = type;
+        }
+        
     }
 }
