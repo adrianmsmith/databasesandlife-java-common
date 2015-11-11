@@ -78,7 +78,9 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
     
     protected YearMonthDay getDelta(long millisDelta) {
         Date result = new Date(getMidnightUtcAtStart().getTime() + millisDelta);
-        return newForYYYYMMDD(new SimpleDateFormat("yyyy-MM-dd").format(result));
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+        f.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return newForYYYYMMDD(f.format(result));
     }
     
     public YearMonthDay getPrevious() {
