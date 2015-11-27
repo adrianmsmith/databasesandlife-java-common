@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
@@ -18,9 +19,16 @@ public class Executor {
     @SuppressWarnings("deprecation")
     protected static void run(Object command, File currentDirectoryOrNull) {
         try {
-            Process p;
-            if (command instanceof String) p = Runtime.getRuntime().exec((String)command, null, currentDirectoryOrNull);
-            else if (command instanceof String[]) p = Runtime.getRuntime().exec((String[])command, null, currentDirectoryOrNull);
+            final String commandForLog;
+            final Process p;
+            if (command instanceof String) {
+                commandForLog = (String)command;
+                p = Runtime.getRuntime().exec((String)command, null, currentDirectoryOrNull);
+            }
+            else if (command instanceof String[]) {
+                commandForLog = StringUtils.join((String[])command, " ");
+                p = Runtime.getRuntime().exec((String[])command, null, currentDirectoryOrNull);
+            }
             else throw new RuntimeException("comamnd must be String or String[], is " + command.getClass());
             
             Thread stdoutThread = spawnFor(new ProcessStreamReaderRunnable(p.getInputStream(), Priority.INFO));
@@ -29,7 +37,7 @@ public class Executor {
             stderrThread.start();
             int returnCode = p.waitFor();
             if (returnCode != 0) {
-                throw new ReturnCodeNotZeroException("Return code for command '" + command + "' is '" + returnCode + "'");
+                throw new ReturnCodeNotZeroException("Return code for command '" + commandForLog + "' is '" + returnCode + "'");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
