@@ -34,11 +34,18 @@ public class EmailTransaction {
         this.smtpServer = smtpServer;
     }
     
-    public MimeMessage newMimeMessage() {
+    protected Properties newSessionProperties() {
         Properties props = new Properties();
         props.put("mail.smtp.host", smtpServer);
-        Session mailSession = Session.getDefaultInstance(props);
-        return new MimeMessage(mailSession);
+        return props;
+    }
+    
+    protected Session newSession() {
+        return Session.getDefaultInstance(newSessionProperties());
+    }
+    
+    public MimeMessage newMimeMessage() {
+        return new MimeMessage(newSession());
     }
     
     public void send(Message msg) {
