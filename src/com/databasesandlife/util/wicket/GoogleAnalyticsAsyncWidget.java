@@ -26,23 +26,23 @@ import org.apache.wicket.markup.html.panel.Panel;
 @SuppressWarnings("serial")
 public class GoogleAnalyticsAsyncWidget extends Panel {
 
-    public GoogleAnalyticsAsyncWidget(String wicketId, String googleAccountId) {
-        this(wicketId, googleAccountId, true);
+    public GoogleAnalyticsAsyncWidget(String wicketId, String trackingId) {
+        this(wicketId, trackingId, true);
     }
 
-    public GoogleAnalyticsAsyncWidget(String wicketId, String googleAccountId, boolean useTheOldGoogleAnalyticsApi) {
+    public GoogleAnalyticsAsyncWidget(String wicketId, String trackingId, boolean useTheOldGoogleAnalyticsApi) {
         super(wicketId);
 
-        String setAccountJs = "var googleAnalyticsAsyncWidgetGoogleAccount = '" + googleAccountId + "';";
+        String setAccountJs = "var googleAnalyticsAsyncWidgetGoogleAccount = '" + trackingId + "';";
         Component setAccount = new Label("setAccount", setAccountJs).setEscapeModelStrings(false);
         add(setAccount);
         WebMarkupContainer oldGoogleAnalyticsBlock = new WebMarkupContainer("javascript");
         oldGoogleAnalyticsBlock
-                .setVisible(useTheOldGoogleAnalyticsApi && googleAccountId != null && !googleAccountId.isEmpty());
+                .setVisible(useTheOldGoogleAnalyticsApi && trackingId != null && !trackingId.isEmpty());
         add(oldGoogleAnalyticsBlock);
         WebMarkupContainer newGoogleAnalyticsBolock = new WebMarkupContainer("new-javascript");
         newGoogleAnalyticsBolock
-                .setVisible(!useTheOldGoogleAnalyticsApi && googleAccountId != null && !googleAccountId.isEmpty());
+                .setVisible(!useTheOldGoogleAnalyticsApi && trackingId != null && !trackingId.isEmpty());
         add(newGoogleAnalyticsBolock);
     }
 
