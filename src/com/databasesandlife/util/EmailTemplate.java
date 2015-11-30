@@ -273,8 +273,10 @@ public class EmailTemplate {
 
     /** Replaces variables such as ${XYZ} in the template. Variables which are not found remain in their original unreplaced form. */
     public static String replacePlainTextParameters(String template, Map<String,String> parameters) {
-        for (Entry<String,String> paramEntry : parameters.entrySet())
+        for (Entry<String,String> paramEntry : parameters.entrySet()){
+            System.out.println("Debug for param "+paramEntry.getKey()+"---"+paramEntry.getValue());
             template = template.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
+        }
         return template;
     }
 
@@ -312,7 +314,12 @@ public class EmailTemplate {
             msg.setFrom(new InternetAddress(readLocaleTextFile("from", locale, "txt")));
             msg.addRecipients(RecipientType.TO, recipientEmailAddresses.toArray(new InternetAddress[0]));
             msg.setSubject(subject);
-            msg.setContent(mainPart);
+            msg.setContent(mainPart, "text/plain; charset=UTF-8");
+            try {
+                msg.writeTo(new FileOutputStream("outHtml.HTML"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             msg.setSentDate(new Date());
 
             // Send the message
