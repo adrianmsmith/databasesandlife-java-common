@@ -64,6 +64,7 @@ public class CsvParser {
 
     public static class MalformedCsvException extends Exception {  // checked ex. because it's always possible CSV invalid, must handle it
         public MalformedCsvException(String msg) { super(msg); }
+        public MalformedCsvException(Throwable e) { super(e); }
     }
 
     protected class ArrayOfMapsLineHandler implements CsvLineHandler {
@@ -158,7 +159,8 @@ public class CsvParser {
             try { parseAndCallHandler(lineHandler, new BufferedReader(new InputStreamReader(csvStream, defaultCharset))); }
             finally { csvStream.close(); }
         }
-        catch (IOException e) { throw new RuntimeException(e); }
+        catch (IOException e) { throw new RuntimeException("CSV file for class " + cl + ": " + e.getMessage(), e); }
+        catch (MalformedCsvException e) { throw new MalformedCsvException("CSV file for class " + cl + ": " + e.getMessage()); }
     }
 
     public List<Map<String, String>> parseToListOfMaps(BufferedReader r) throws MalformedCsvException {
