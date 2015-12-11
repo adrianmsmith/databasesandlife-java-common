@@ -22,7 +22,6 @@ public class MandrillEmailTransaction extends EmailTransaction {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.port", "587");
-        props.put("mail.debug", "true");
         props.put("mail.transport.protocol", "smtp");
         return props;
     }
