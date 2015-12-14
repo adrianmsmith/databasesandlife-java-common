@@ -108,16 +108,17 @@ public class CsvParser {
                                 throw new MalformedCsvException("Column '" + foundField + "' unexpected");
             }
 
-            int lineNumber = 2;
+            int lineNumber = 1;
             Map<String, String> valueForField = new HashMap<String, String>();
             while (true) {
                 try {
+                    lineNumber++;
                     String line = r.readLine();
                     if (line == null || (endOfDataRegex != null && endOfDataRegex.matcher(line).matches())) break; // end of data
                     if(skipLinePattern != null && skipLinePattern.matcher(line).matches()) continue;
                     String[] valueForColIdx = fieldSeparatorRegexp.split(line,-1);
                     if (valueForColIdx.length != fieldForColIdx.length) throw new MalformedCsvException("Expected " +
-                        fieldForColIdx.length + " fields but found " + valueForColIdx.length + " fields");
+                        fieldForColIdx.length + " fields but found " + valueForColIdx.length + " fields; line was '"+line+"'");
                     valueForField.clear();
                     for (int c = 0; c < valueForColIdx.length; c++) {
                         String field = fieldForColIdx[c].replaceAll("\"", "");
@@ -127,10 +128,8 @@ public class CsvParser {
                         valueForField.put(field, val);
                     }
                     lineHandler.processCsvLine(valueForField);
-
-                    lineNumber++;
                 }
-                catch (MalformedCsvException e) { throw new MalformedCsvException("Line " + lineNumber + ": " + e.getMessage()); }
+                catch (MalformedCsvException e) { throw new MalformedCsvException(getLineNumberText(lineNumber) + e.getMessage()); }
             }
         }
         catch (IOException e) { throw new RuntimeException(e); }
@@ -188,4 +187,7 @@ public class CsvParser {
         return false;
     }
     
+    protected String getLineNumberText(int lineNumber) {
+        return "Line " + lineNumber + ": ";
+    }
 }
