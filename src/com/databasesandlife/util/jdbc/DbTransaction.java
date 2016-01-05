@@ -505,11 +505,8 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     }
     
     public static String parseUniqueConstraintViolationOrNull(String msg) {
-        if (msg.indexOf("constraint") != -1)
-            return msg;
-
         { Matcher m = Pattern.compile("Duplicate entry '.*' for key '(.*)'").matcher(msg); if (m.find()) return m.group(1); } // MySQL
-        { Matcher m = Pattern.compile("violates check constraint \"(.*)\"").matcher(msg); if (m.find()) return m.group(1); } // PostgreSQL
+        { Matcher m = Pattern.compile("violates unique constraint \"(.*)\"").matcher(msg); if (m.find()) return m.group(1); } // PostgreSQL
         { Matcher m = Pattern.compile("verletzt Unique-Constraint „(.*)“").matcher(msg); if (m.find()) return m.group(1); } // PostgreSQL German
         return null;
     }
