@@ -85,6 +85,7 @@ public class CsvParser {
     public void setSkipLinePattern(Pattern p){ this.skipLinePattern = p;}
     public void setDefaultCharset(Charset c) { defaultCharset = c; }
     public void setFieldSeparatorRegexp(Pattern p) { fieldSeparatorRegexp = Pattern.compile(fieldSeparator.replace(",", p.toString()));}
+    public void setFieldSeparator(String x) { setFieldSeparatorRegexp(Pattern.compile(Pattern.quote(x))); }
     public void setIgnoreNotDesiredColumns(boolean b){ this.ignoreNotDesiredColumns = b;}
     
     /** Any fields found outside of this list cause an error */ 
