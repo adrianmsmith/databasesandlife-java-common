@@ -504,6 +504,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         return "?";
     }
     
+    /** @return the name of the unique constraint that was violated, or null if the error was not about a unique constraint violation */
     public static String parseUniqueConstraintViolationOrNull(String msg) {
         { Matcher m = Pattern.compile("Duplicate entry '.*' for key '(.*)'").matcher(msg); if (m.find()) return m.group(1); } // MySQL
         { Matcher m = Pattern.compile("violates unique constraint \"(.*)\"").matcher(msg); if (m.find()) return m.group(1); } // PostgreSQL
