@@ -4,3 +4,4 @@ To develop / Eclipse
 - Download Eclipse
 - Checkout this to "databasesandlife-java-common"
 - Eclipse -> Import Project -> Select
+
