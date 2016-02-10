@@ -18,7 +18,11 @@
 	<classpathentry kind="lib" path="lib-compile/guava-18.0.jar"/>
 	<classpathentry kind="lib" path="lib-compile/gwt-user.jar"/>
 	<classpathentry kind="lib" path="lib-compile/hibernate-3.3.1.jar"/>
-	<classpathentry kind="lib" path="lib-compile/javax.mail-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib-compile/javax.mail-1.5.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="https://javamail.java.net/nonav/docs/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib-compile/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib-compile/mailapi-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib-compile/mysql-connector-java-5.1.7-bin.jar"/>
@@ -42,5 +46,11 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib-compile/findbugs-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib-compile/jooq-3.6.2.jar"/>
+	<classpathentry kind="lib" path="lib-compile/velocity-1.7.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://velocity.apache.org/engine/releases/velocity-1.7/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib-compile/velocity-tools-generic-2.0.jar"/>
 	<classpathentry kind="output" path="build-tmp/eclipse"/>
 </classpath>

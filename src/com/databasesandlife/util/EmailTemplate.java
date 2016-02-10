@@ -24,7 +24,13 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.log.Log4JLogChute;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.apache.velocity.tools.generic.EscapeTool;
 
 /**
 
@@ -33,10 +39,10 @@ Represents a directory in the classpath, which contains text and potentially gra
 <p>A directory within the classpath should be created, and filled with the following files:</p>
 
 <p><ul>
-        <li><b>body.utf8.txt</b> - UTF-8 formatted body of the text/plain part of the email to be sent.</li>
-        <li><b>body<b>.utf8</b>.html</b> - UTF-8 formatted HTML version of the email to be sent.</li>
-        <li><b>subject<b>.utf8</b>.txt</b> - UTF-8 formatted subject of the email to be sent.</li>
-        <li><b>from<b>.utf8</b>.txt </b>- An file containing an email address such as "John Smith &lt;bar@example.com&gt;"</li>
+        <li><b>body.velocity.utf8.txt</b> - UTF-8 formatted body of the text/plain part of the email to be sent; Velocity template</li>
+        <li><b>body.velocity.utf8.html</b> - UTF-8 formatted HTML version of the email to be sent; Velocity template</li>
+        <li><b>subject.velocity.utf8.txt</b> - UTF-8 formatted subject of the email to be sent; Velocity template</li>
+        <li><b>from.velocity.utf8.txt </b>- An file containing an email address such as "John Smith &lt;bar@example.com&gt;"; Velocity template</li>
         <li><b>xyz.jpg</b> - Any resources required from the HTML version of the emails. They are referenced simply as &lt;img src="xyz.jpg"&gt; from the HTML versions, so the HTML version can be easily tested locally in a browser. This is replaced by &lt;img src="cid:xyz.jpg"&gt; by the software, as this is what is required in the email.</li>
         <li>Optionally <b>MyEmailTemplate.java</b> - Subclass of EmailTemplate, means that the whole template directory can be referenced via static typing, can be renamed with refactoring tools, and so on.</li>
 </ul></p>
@@ -45,7 +51,9 @@ Represents a directory in the classpath, which contains text and potentially gra
 
 <p>One or both of the <b>plain-text</b> and <b>HTML</b> versions of the email must be present. If they are both present then a "multipart/alternative" email is sent.</p>
 
-<p>Bodies and subjects may have <b>variables </b>such <code>${XYZ}</code>. All variables are HTML-escaped in the HTML version of the email apart from variables with names such as <code>${XYZ_HTML}</code>.</p>
+<p>The templates are <b>Velocity templates</b> meaning that variables like <code>${XYZ}</code> can be used.
+Velocity supports <code>#foreach</code> etc. 
+For variables in HTML files use <code>$esc.html($xyz)</code>.
 
 <p>For <b>unit testing</b>, use the static method {@link #setLastBodyForTestingInsteadOfSendingEmails()}.
 After that method has been called, no emails will be sent,
@@ -130,44 +138,61 @@ public class EmailTemplate {
         FileAttachmentJavamailDataSource(String l, String e) { leafNameWithoutExtension=l; extension=e; }
         public String getContentType() { return new MimetypesFileTypeMap().getContentType(getName()); }
         public String getName() { return leafNameWithoutExtension + "." + extension; }
-        public InputStream getInputStream() { return newInputStreamForBinaryFile(getName()); }
+        public InputStream getInputStream() { return getClass().getClassLoader().getResourceAsStream(findFile(getName())); }
         public OutputStream getOutputStream() { throw new RuntimeException(); }
     }
 
-    protected InputStream newInputStreamForBinaryFile(String leafName)
+    /** @return full classpath name to the file */
+    protected String findFile(String leafName)
     throws FileNotFoundInEmailTemplateDirectoryException {
         String packageWithSlashes = packageStr.replaceAll("\\.", "/"); // e.g. "com/myproject/mtpl/registrationemail"
-        InputStream i = getClass().getClassLoader().getResourceAsStream(packageWithSlashes + "/" + leafName);
-        if (i == null) throw new FileNotFoundInEmailTemplateDirectoryException(
-            "File '" + leafName +"' not found in email tpl package '" + packageStr + "'");
-        return i;
+        String result = packageWithSlashes + "/" + leafName;
+        if (getClass().getClassLoader().getResource(result) == null)
+            throw new FileNotFoundInEmailTemplateDirectoryException(
+                "File '" + leafName +"' not found in email tpl package '" + packageStr + "'");
+        return result;
     }
-
-    protected String readTextFile(String leafName)
+    
+    /**
+     * @param extension for example ".txt" 
+     * @return full classpath name to the file
+     */
+    protected String findFile(String leafNameStem, Locale locale, String extension)
     throws FileNotFoundInEmailTemplateDirectoryException {
         try {
-            InputStream i = newInputStreamForBinaryFile(leafName);
-            return IOUtils.toString(i, "UTF-8");
-        }
-        catch (IOException e) { throw new RuntimeException(e); }
-    }
-
-    protected String readLocaleTextFile(String leafNameStem, Locale locale, String extension)
-    throws FileNotFoundInEmailTemplateDirectoryException {
-        try {
-            return readTextFile(leafNameStem + "_" + locale.getLanguage() + ".utf8." + extension);
+            return findFile(leafNameStem + "_" + locale.getLanguage() + extension);
         }
         catch (FileNotFoundInEmailTemplateDirectoryException e) {
-            return readTextFile(leafNameStem + ".utf8." + extension);
+            return findFile(leafNameStem +  extension);
         }
     }
+    
+    /**
+     * Will find a file like "body.velocity.utf8.txt"
+     * @param leafNameStem for example "body"
+     * @param extension for example ".txt" 
+     */
+    protected String expandVelocityTemplate(String leafNameStem, Locale locale, String extension, Map<String, ? extends Object> parameters)
+    throws FileNotFoundInEmailTemplateDirectoryException {
+        VelocityEngine velocity = new VelocityEngine();
+        velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
+        velocity.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+        velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, Log4JLogChute.class.getName());
+        velocity.setProperty(Log4JLogChute.RUNTIME_LOG_LOG4J_LOGGER, getClass().getName());
 
-    protected BodyPart parseOptionalPlainTextBodyPart(Locale locale, Map<String,String> parameters) throws MessagingException {
-        String textContents;
-        try { textContents = readLocaleTextFile("body", locale, "txt"); }
-        catch (FileNotFoundInEmailTemplateDirectoryException e) { return null; }
+        Template template = velocity.getTemplate(findFile(leafNameStem, locale, ".velocity.utf8" + extension), "UTF-8");
+        VelocityContext ctx = new VelocityContext();
+        for (Entry<String, ? extends Object> p : parameters.entrySet()) ctx.put(p.getKey(), p.getValue());
+        ctx.put("esc", new EscapeTool());
+        
+        StringWriter result = new StringWriter();
+        template.merge(ctx, result);
+        return result.toString();
+    }
 
-        textContents = replacePlainTextParameters(textContents, parameters);
+    protected BodyPart parsePlainTextBodyPart(Locale locale, Map<String, ? extends Object> parameters)
+    throws FileNotFoundInEmailTemplateDirectoryException, MessagingException {
+        String textContents = expandVelocityTemplate("body", locale, ".txt", parameters);
 
         lastBodyForTesting = textContents;
 
@@ -176,17 +201,9 @@ public class EmailTemplate {
         return result;
     }
 
-    protected BodyPart parseOptionalHtmlBodyPart(Locale locale, Map<String,String> parameters) throws MessagingException {
-        String htmlContents;
-        try { htmlContents = readLocaleTextFile("body", locale, "html"); }
-        catch (FileNotFoundInEmailTemplateDirectoryException e) { return null; }
-
-        for (Entry<String,String> paramEntry : parameters.entrySet()) {
-            String paramKey = paramEntry.getKey();
-            String paramValue = paramEntry.getValue();
-            if ( ! paramKey.matches("^.*_HTML$")) paramValue = WebEncodingUtils.encodeHtml(paramValue);
-            htmlContents = htmlContents.replace("${" + paramKey + "}", paramValue);
-        }
+    protected BodyPart parseHtmlBodyPart(Locale locale, Map<String, ? extends Object> parameters)
+    throws FileNotFoundInEmailTemplateDirectoryException, MessagingException {
+        String htmlContents = expandVelocityTemplate("body", locale, ".html", parameters);
 
         Map<String, BodyPart> referencedFiles = new TreeMap<String, BodyPart>();
         StringBuffer htmlContentsWithCid = new StringBuffer();
@@ -271,34 +288,20 @@ public class EmailTemplate {
     /** Return the plain text body of the last email which has been sent; or the empty string in case no emails have been sent. */
     static public String getLastBodyForTesting() { return lastBodyForTesting; }
 
-    /** Replaces variables such as ${XYZ} in the template. Variables which are not found remain in their original unreplaced form. */
-    public static String replacePlainTextParameters(String template, Map<String,String> parameters) {
-        for (Entry<String,String> paramEntry : parameters.entrySet())
-            template = template.replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
-        return template;
-    }
-
     /** Send an email based on this email template. */
     public void send(
         EmailTransaction tx, Collection<InternetAddress> recipientEmailAddresses, Locale locale,
-        Map<String,String> parameters, Attachment... attachments
+        Map<String, ? extends Object> parameters, Attachment... attachments
     ) {
         try {
-            // Read the subject
-            String subject = readLocaleTextFile("subject", locale, "txt");
-            subject = replacePlainTextParameters(subject, parameters);
-
-            // Read the bodies
-            BodyPart plainTextBodyPart = parseOptionalPlainTextBodyPart(locale, parameters);
-            BodyPart htmlBodyPart = parseOptionalHtmlBodyPart(locale, parameters);
-            if (setLastBodyForTestingInsteadOfSendingEmails) return;
-
             // Create the "message text" part which is the multipart/alternative of the text/plain and HTML versions
             Multipart messageText = new MimeMultipart("alternative");
-            if (plainTextBodyPart == null && htmlBodyPart == null)
-                throw new RuntimeException("No bodies for email template: " + packageStr);
-            if (plainTextBodyPart != null) messageText.addBodyPart(plainTextBodyPart);
-            if (htmlBodyPart != null) messageText.addBodyPart(htmlBodyPart);
+            try { messageText.addBodyPart(parsePlainTextBodyPart(locale, parameters)); }
+            catch (FileNotFoundInEmailTemplateDirectoryException e) { }
+            try { messageText.addBodyPart(parseHtmlBodyPart(locale, parameters)); }
+            catch (FileNotFoundInEmailTemplateDirectoryException e) { }
+            if (messageText.getCount() < 1) throw new RuntimeException("No html nor text body found for email template: " + packageStr);
+            if (setLastBodyForTestingInsteadOfSendingEmails) return;
 
             // Create the "main part" which is multipart/mixed of the message body and attachments
             MimeBodyPart messageTextPart = new MimeBodyPart();
@@ -309,9 +312,9 @@ public class EmailTemplate {
 
             // Create the message from the subject and body
             Message msg = tx.newMimeMessage();
-            msg.setFrom(new InternetAddress(readLocaleTextFile("from", locale, "txt")));
+            msg.setFrom(new InternetAddress(expandVelocityTemplate("from", locale, ".txt", parameters)));
             msg.addRecipients(RecipientType.TO, recipientEmailAddresses.toArray(new InternetAddress[0]));
-            msg.setSubject(subject);
+            msg.setSubject(expandVelocityTemplate("subject", locale, ".txt", parameters));
             msg.setContent(mainPart);
             msg.setSentDate(new Date());
 
@@ -323,7 +326,7 @@ public class EmailTemplate {
 
     public void send(
         EmailTransaction tx, InternetAddress recipientEmailAddress, Locale locale,
-        Map<String,String> parameters, Attachment... attachments
+        Map<String, ? extends Object> parameters, Attachment... attachments
     ) {
         send(tx, Arrays.asList(recipientEmailAddress), locale, parameters, attachments);
     }
