@@ -35,6 +35,8 @@
     <libelement value="jar://$MODULE_DIR$/lib-compile/joda-time-2.8.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib-compile/findbugs-3.0.1.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib-compile/jooq-3.6.2.jar!/" />
+	<libelement value="jar://$MODULE_DIR$/lib-compile/velocity-1.7.jar!/" />
+	<libelement value="jar://$MODULE_DIR$/lib-compile/velocity-tools-generic-2.0.jar!/" />
     <src_description expected_position="0">
       <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
       <src_folder value="file://$MODULE_DIR$/src-test" expected_position="1" />
