@@ -73,4 +73,9 @@ public class WebEncodingUtils {
     
     // For GET parameters:
     // See http://java.sun.com/j2se/1.4.2/docs/api/java/net/URLEncoder.html
+    
+    /** Takes "New York" and returns "new-york" */
+    public static String beautifyUrl(String x) {
+        return x.replaceAll("[^\\p{L}\\p{N}]","-").replaceAll("-+", "-") .replaceAll("^-","").replaceAll("-$","").toLowerCase();
+    }
 }

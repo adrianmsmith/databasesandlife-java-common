@@ -8,4 +8,8 @@ public class WebEncodingUtilsTest extends TestCase {
         assertEquals("foo &amp; &lt; &gt; bar", WebEncodingUtils.encodeHtml("foo & < > bar"));
     }
 
+    public void testBeautifyUrl() {
+        assertEquals("new-york", WebEncodingUtils.beautifyUrl("----New/& ?York--"));
+    }
+
 }
