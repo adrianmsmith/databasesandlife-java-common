@@ -72,6 +72,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *   <li>{@link #insertIgnoringUniqueConstraintViolations} and {@link #updateIgnoringUniqueConstraintViolations}
  *       perform inserts and updates, but ignore any unique constraint violations.
  *       For example using the "insert then update" pattern, for "just-in-time" creating records, can use these methods.
+ *   <li>You can register {@link RollbackListener} objects with {@link #addRollbackListener(RollbackListener)}.
+ *       When the transaction rolls back, this listener will get called.
+ *       This is so that any primary keys which have been assigned and stored in Java objects,
+ *       which are now no longer valid due to the rollback, may be removed from the Java objects.
  * </ul>
  *     <p>
  * Upon creating an object, a connection is made to the database, and a transaction is started.
@@ -103,8 +107,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     
     protected DbServerProduct product;
     protected Connection connection;    // null means already committed
-    protected Map<String, PreparedStatement> preparedStatements = new HashMap<String, PreparedStatement>();
-    protected Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<Class<? extends Enum<?>>, String>();
+    protected List<RollbackListener> rollbackListeners = new ArrayList<>();
+    protected Map<String, PreparedStatement> preparedStatements = new HashMap<>();
+    protected Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<>();
 
     @Override
     public void close() {
@@ -132,6 +137,10 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     public static class SqlException extends RuntimeException {
         public SqlException(String x) { super(x); }
         public SqlException(String x, Throwable t) { super(x, t); }
+    }
+    
+    @FunctionalInterface public interface RollbackListener {
+        public void transactionHasRolledback();
     }
     
     public static class DbQueryResultRow {
@@ -586,6 +595,10 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         postgresTypeForEnum.put(enumClass, postgresType);
     }
     
+    public void addRollbackListener(RollbackListener listener) {
+        rollbackListeners.add(listener);
+    }
+    
     public DSLContext jooq() {
         SQLDialect d;
         switch (product) {
@@ -807,6 +820,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     public void rollback() {
         try {
             getConnection().rollback();
+            for (RollbackListener l : rollbackListeners) l.transactionHasRolledback();
             closeConnection();
         }
         catch (SQLException e) { throw new RuntimeException("Can't rollback: " + e.getMessage(), e); }

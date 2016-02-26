@@ -15,7 +15,7 @@
   <target name="create-jar" depends="find-revision" description="Creates 'databasesandlife-util-incl-src-rNNN.jar'">
     <delete dir="build-tmp/java-classes"/> <!-- force a clean compile -->
     <mkdir dir="build-tmp/java-classes"/>
-    <javac source="1.7" encoding="UTF-8" srcdir="src" destdir="build-tmp/java-classes" debug="on" includeantruntime="false" deprecation="on">
+    <javac source="1.8" encoding="UTF-8" srcdir="src" destdir="build-tmp/java-classes" debug="on" includeantruntime="false" deprecation="on">
       <compilerarg value="-Xlint:unchecked"/>
       <classpath>
         <fileset dir="lib-compile" includes="*.jar"/>

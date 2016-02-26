@@ -19,8 +19,16 @@ Vagrant.configure(2) do |config|
     echo --- General OS and Java installation
     apt-get update
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -q -y    # grub upgrade warnings mess with the terminal
-    apt-get -q -y install vim ant subversion openjdk-7-jdk ntp unattended-upgrades 
-    update-alternatives --set java /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
+    apt-get -q -y install vim ant subversion ntp unattended-upgrades 
+
+    echo --- Install Java 8
+    echo 'Acquire::http::Proxy { download.oracle.com DIRECT; };' >> /etc/apt/apt.conf.d/01proxy
+    echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
+    echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+    apt-get update
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+    apt-get -qy install oracle-java8-installer
 
     echo --- MySQL
     echo "mysql-server-5.5 mysql-server/root_password password root" | sudo debconf-set-selections
