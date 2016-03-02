@@ -10,7 +10,7 @@ import javax.mail.internet.MimeMessage;
 /**
  * Sends emails via easyname.eu.
  */
-public class EasynameEmailTransaction extends EmailTransaction {
+public class EasynameEmailTransaction extends SmtpEmailTransaction {
     
     protected final String emailBoxName;
     protected final String emailBoxPasswordCleartext;

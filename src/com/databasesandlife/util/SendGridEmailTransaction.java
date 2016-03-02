@@ -6,15 +6,14 @@ import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 
-public class MandrillEmailTransaction extends SmtpEmailTransaction {
+public class SendGridEmailTransaction extends SmtpEmailTransaction {
 
-    protected final String username;
-    protected final String apiKey;
+    protected final String username, password;
 
-    public MandrillEmailTransaction(String username, String apiKey) {
-        super("smtp.mandrillapp.com");
+    public SendGridEmailTransaction(String username, String password) {
+        super("smtp.sendgrid.net");
         this.username = username;
-        this.apiKey = apiKey;
+        this.password = password;
     }
 
     @Override protected Properties newSessionProperties() {
@@ -29,7 +28,7 @@ public class MandrillEmailTransaction extends SmtpEmailTransaction {
     @Override protected Session newSession() {
         Authenticator auth = new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, apiKey);
+                return new PasswordAuthentication(username, password);
             }
         };
         return Session.getInstance(newSessionProperties(), auth);
