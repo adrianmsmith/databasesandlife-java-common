@@ -595,6 +595,15 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         postgresTypeForEnum.put(enumClass, postgresType);
     }
     
+    /**
+     * For example, during insert in jOOQ:
+     * <pre> 
+     * db.addRollbackListener(() -> { 
+     *    venue.setVid(null); 
+     *    venue.changed(VENUES.VID, false);
+     * } );
+     * </pre>
+     */
     public void addRollbackListener(RollbackListener listener) {
         rollbackListeners.add(listener);
     }
