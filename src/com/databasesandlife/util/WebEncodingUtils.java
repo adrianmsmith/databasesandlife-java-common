@@ -80,7 +80,6 @@ public class WebEncodingUtils {
     }
     
     public static String dotdotdot(String x, int max) {
-System.out.println("Str is '"+x+"', len="+x.length()+", max="+max);        
         if (x.length() <= max) return x;
         else return x.substring(0, max)+"...";
     }
