@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,6 +32,8 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.Log4JLogChute;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.apache.velocity.tools.generic.EscapeTool;
+
+import com.google.gson.Gson;
 
 /**
 
@@ -312,6 +315,7 @@ public class EmailTemplate {
 
             // Create the message from the subject and body
             Message msg = tx.newMimeMessage();
+            msg.setHeader("X-SMTPAPI", getSendGridXSmtpApiHeader());
             msg.setFrom(new InternetAddress(expandVelocityTemplate("from", locale, ".txt", parameters)));
             msg.addRecipients(RecipientType.TO, recipientEmailAddresses.toArray(new InternetAddress[0]));
             msg.setSubject(expandVelocityTemplate("subject", locale, ".txt", parameters));
@@ -329,5 +333,25 @@ public class EmailTemplate {
         Map<String, ? extends Object> parameters, Attachment... attachments
     ) {
         send(tx, Arrays.asList(recipientEmailAddress), locale, parameters, attachments);
+    }
+    
+    protected String getSendGridXSmtpApiHeader() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("category", new String[] { getCampaignName() });
+        return new Gson().toJson(values);
+    }
+    
+    /**
+     * Gets the "campaign name" (or "category" or "tag") which is sent along with this email when it's delivered.
+     *    <p>
+     * By default it is the package name of the email template.
+     *    <p>
+     * Sometimes it can be useful to have a tag which is sent along with an email,
+     * for example SendGrid can then do reports based on that.
+     * If the email is sent via default SMTP then this is ignored.
+     * Currently only SendGridEmailTransaction makes use of this.
+     */
+    public String getCampaignName() {
+        return packageStr;
     }
 }
