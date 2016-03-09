@@ -1,7 +1,5 @@
 package com.databasesandlife.util;
 
-import java.io.Serializable;
-
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 

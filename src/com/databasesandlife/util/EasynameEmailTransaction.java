@@ -5,7 +5,6 @@ import java.util.Properties;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 
 /**
  * Sends emails via easyname.eu.
