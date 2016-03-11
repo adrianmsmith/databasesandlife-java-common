@@ -25,6 +25,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -62,6 +64,12 @@ For variables in HTML files use <code>$esc.html($xyz)</code>.
 After that method has been called, no emails will be sent,
 instead the method {@link #getLastBodyForTesting} may be used to retrieve the last sent plain/text email body.
 This allows one to assert that particular emails would be sent, and that they contain particular text.</p>
+
+<p>For <b>testing with e.g. Litmus</b> (tools to test your emails across the many email clients),
+ the facility {@link #writeHtmlPartToFile(Locale, Map, File)} 
+exists.
+Emails can be written to disk as opposed to sent, in order that the real email that would be sent can be uploaded to 
+Litmus for testing, without any velocity template commands, and with real user data.</p>
 
 <p>Writing code such as <code>new EmailTemplate("myproject.mtpl.registration")</code> has the disadvantage that if that package is renamed, <b>refactoring tools</b> will not see this string, and not rename it. Errors will result at run-time. The solution is to create a class in the directory, which calls its superclass constructor with its package name. This class is then instanciated in the client code, instead of the general <code>EmailTemplate</code>.</p>
 
@@ -333,6 +341,15 @@ public class EmailTemplate {
         Map<String, ? extends Object> parameters, Attachment... attachments
     ) {
         send(tx, Arrays.asList(recipientEmailAddress), locale, parameters, attachments);
+    }
+    
+    public void writeHtmlPartToFile(Locale locale, Map<String, ? extends Object> parameters, File file) {
+        try {
+            String body = expandVelocityTemplate("body", locale, ".html", parameters);
+            FileUtils.writeStringToFile(file, body, "UTF-8");
+            Logger.getLogger(getClass()).info("Successfully wrote email template to '"+file+"'");
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
     }
     
     protected String getSendGridXSmtpApiHeader() {
