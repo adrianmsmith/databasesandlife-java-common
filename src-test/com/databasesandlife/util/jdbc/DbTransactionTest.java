@@ -7,10 +7,12 @@ import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
+import com.databasesandlife.util.YearMonthDay;
 import com.databasesandlife.util.jdbc.DbTransaction.DbQueryResultRow;
 import com.databasesandlife.util.jdbc.DbTransaction.DbServerProduct;
 import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
 
+@SuppressWarnings("deprecation")
 public class DbTransactionTest extends TestCase {
     
     public void testQuery() {
@@ -61,7 +63,7 @@ public class DbTransactionTest extends TestCase {
     
     enum Choice { a,b };
     public void testEnumArray() {
-        for (DbTransaction tx : DatabaseConnection.newDbTransactions())
+        for (DbTransaction tx : DatabaseConnection.newDbTransactions()) {
             try {
                 if (tx.product != DbServerProduct.postgres) continue;
                 
@@ -85,5 +87,46 @@ public class DbTransactionTest extends TestCase {
                 assertEquals(Choice.a, choices[0]);
             }
             finally { tx.rollback(); }
+        }
+    }
+    
+    protected void assertDateCorrect(DbTransaction tx) {
+        assertEquals(""+tx.product, new YearMonthDay(2015, 1, 30), tx.query("SELECT d FROM x").iterator().next().getYearMonthDay("d"));
+        assertEquals(""+tx.product, new org.joda.time.LocalDate(2015, 1, 30), tx.query("SELECT d FROM x").iterator().next().getJodatimeLocalDate("d"));
+        assertEquals(""+tx.product, java.time.LocalDate.of(2015, 1, 30), tx.query("SELECT d FROM x").iterator().next().getLocalDate("d"));
+    }
+    
+    protected void assertTimeCorrect(DbTransaction tx) {
+        assertEquals(""+tx.product, new org.joda.time.LocalTime(18, 19), tx.query("SELECT t FROM x").iterator().next().getJodatimeLocalTime("t"));
+        assertEquals(""+tx.product, java.time.LocalTime.of(18, 19), tx.query("SELECT t FROM x").iterator().next().getLocalTime("t"));
+    }
+    
+    public void testDateAndTime() {
+        for (DbTransaction tx : DatabaseConnection.newDbTransactions()) {
+            try {
+                tx.execute("DROP TABLE IF EXISTS x");
+                tx.execute("CREATE TABLE x (d DATE, t TIME)");
+                
+                tx.execute("DELETE FROM x");
+                tx.execute("INSERT INTO x VALUES ('2015-01-30', '18:19')");
+                assertDateCorrect(tx);
+                assertTimeCorrect(tx);
+                
+                tx.execute("DELETE FROM x");
+                tx.execute("INSERT INTO x VALUES (?, NULL)", new YearMonthDay(2015, 1, 30));
+                assertDateCorrect(tx);
+                
+                tx.execute("DELETE FROM x");
+                tx.execute("INSERT INTO x VALUES (?, ?)", new org.joda.time.LocalDate(2015, 1, 30), new org.joda.time.LocalTime(18, 19));
+                assertDateCorrect(tx);
+                assertTimeCorrect(tx);
+                
+                tx.execute("DELETE FROM x");
+                tx.execute("INSERT INTO x VALUES (?, ?)", java.time.LocalDate.of(2015, 1, 30), java.time.LocalTime.of(18, 19));
+                assertDateCorrect(tx);
+                assertTimeCorrect(tx);
+            }
+            finally { tx.rollback(); }
+        }
     }
 }

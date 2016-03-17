@@ -16,6 +16,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -34,9 +36,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -66,7 +65,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *   <li>{@link #query} method acts like execute, but returns an {@link Iterable} of objects representing rows.
  *       This is more convenient for the java "for" statement than the JDBC ResultSet object.
  *   <li>Various extra data types are supported such as "points in time" stored as GMT date/times using {@link Date java.util.Date}, 
- *       {@link  YearMonthDay}, etc.
+ *       {@link LocalDate}, etc.
  *   <li>{@link #insert} and {@link #update} take Maps of columns as arguments (easier than maintaining SQL strings)
  *   <li>{@link #insertAndFetchNewId} performs an insert and returns the new "auto-increment ID".
  *   <li>{@link #insertIgnoringUniqueConstraintViolations} and {@link #updateIgnoringUniqueConstraintViolations}
@@ -105,11 +104,11 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressWarnings("serial")
 public class DbTransaction implements DbQueryable, AutoCloseable {
     
-    protected DbServerProduct product;
+    public final DbServerProduct product;
     protected Connection connection;    // null means already committed
-    protected List<RollbackListener> rollbackListeners = new ArrayList<>();
-    protected Map<String, PreparedStatement> preparedStatements = new HashMap<>();
-    protected Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<>();
+    protected final List<RollbackListener> rollbackListeners = new ArrayList<>();
+    protected final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
+    protected final Map<Class<? extends Enum<?>>, String> postgresTypeForEnum = new HashMap<>();
 
     @Override
     public void close() {
@@ -240,6 +239,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         }
         
         /** Reads column as string and expects "YYYY-MM-DD" format */
+        @SuppressWarnings("deprecation")
         public YearMonthDay getYearMonthDay(String col) {
             try {
                 String str = rs.getString(col);
@@ -250,6 +250,30 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
+        /** @deprecated prefer {@link #getLocalDate(String)} (using java.time) rather than this method (using jodatime) */
+        public org.joda.time.LocalDate getJodatimeLocalDate(String col) {
+            try {                
+                String str = rs.getString(col);
+                if (str == null) return null;
+                
+                return org.joda.time.LocalDate.parse(str);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        /** @deprecated prefer {@link #getLocalTime(String)} (using java.time) rather than this method (using jodatime) */
+        public org.joda.time.LocalTime getJodatimeLocalTime(String col) {
+            try {                
+                String str = rs.getString(col);
+                if (str == null) return null;
+                
+                return org.joda.time.LocalTime.parse(str);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         public LocalDate getLocalDate(String col) {
             try {                
                 String str = rs.getString(col);
@@ -405,6 +429,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         return ps;
     }
     
+    @SuppressWarnings("deprecation")
     protected PreparedStatement insertParamsToPreparedStatement(String sql, Object... args) {
         Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         
@@ -443,10 +468,22 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                         default:
                             ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD()); 
                     }
+                else if (args[i] instanceof org.joda.time.LocalTime)
+                    ps.setTime(i+1, new java.sql.Time(((org.joda.time.LocalTime) args[i]).toDateTimeToday().getMillis()));
+                else if (args[i] instanceof org.joda.time.LocalDate) {
+                    switch (product) {
+                        case postgres: 
+                            ps.setDate(i+1, new java.sql.Date(((org.joda.time.LocalDate) args[i]).toDateTimeAtStartOfDay(
+                                org.joda.time.DateTimeZone.forID("UTC")).toDate().getTime()), utc);
+                            break;
+                        default:
+                            ps.setString(i+1, ((org.joda.time.LocalDate) args[i]).toString()); 
+                    }
+                }
                 else if (args[i] instanceof LocalTime)
-                    ps.setTime(i+1, new java.sql.Time(((LocalTime) args[i]).toDateTimeToday().getMillis()));
+                    ps.setTime(i+1, java.sql.Time.valueOf((LocalTime) args[i]));
                 else if (args[i] instanceof LocalDate)
-                    ps.setDate(i+1, new java.sql.Date(((LocalDate) args[i]).toDateTimeAtStartOfDay(DateTimeZone.forID("UTC")).toDate().getTime()), utc); 
+                    ps.setDate(i+1, java.sql.Date.valueOf((LocalDate) args[i])); 
                 else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
                 else if (args[i] instanceof Enum<?>)

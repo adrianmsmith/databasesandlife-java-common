@@ -22,6 +22,7 @@ import com.databasesandlife.util.YearMonthDay;
  * }
  * </pre>
  *
+ * @deprecated use {@link DateTextField} instead
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
  */

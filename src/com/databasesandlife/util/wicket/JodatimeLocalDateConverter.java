@@ -8,12 +8,13 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+/** @deprecated use {@link DateTextField} instead */
 @SuppressWarnings("serial")
-public class LocalDateConverter implements IConverter<LocalDate> {
+public class JodatimeLocalDateConverter implements IConverter<LocalDate> {
 
     private final String pattern;
 
-    public LocalDateConverter(String pattern) {
+    public JodatimeLocalDateConverter(String pattern) {
         this.pattern = pattern;
     }
 
