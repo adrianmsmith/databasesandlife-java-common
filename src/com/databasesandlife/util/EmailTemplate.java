@@ -1,6 +1,7 @@
 package com.databasesandlife.util;
 
 import java.io.*;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -343,9 +344,30 @@ public class EmailTemplate {
         send(tx, Arrays.asList(recipientEmailAddress), locale, parameters, attachments);
     }
     
-    public void writeHtmlPartToFile(Locale locale, Map<String, ? extends Object> parameters, File file) {
+    protected String replaceImagesWithBaseURL(URL imageBaseUrl, String htmlContents) {
+        StringBuffer result = new StringBuffer();
+        Matcher fileMatcher = Pattern.compile("(['\"])([\\w\\-]+)\\.(\\w{3,4})['\"]").matcher(htmlContents);
+        while (fileMatcher.find()) {
+            String quote = fileMatcher.group(1);
+            String leafNameWithoutExtension = fileMatcher.group(2);
+            String extension = fileMatcher.group(3);
+            String leafNameWithExtension = leafNameWithoutExtension + "." + extension;
+
+            fileMatcher.appendReplacement(result, quote + imageBaseUrl + leafNameWithExtension + quote);
+        }
+        fileMatcher.appendTail(result);
+        return result.toString();
+    }
+    
+    /** 
+     * @param imageBaseUrl images in the directory must be uploaded somewhere. They are then replaced
+     *   in the HTML with a link to that place.
+     * @param file where to write the HTML to
+     */
+    public void writeHtmlPartToFile(Locale locale, URL imageBaseUrl, Map<String, ? extends Object> parameters, File file) {
         try {
             String body = expandVelocityTemplate("body", locale, ".html", parameters);
+            body = replaceImagesWithBaseURL(imageBaseUrl, body);
             FileUtils.writeStringToFile(file, body, "UTF-8");
             Logger.getLogger(getClass()).info("Successfully wrote email template to '"+file+"'");
         }
