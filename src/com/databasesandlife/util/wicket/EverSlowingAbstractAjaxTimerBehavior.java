@@ -1,5 +1,6 @@
 package com.databasesandlife.util.wicket;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.time.Duration;
@@ -19,11 +20,12 @@ import org.apache.wicket.util.time.Duration;
 @SuppressWarnings("serial")
 public abstract class EverSlowingAbstractAjaxTimerBehavior extends AbstractAjaxTimerBehavior {
     
-    double durationSeconds = 1.0;
+    double durationSeconds = 1;
     final double durationMultipler = 1.25;
+    final double maxSeconds = 60;
 
     public EverSlowingAbstractAjaxTimerBehavior() {
-        super(Duration.seconds(1.0));
+        super(Duration.seconds(1));
     }
     
     abstract protected void onEverSlowingTimer(AjaxRequestTarget target);
@@ -31,6 +33,8 @@ public abstract class EverSlowingAbstractAjaxTimerBehavior extends AbstractAjaxT
     @Override
     protected final void onTimer(AjaxRequestTarget target) {
         onEverSlowingTimer(target);
-        setUpdateInterval(Duration.seconds(durationSeconds *= durationMultipler));
+        durationSeconds = Math.min(durationSeconds * durationMultipler, maxSeconds);
+        Logger.getLogger(getClass()).debug(String.format("%s: duration =%5.1f seconds", getClass().getSimpleName(), durationSeconds));
+        setUpdateInterval(Duration.seconds(durationSeconds));
     }
 }
