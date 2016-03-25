@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+<entry key="MaxWordCountValidator.maximum">Field '${name}' may have a maximum of ${maximum} words.</entry>
+
+</properties>
