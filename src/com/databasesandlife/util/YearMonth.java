@@ -106,23 +106,16 @@ public class YearMonth implements Serializable, Comparable<YearMonth> {
         return result.toArray(new YearMonth[0]);
     }
 
+    /** From Jan to Feb is 2 */
+    public static int calculateMonthSpanCount(YearMonth startIncl, YearMonth endIncl) {
+        return rangeDownwardsIncl(endIncl, startIncl).length;
+    }
+
     public Date toDate() {
         try { return new SimpleDateFormat("yyyy-MM").parse(toYYYYMM()); }
         catch (ParseException e) { throw new RuntimeException("unreachable", e); }
     }
     
-    public int calculateYearsDifference(YearMonth other){
-        int difference = Math.abs(this.year - other.year);
-        if(this.month - other.month > 0){
-                difference--;
-        }
-        return difference;
-    }
-    
-    public int calculateMonthsDifference(YearMonth other){
-        return this.month > other.month ? 12-Math.abs(this.month - other.month) : Math.abs(this.month - other.month);
-    }
-
     @Override public int compareTo(YearMonth other) {
         if (this.year < other.year) return -1;
         if (this.year > other.year) return +1;
