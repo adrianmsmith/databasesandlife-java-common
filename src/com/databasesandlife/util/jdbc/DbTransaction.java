@@ -224,7 +224,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         
         public String[] getStringArray(String col) {
             try {
-                Object[] a = (Object[]) rs.getArray(col).getArray();
+                java.sql.Array x = rs.getArray(col);
+                if (x == null) return null;
+                Object[] a = (Object[]) x.getArray();
                 return Arrays.copyOf(a, a.length, String[].class);
             }
             catch (SQLException e) { throw new RuntimeException(e); }
@@ -232,7 +234,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         
         public Integer[] getIntegerArray(String col) {
             try {
-                Object[] a = (Object[]) rs.getArray(col).getArray();
+                java.sql.Array x = rs.getArray(col);
+                if (x == null) return null;
+                Object[] a = (Object[]) x.getArray();
                 return Arrays.copyOf(a, a.length, Integer[].class);
             }
             catch (SQLException e) { throw new RuntimeException(e); }
@@ -317,9 +321,11 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         @SuppressWarnings("unchecked")
         public <T extends Enum<T>> T[] getEnumArray(String col, Class<? extends T> componentClass){
             try {
-                Method valueOfMethod = componentClass.getMethod("valueOf", String.class);
-                Object[] stringArrayFromDb = (Object[]) rs.getArray(col).getArray();
+                java.sql.Array x = rs.getArray(col);
+                if (x == null) return null;
+                Object[] stringArrayFromDb = (Object[]) x.getArray();
                 T[] result = (T[]) Array.newInstance(componentClass, stringArrayFromDb.length);
+                Method valueOfMethod = componentClass.getMethod("valueOf", String.class);
                 for (int i = 0; i < stringArrayFromDb.length; i++)
                     result[i] = (T) valueOfMethod.invoke(null, stringArrayFromDb[i]);
                 return result;
