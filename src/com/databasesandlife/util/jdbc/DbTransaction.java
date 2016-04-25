@@ -428,7 +428,10 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         PreparedStatement ps = (PreparedStatement) preparedStatements.get(sql);
         if (ps != null) return ps;
         
-        try { ps = c.prepareStatement(sql); }
+        try {
+            ps = c.prepareStatement(sql);
+            ps.setFetchSize(50);
+        }
         catch (SQLException e) { throw new RuntimeException(e); }
         
         preparedStatements.put(sql, ps);
