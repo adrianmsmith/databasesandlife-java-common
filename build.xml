@@ -85,26 +85,4 @@
     </javadoc>
   </target>
 
-  <target name="create-zip" depends="create-jar" description="Creates 'databasesandlife-java-util.zip' for deployment on website">
-    <zip destfile="databasesandlife-java-util.zip">
-      <fileset dir="zip-contents"/>
-      <zipfileset dir="src" prefix="src"/>
-      <zipfileset dir="lib-compile" prefix="lib"/>
-      <fileset dir="." includes="databasesandlife-util-incl-src-r${revision.number}.jar"/>
-    </zip>
-  </target>
-
-  <target name="upload-to-blog" depends="create-javadoc,create-zip" description="Uploads Javadoc and ZIP to databaseandlife.com">
-    <exec executable="lftp">
-      <arg value="-e"/>
-      <arg value="
-         set ftp:ssl-allow false &amp;&amp;
-         mput databasesandlife-java-util.zip -O www.databasesandlife.com/blog-attachments/ &amp;&amp;
-         mirror --reverse --delete generated-javadoc www.databasesandlife.com/blog-attachments/databasesandlife-util-javadoc"/>
-      <arg value="-u"/>
-      <arg value="107ftp1,hwgfos"/>
-      <arg value="e10106-ftp.services.easyname.eu"/>
-    </exec>
-  </target>
-  
 </project>
