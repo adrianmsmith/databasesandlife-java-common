@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Stopwatch;
+
 /**
  * Times a calculation.
  *    <p>
@@ -77,7 +79,11 @@ public class Timer implements AutoCloseable {
         public double getItersPerSecond() { return iterPerSecond; }
     }
 
-    /** @param minimumDurationMillis thousandths of a second */
+    /**
+     * @param runnable runs this multiple times
+     * @param minimumDurationMillis thousandths of a second
+     * @see Stopwatch 
+     */
     public static TimerResult measureWallclockTime(Runnable task, long minimumDurationMillis) {
         // Ignore the first iteration, e.g. on one unit test it took 0.7 seconds one-time to do class loading of the class under test
         task.run();
