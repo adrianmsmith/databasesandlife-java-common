@@ -35,7 +35,7 @@
     <mkdir dir="build-tmp/junit-classes"/>
     <delete dir="build-tmp/junit-results"/>
     <mkdir dir="build-tmp/junit-results"/>
-    <javac source="1.7" destdir="build-tmp/junit-classes" includeantruntime="false" debug="on" encoding="UTF-8">
+    <javac source="1.8" destdir="build-tmp/junit-classes" includeantruntime="false" debug="on" encoding="UTF-8">
       <src path="src-test"/>
       <classpath>
         <fileset dir=".">
