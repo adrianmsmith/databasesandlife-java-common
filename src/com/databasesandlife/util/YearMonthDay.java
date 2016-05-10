@@ -29,6 +29,12 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
         this.day = day;
     }
         
+    public YearMonthDay(LocalDate date) {
+        this.year = date.getYear();
+        this.month = date.getMonthValue();
+        this.day = date.getDayOfMonth();
+    }
+        
     /** @param date "YYYY-MM-DD", not null */
     public static YearMonthDay newForYYYYMMDD(String date) {
         Matcher m = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})").matcher(date);
@@ -140,5 +146,9 @@ public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {
         formatString = formatString.replace("MM", String.format("%02d", month));
         formatString = formatString.replace("dd", String.format("%02d", day));
         return formatString;
+    }
+
+    public LocalDate toLocalDate() {
+        return LocalDate.of(year, month, day);
     }
 }
