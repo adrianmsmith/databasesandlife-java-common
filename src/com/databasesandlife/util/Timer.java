@@ -27,6 +27,7 @@ public class Timer implements AutoCloseable {
         return prefix.toString();
     }
 
+    /** @deprecated use <code>try (Timer t = new Timer("...")) { .. }</code> instead */
     public static void start(String name) {
         if (start.get() == null) start.set(new HashMap<String, Long>());
 
@@ -54,6 +55,7 @@ public class Timer implements AutoCloseable {
         return String.format("%s%s%.3f sec", hoursStr, minutesStr, seconds);
     }
 
+    /** @deprecated use <code>try (Timer t = new Timer("...")) { .. }</code> instead */
     public static void end(String name) {
         if (start.get() == null) start.set(new HashMap<String, Long>());
 
