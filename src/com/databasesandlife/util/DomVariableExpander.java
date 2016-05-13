@@ -16,7 +16,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -29,7 +29,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * <pre>
  *    Map&lt;String, String&gt; variables = ...
  *    Element elementWithVariables = ...
- *    Element elementExpanded = DomVariableExpander.expand(
+ *    Document elementExpanded = DomVariableExpander.expand(
  *       elementWithVariables, variables);          </pre>
  *   <p>
  * Variables may be written in attribute values and in text contents, and may be written in the XML as $xyz or ${xyz}.
@@ -89,7 +89,7 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
         super.characters(expandedCharacters.toString().toCharArray(), 0, expandedCharacters.length());
     }
     
-    public static Element expand(Element prototypeElement, Map<String, String> variables) throws VariableNotFoundException {
+    public static Document expand(Node prototypeElement, Map<String, String> variables) throws VariableNotFoundException {
         try {
             Properties systemProperties = System.getProperties();
             systemProperties.remove("javax.xml.transform.TransformerFactory");
@@ -111,7 +111,7 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.transform(source, intoExpander);
             
-            return ((Document) result.getNode()).getDocumentElement();
+            return (Document) result.getNode();
         }
         catch (TransformerConfigurationException e) { throw new RuntimeException(e); }
         catch (TransformerException e) {
