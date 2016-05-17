@@ -52,6 +52,7 @@ Vagrant.configure(2) do |config|
     echo ''
     echo '-----------------------------------------------------------------'
     echo 'After "vagrant ssh", use:'
+    echo '  ant -f /vagrant/build.xml create-jar'
     echo '  ant -f /vagrant/build.xml run-junits'
     echo '-----------------------------------------------------------------'
     echo ''
