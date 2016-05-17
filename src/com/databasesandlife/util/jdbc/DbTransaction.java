@@ -101,7 +101,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @version $Revision$
  */
 
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public class DbTransaction implements DbQueryable, AutoCloseable {
     
     public final DbServerProduct product;
@@ -243,7 +243,6 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         }
         
         /** Reads column as string and expects "YYYY-MM-DD" format */
-        @SuppressWarnings("deprecation")
         public YearMonthDay getYearMonthDay(String col) {
             try {
                 String str = rs.getString(col);
@@ -438,7 +437,6 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         return ps;
     }
     
-    @SuppressWarnings("deprecation")
     protected PreparedStatement insertParamsToPreparedStatement(String sql, Object... args) {
         Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         
@@ -688,14 +686,12 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     public DbQueryResultSet query(final String sql, final Object... args) {
         return new DbQueryResultSet() {
             public Iterator<DbQueryResultRow> iterator() {
-                Timer.start("SQL: " + getSqlForLog(sql, args));
-                try {
+                try (Timer t = new Timer("SQL: " + getSqlForLog(sql, args))) {
                     PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
                     ResultSet rs = ps.executeQuery();
                     return new DbQueryResultRowIterator(rs);
                 }
                 catch (SQLException e) { throw new SqlException(getSqlForLog(sql, args) + ": " + e.getMessage(), e); }
-                finally { Timer.end("SQL: " + getSqlForLog(sql, args)); }
             }
         };
     }
