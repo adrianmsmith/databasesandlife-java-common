@@ -38,6 +38,8 @@ import org.apache.velocity.tools.generic.EscapeTool;
 
 import com.google.gson.Gson;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
 
 Represents a directory in the classpath, which contains text and potentially graphics, in multiple languages and multiple formats, for outgoing notification emails.
@@ -202,6 +204,7 @@ public class EmailTemplate {
         return result.toString();
     }
 
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     protected BodyPart parsePlainTextBodyPart(Locale locale, Map<String, ? extends Object> parameters)
     throws FileNotFoundInEmailTemplateDirectoryException, MessagingException {
         String textContents = expandVelocityTemplate("body", locale, ".txt", parameters);
