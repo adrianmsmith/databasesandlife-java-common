@@ -7,8 +7,7 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/vagrant"
   
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "1500"
-    vb.cpus = 4
+    vb.memory = "500"
   end
   
   # runs as root within the VM
@@ -41,8 +40,6 @@ Vagrant.configure(2) do |config|
     (cd /tmp && sudo -u postgres psql -c "alter user postgres password 'postgres'" postgres)  # os user postgres cannot see /root dir
     (cd /tmp && sudo -u postgres psql -c "create database databasesandlife_common" postgres)  
     # connect with: psql -hlocalhost databasesandlife_common postgres   (password postgres)
-
-
   }
   
   config.vm.provision "shell", run: "always", inline: %q{
