@@ -30,7 +30,7 @@ public class DomParser {
         boolean allElementsDesired = "*".equals(elementNames[0]);
         Set<String> elementNameSet = new HashSet<String>(Arrays.asList(elementNames));
         
-        ArrayList<Element> result = new ArrayList<Element>();
+        List<Element> result = new ArrayList<Element>();
         NodeList children = container.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
