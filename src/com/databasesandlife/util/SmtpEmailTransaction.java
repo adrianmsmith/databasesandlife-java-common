@@ -1,6 +1,8 @@
 package com.databasesandlife.util;
 
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -24,13 +26,20 @@ public class SmtpEmailTransaction extends EmailTransaction {
     
     protected final String smtpServer;
     
+    /** @param smtpServer may either be a hostname or "hostname:port" style */
     public SmtpEmailTransaction(String smtpServer) {
         this.smtpServer = smtpServer;
     }
     
     protected Properties newSessionProperties() {
         Properties props = super.newSessionProperties();
-        props.put("mail.smtp.host", smtpServer);
+        Matcher m = Pattern.compile("^(.*):(\\d+)$").matcher(smtpServer);
+        if (m.matches()) {
+            props.put("mail.smtp.host", m.group(1));
+            props.put("mail.smtp.port", m.group(2));
+        } else {
+            props.put("mail.smtp.host", smtpServer);
+        }
         return props;
     }
     
