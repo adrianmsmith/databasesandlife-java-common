@@ -23,7 +23,7 @@ public abstract class Future<T> {
     Thread thread;
     
     /** Calculate the result and return it. Must not return null. */
-    public abstract T populate();
+    protected abstract T populate();
     
     public static class FutureComputationTimedOutException extends Exception { }
     
@@ -31,10 +31,16 @@ public abstract class Future<T> {
     public Future() {
         thread = new Thread(new Runnable() {
             @Override public void run() { 
-                try { result = populate(); }
-                catch (RuntimeException e) { exception = e; }
+                try { 
+                    T localResult = populate();
+                    synchronized (Future.this) { result = localResult; }
+                }
+                catch (RuntimeException e) {
+                    synchronized (Future.this) { exception = e; } 
+                }
             }
         }, getThreadName());
+        
         thread.start();
     }
     
@@ -47,10 +53,12 @@ public abstract class Future<T> {
         try { thread.join((int) (1000000 * seconds)); }
         catch (InterruptedException e) { throw new RuntimeException(e); }
         
-        if (result == null && exception == null) throw new FutureComputationTimedOutException();
-        
-        if (exception != null) throw new RuntimeException(exception); // wrap exception to preserve its stack backtrace
-        return result;
+        synchronized (this) {
+            if (result == null && exception == null) throw new FutureComputationTimedOutException();
+            
+            if (exception != null) throw new RuntimeException(exception); // wrap exception to preserve its stack backtrace
+            return result;
+        }
     }
     
     /** Returns the object, waiting for its computation to be completed if necessary. */
