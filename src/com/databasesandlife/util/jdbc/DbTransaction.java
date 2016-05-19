@@ -138,6 +138,12 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         public SqlException(String x, Throwable t) { super(x, t); }
     }
     
+    /** Cannot connect to database */
+    public static class DbConnectionException extends RuntimeException {
+        public DbConnectionException(String x) { super(x); }
+        public DbConnectionException(String x, Throwable t) { super(x, t); }
+    }
+    
     @FunctionalInterface public interface RollbackListener {
         public void transactionHasRolledback();
     }
@@ -628,20 +634,20 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             if (jdbcUrl.contains(":mysql")) product = DbServerProduct.mysql;
             else if (jdbcUrl.contains(":postgres")) product = DbServerProduct.postgres;
             else if (jdbcUrl.contains(":sqlserver")) product = DbServerProduct.sqlserver;
-            else throw new RuntimeException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
+            else throw new DbConnectionException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
             
             switch (product) {   // load the classes so that getConnection recognizes the :mysql: etc part of JDBC url
                 case mysql: new com.mysql.jdbc.Driver(); break;
                 case postgres: new org.postgresql.Driver(); break;
                 case sqlserver: new SQLServerDriver(); break;
-                default: throw new RuntimeException();
+                default: throw new RuntimeException("Unreachable");
             }
             
             connection = DriverManager.getConnection(jdbcUrl);
             connection.setAutoCommit(false);
         }
         catch (SQLException e) {
-            throw new RuntimeException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
+            throw new DbConnectionException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
                 "connection is NOT OK: "+e.getMessage(), e);
         }
     }
