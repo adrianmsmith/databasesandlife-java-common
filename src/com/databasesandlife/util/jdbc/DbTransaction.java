@@ -149,10 +149,21 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         public boolean hasColumn(String columnName) {
             try {
                 ResultSetMetaData rsmd = rs.getMetaData();
-                int columns = rsmd.getColumnCount();
-                for (int x = 1; x <= columns; x++)
+                int columnCount = rsmd.getColumnCount();
+                for (int x = 1; x <= columnCount; x++)
                     if (columnName.equals(rsmd.getColumnName(x))) return true;
                 return false;
+            }
+            catch (SQLException e) { throw new RuntimeException(e); }
+        }
+        
+        public List<String> getColumnNames() {
+            try {
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+                List<String> result = new ArrayList<String>(columnCount);
+                for (int i = 1; i <= columnCount; i++) result.add(rsmd.getColumnName(i));
+                return result;
             }
             catch (SQLException e) { throw new RuntimeException(e); }
         }
