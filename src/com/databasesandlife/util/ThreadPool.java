@@ -50,12 +50,15 @@ public class ThreadPool {
                 }
                 
                 if (nextTaskOrNull != null) {
-                    try { nextTaskOrNull.run(); }
+                    try {
+                        nextTaskOrNull.run(); 
+                    }
                     catch (Exception e) { 
                         synchronized (ThreadPool.this) { exceptionOrNull = e; }
                     }
-                    
-                    synchronized (ThreadPool.this) { unfinishedTaskCount--; }
+                    finally {
+                        synchronized (ThreadPool.this) { unfinishedTaskCount--; } 
+                    }
                 } else {
                     // it might be that other tasks are running, and they will produce lots more tasks
                     // so keep the thread alive and polling until all work is done.
