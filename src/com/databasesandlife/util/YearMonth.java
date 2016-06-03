@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
  *
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
+ * @deprecated use {@link java.time.YearMonth} instead
  */
 @SuppressWarnings("serial")
 public class YearMonth implements Serializable, Comparable<YearMonth> {
@@ -28,10 +29,19 @@ public class YearMonth implements Serializable, Comparable<YearMonth> {
     
     /** @param m 1 is january */
     public YearMonth(int y, int m) { year=y; month=m; }
+    
+    public YearMonth(java.time.YearMonth x) {
+        year = x.getYear();
+        month = x.getMonthValue();
+    }
 
     /** @return "YYYY-MM" form */
     public String toYYYYMM() {
         return String.format("%04d-%02d", year, month);
+    }
+    
+    public java.time.YearMonth toJavaTimeYearMonth() {
+        return java.time.YearMonth.of(year, month);
     }
     
     @Override public String toString() { return toYYYYMM(); }
