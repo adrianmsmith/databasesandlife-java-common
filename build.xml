@@ -1,5 +1,5 @@
 <project name="databasesandlife-util" basedir=".">
-
+ 
   <target name="find-revision">
     <echo>Finding Subversion revision number...</echo>
     <exec executable="svn" outputproperty="svn.info.output">
