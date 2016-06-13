@@ -1,18 +1,6 @@
 <project name="databasesandlife-util" basedir=".">
  
-  <target name="find-revision">
-    <echo>Finding Subversion revision number...</echo>
-    <exec executable="svn" outputproperty="svn.info.output">
-      <arg line="info"/>
-    </exec>
-    <exec executable="perl" inputstring="${svn.info.output}" outputproperty="revision.number">
-      <arg value="-e"/>
-      <arg value="while (&lt;>) { if (/Last Changed Rev: (.+)/) { print $1; exit; } }"/>
-    </exec>
-    <echo>Will use Subversion revision r${revision.number}</echo>
-  </target>
-
-  <target name="create-jar" depends="find-revision" description="Creates 'databasesandlife-util-incl-src-rNNN.jar'">
+  <target name="create-jar" description="Creates 'databasesandlife-util-incl-src.jar'">
     <delete dir="build-tmp/java-classes"/> <!-- force a clean compile -->
     <mkdir dir="build-tmp/java-classes"/>
     <javac source="1.8" encoding="UTF-8" srcdir="src" destdir="build-tmp/java-classes" debug="on" includeantruntime="false" deprecation="on">
@@ -27,7 +15,7 @@
       </fileset>
     </copy>
     <delete> <fileset dir="." includes="databasesandlife-util-incl-src-r*.jar"/> </delete>
-    <jar jarfile="databasesandlife-util-incl-src-r${revision.number}.jar" basedir="build-tmp/java-classes"/>
+    <jar jarfile="databasesandlife-util-incl-src.jar" basedir="build-tmp/java-classes"/>
   </target>
 
   <target name="run-junits" description="Runs JUnit unit tests" depends="create-jar">
