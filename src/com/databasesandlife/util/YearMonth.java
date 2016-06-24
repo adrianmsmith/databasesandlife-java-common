@@ -106,6 +106,13 @@ public class YearMonth implements Serializable, Comparable<YearMonth> {
         return result;
     }
 
+    public YearMonth addMonths(int offset) {
+        YearMonth result = this;
+        for (; offset > 0; offset--) result = result.getNextMonth();
+        for (; offset < 0; offset++) result = result.getPreviousMonth();
+        return result;
+    }
+
     public static YearMonth[] rangeDownwardsIncl(YearMonth maxIncl, YearMonth minIncl) {
         List<YearMonth> result = new ArrayList<YearMonth>();
         YearMonth i = minIncl;
