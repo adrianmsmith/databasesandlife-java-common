@@ -19,7 +19,7 @@ public class EmailTemplateTest extends TestCase {
         Map<String,String> params = new HashMap<String,String>();
         params.put("NAME", "Adrian \u263c < >");
         
-        EmailTransaction tx = new SmtpEmailTransaction("localhost");
+        EmailTransaction tx = new EmailTransaction(EmailTransaction.parseAddress("localhost"));
         
 //        new MyEmailTemplate().send(tx, new InternetAddress(recipient), new Locale("de"),
 //            params, new ByteArrayAttachment("attachment.txt", "text/plain", "Hello".getBytes()));

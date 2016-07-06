@@ -52,5 +52,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib-compile/velocity-tools-generic-2.0.jar"/>
+	<classpathentry kind="lib" path="lib-compile/dnsjava-2.1.7.jar" sourcepath="lib-compile/dnsjava-2.1.7-source.zip"/>
 	<classpathentry kind="output" path="build-tmp/eclipse"/>
 </classpath>
