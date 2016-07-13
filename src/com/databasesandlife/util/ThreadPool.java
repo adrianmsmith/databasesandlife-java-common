@@ -10,12 +10,6 @@ import java.util.stream.IntStream;
 /**
  * Runs a number of {@link Runnable} tasks in a number of threads (over a number of CPU cores).
  *    <p>
- * The difference to an {@link ExecutorService} is that the processing of tasks can
- * add additional tasks to the queue (whereas to an {@link ExecutorService} the client adds a fixed number of tasks,
- * and they are then executed, without the executing tasks being able to add more tasks).
- * Such functionality is mandatory for web crawlers, which, during the processing of pages, discover links which
- * point to additional pages which require processing. 
- *    <p>
  * Usage:
  * <pre>
  *      ThreadPool pool = new ThreadPool();
@@ -25,8 +19,20 @@ import java.util.stream.IntStream;
  *      pool.execute(); // will start threads, execute the seed tasks, and execute any tasks they create
  * </pre>
  *    <p>
- * In the case that any task throws an exception, this exception is thrown by the #execute method.
- * If all tasks run to completion, the #execute method returns with no value.
+ * In the case that any task throws an exception, this exception is thrown by the {@link #execute()} method.
+ * If all tasks run to completion, the {@link #execute()} method returns with no value.
+ *    <p>
+ * The difference to an {@link ExecutorService} is:
+ * <ul>
+ * <li>The processing of tasks can
+ * add additional tasks to the queue (whereas to an {@link ExecutorService} the client adds a fixed number of tasks,
+ * and they are then executed, without the executing tasks being able to add more tasks).
+ * Such functionality is mandatory for web crawlers, which, during the processing of pages, discover links which
+ * point to additional pages which require processing.<br><br>
+ * <li>It is impossible to forget to "shutdown" a ThreadPool and cause a leakage of threads, as is easily possible with {@link ExecutorService}.
+ * If the {@link #execute()} method is never called then no threads are ever started and the object can be garbage collected normally.
+ * If the {@link #execute()} method is called then that method makes sure all threads it creates are destroyed.
+ * </ul>
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
