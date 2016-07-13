@@ -14,10 +14,14 @@ public class ConfigurationException extends Exception {
     }
 
     public ConfigurationException(String prefix, Throwable cause) {
-        super((prefix == null ? "" : (prefix + ": ")) + ((cause.getMessage() == null) ? "Internal error" : cause.getMessage()), cause);
+        super(prefixExceptionMessage(prefix, cause), cause);
     }
 
     public ConfigurationException(Throwable cause) {
         this(null, cause);
+    }
+    
+    public static String prefixExceptionMessage(String prefix, Throwable cause) {
+        return (prefix == null ? "" : (prefix + ": ")) + ((cause.getMessage() == null) ? "Internal error" : cause.getMessage());
     }
 }
