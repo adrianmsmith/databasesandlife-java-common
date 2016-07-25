@@ -5,6 +5,9 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
+/**
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 public class MultilineLabelWithClickableLinksTest extends TestCase {
     
     public void testLinkPattern() {

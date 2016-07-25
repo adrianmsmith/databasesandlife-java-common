@@ -11,7 +11,7 @@ import java.util.HashMap;
  *   CREATE TABLE mutex (name VARCHAR(100)) ENGINE=InnoDB;
  * </pre> 
  *
- * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  */
 @SuppressWarnings("serial")
 public class DbMutex {

@@ -8,7 +8,10 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-/** @deprecated use {@link DateTextField} instead */
+/**
+ * @deprecated use {@link DateTextField} instead
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 @SuppressWarnings("serial")
 public class JodatimeLocalDateConverter implements IConverter<LocalDate> {
 

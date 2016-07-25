@@ -10,6 +10,9 @@ import com.databasesandlife.util.jdbc.DbTransaction.DbTransactionFactory;
 import com.databasesandlife.util.jdbc.DbTransaction.SqlException;
 import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
 
+/**
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 public class ReadOnlyReconnectingDbConnectionTest extends TestCase {
     
     protected void testConcurrency(DbTransactionFactory fac) throws Exception {

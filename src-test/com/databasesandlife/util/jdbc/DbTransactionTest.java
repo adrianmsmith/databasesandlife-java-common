@@ -12,6 +12,9 @@ import com.databasesandlife.util.jdbc.DbTransaction.DbQueryResultRow;
 import com.databasesandlife.util.jdbc.DbTransaction.DbServerProduct;
 import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
 
+/**
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 @SuppressWarnings("deprecation")
 public class DbTransactionTest extends TestCase {
     

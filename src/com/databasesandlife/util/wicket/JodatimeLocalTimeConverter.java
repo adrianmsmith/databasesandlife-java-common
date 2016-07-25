@@ -8,7 +8,10 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-/** @deprecated use {@link TimeTextField} instead */
+/**
+ * @deprecated use {@link TimeTextField} instead
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 @SuppressWarnings("serial")
 public class JodatimeLocalTimeConverter implements IConverter<LocalTime> {
 

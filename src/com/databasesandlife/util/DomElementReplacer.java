@@ -12,6 +12,8 @@ import org.w3c.dom.NamedNodeMap;
  * The element name, that is seached for, may exist in any namespace.
  * The replaced element is changed to be within the namespace of the found element, before insertion
  * in the destination document.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  */
 public class DomElementReplacer extends DomParser {
     

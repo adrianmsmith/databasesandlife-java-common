@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * Represents a date (year, month, day).
  *
  * @deprecated use {@link LocalDate} instead.
- * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  */
 @SuppressWarnings("serial")
 public class YearMonthDay implements Serializable, Comparable<YearMonthDay> {

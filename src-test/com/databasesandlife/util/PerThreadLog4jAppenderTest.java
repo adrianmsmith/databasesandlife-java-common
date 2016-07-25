@@ -14,6 +14,9 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
+/**
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 public class PerThreadLog4jAppenderTest extends TestCase {
     
     private static String readFile(File path) throws IOException {

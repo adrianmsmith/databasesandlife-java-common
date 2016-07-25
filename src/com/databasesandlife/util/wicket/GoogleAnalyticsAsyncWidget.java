@@ -18,7 +18,7 @@ import org.apache.wicket.markup.html.panel.Panel;
  * inserted into the page. (Perhaps some installations require the code, and
  * other installations do not.)
  *
- * @author The Java source is copyright
+ * @author This source is copyright
  *         <a href="http://www.databasesandlife.com">Adrian Smith</a> and
  *         licensed under the LGPL 3.
  */

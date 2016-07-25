@@ -37,6 +37,8 @@ import com.databasesandlife.util.gwtsafe.ConfigurationException;
  *   <p>
  * There is no need to <b>rollback</b> this object if an operation has been not successful.
  * Simply throw the object away.
+ *
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  */
 public class EmailTransaction {
     

@@ -4,6 +4,9 @@ import com.databasesandlife.util.gwtsafe.ConfigurationException;
 
 import junit.framework.TestCase;
 
+/**
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 public class SvnUrlWithUsernamePasswordTest extends TestCase {
     
     public void testParse() throws ConfigurationException {

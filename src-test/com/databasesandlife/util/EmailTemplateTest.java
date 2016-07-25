@@ -11,6 +11,9 @@ import junit.framework.TestCase;
 import com.databasesandlife.util.EmailTemplate.ByteArrayAttachment;
 import com.databasesandlife.util.emailtemplatetest.MyEmailTemplate;
 
+/**
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 public class EmailTemplateTest extends TestCase {
     
     String recipient = "Mr Unit Tester <adrian.m.smith@gmail.com>";

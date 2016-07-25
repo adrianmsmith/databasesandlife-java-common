@@ -6,6 +6,9 @@ import com.google.common.base.Stopwatch;
 
 import junit.framework.TestCase;
 
+/**
+ * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ */
 public class ThreadPoolTest extends TestCase {
     
     public void test() {
