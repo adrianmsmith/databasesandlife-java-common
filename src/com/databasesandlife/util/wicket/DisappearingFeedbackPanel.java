@@ -14,7 +14,6 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
  * </ul>
  *
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision$
  */ 
 @SuppressWarnings("serial")
 public class DisappearingFeedbackPanel extends FeedbackPanel {

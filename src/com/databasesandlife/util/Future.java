@@ -13,7 +13,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * The reason for the creation of this class is the JVM-supplied {@link java.util.concurrent.Future} object seemed too complex.
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision$
  */
 @SuppressWarnings("serial")
 public abstract class Future<T> {

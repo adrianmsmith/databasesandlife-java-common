@@ -33,7 +33,6 @@ import org.apache.log4j.spi.LoggingEvent;
  * There is no need to remove appenders from this object once threads exit.
  *
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision$
  */
 public class PerThreadLog4jAppender extends AppenderSkeleton {
     

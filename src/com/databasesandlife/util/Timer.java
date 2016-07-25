@@ -14,7 +14,6 @@ import com.google.common.base.Stopwatch;
  * <pre>try (Timer t = new Timer("doing something")) { ... }</pre>
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision$
  */
 public class Timer implements AutoCloseable {
 

@@ -7,7 +7,6 @@ import java.util.Iterator;
  * This can be used for closing JDBC Connections, Statements, etc.
  * 
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
- * @version $Revision$
  */
 public class ResourceClosingIterator<T> implements Iterator<T> {
     
