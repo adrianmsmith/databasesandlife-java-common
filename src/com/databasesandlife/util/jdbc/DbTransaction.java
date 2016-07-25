@@ -627,7 +627,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     // Public API
     // ---------------------------------------------------------------------------------------------------------------
     
-    public DbTransaction(String jdbcUrl) {
+    public DbTransaction(String jdbcUrl) throws DbConnectionException {
         try {
             Logger.getLogger(DbTransaction.class.getName() + "." + "newTransaction").info("Starting new transaction...");
             
