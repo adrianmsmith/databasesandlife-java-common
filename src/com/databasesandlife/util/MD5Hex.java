@@ -22,6 +22,7 @@ import org.w3c.dom.Document;
  * For strings, UTF-8 bytes are used.
  * 
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
 public class MD5Hex {
 

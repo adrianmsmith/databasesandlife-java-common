@@ -59,6 +59,7 @@ import java.util.NoSuchElementException;
  * This code has beem tested using Java 6 with MySQL 5.0 and the JDBC driver "MySQL Connector" 5.1.15.
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
 public abstract class ResultSetIterator<T> implements Iterator<T> {
     

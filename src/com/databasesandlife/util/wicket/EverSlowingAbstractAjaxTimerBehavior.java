@@ -15,6 +15,7 @@ import org.apache.wicket.util.time.Duration;
  * and not spamming our server if lots of people leave their web browsers open.
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
 @SuppressWarnings("serial")
 public abstract class EverSlowingAbstractAjaxTimerBehavior extends AbstractAjaxTimerBehavior {

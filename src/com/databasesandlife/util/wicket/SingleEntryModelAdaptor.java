@@ -17,6 +17,7 @@ import org.apache.wicket.model.IModel;
  * text field (which is operating in single-value mode) to see a Model&lt;List&lt;X&gt;&gt;.
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
+ * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
 @SuppressWarnings("serial")
 public class SingleEntryModelAdaptor<T> implements IModel<List<T>> {
