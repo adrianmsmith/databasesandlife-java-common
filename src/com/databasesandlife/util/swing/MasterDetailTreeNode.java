@@ -362,7 +362,7 @@ implements TreeNode, java.io.Serializable {
     /** Returns the color which should be used for the extra text. */
     public Color getExtraTextColor() { return Color.black; }
     
-    /** Returns array of Flavors which can be accepted, in the case a drag & drop
+    /** Returns array of Flavors which can be accepted, in the case a drag &amp; drop
       * attempts to drop on this node. */
     public DataFlavor[] getAcceptableDropFlavors() { return new DataFlavor[0]; }
     

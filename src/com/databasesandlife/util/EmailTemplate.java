@@ -53,7 +53,7 @@ Represents a directory in the classpath, which contains text and potentially gra
         <li><b>from.velocity.utf8.txt </b>- An file containing an email address such as "John Smith &lt;bar@example.com&gt;"; Velocity template</li>
         <li><b>xyz.jpg</b> - Any resources required from the HTML version of the emails. They are referenced simply as &lt;img src="xyz.jpg"&gt; from the HTML versions, so the HTML version can be easily tested locally in a browser. This is replaced by &lt;img src="cid:xyz.jpg"&gt; by the software, as this is what is required in the email.</li>
         <li>Optionally <b>MyEmailTemplate.java</b> - Subclass of EmailTemplate, means that the whole template directory can be referenced via static typing, can be renamed with refactoring tools, and so on.</li>
-</ul></p>
+</ul>
 
 <p>Concerning <b>languages</b>, although e.g. "subject.utf8.txt" must be present, there may also be files with names such as "subject_de.utf8.txt" files for other Locales.</p>
 
@@ -69,7 +69,7 @@ instead the method {@link #getLastBodyForTesting} may be used to retrieve the la
 This allows one to assert that particular emails would be sent, and that they contain particular text.</p>
 
 <p>For <b>testing with e.g. Litmus</b> (tools to test your emails across the many email clients),
- the facility {@link #writeHtmlPartToFile(Locale, Map, File)} 
+ the facility {@link #writeHtmlPartToFile(Locale, URL, Map, File)} 
 exists.
 Emails can be written to disk as opposed to sent, in order that the real email that would be sent can be uploaded to 
 Litmus for testing, without any velocity template commands, and with real user data.</p>
@@ -87,7 +87,7 @@ or you can just create a {@link ByteArrayAttachment} by passing the filename, mi
         <li>The word "template" is always used, as an "email" is a particular email which has been sent, whereas an object of this class represents the possibility to create such emails, i.e. is a template for such emails.</li>
         <li>"Email address" is used in preference to "email", as an "email" is the message which is sent, and it is necessary to <a href="http://www.databasesandlife.com/an-email-address-field-should-not-be-called-email/">differentiate</a> between the address to which a message is sent, and the message itself.</li>
         <li>"utf8" is used in the filenames to make absolutely clear to all concerned what encoding should be used for the contents of those files.</li>
-</ul></p>
+</ul>
 
 <h3>Usage</h3>
 
@@ -99,7 +99,7 @@ class RegistrationEmailTemplate extends EmailTemplate {
    }
    // other methods can be added, specific to this email template
 }
-</pre></p>
+</pre>
 <p>In client code:
 <pre>
 class RegistrationProcess {
@@ -116,7 +116,7 @@ class RegistrationProcess {
     tx.commit();
   }
 }
-</pre></p>
+</pre>
 <p>In unit test code:
 <pre>
 class RegistrationProcessTest extends TestCase {
@@ -127,9 +127,7 @@ class RegistrationProcessTest extends TestCase {
     assertTrue(txt.contains("Adrian"));
   }
 }
-</pre></p>
-
-
+</pre>
 
  * @author The Java source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$

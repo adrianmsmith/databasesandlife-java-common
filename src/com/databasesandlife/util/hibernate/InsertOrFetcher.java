@@ -36,7 +36,7 @@ DailyLog newObj = new DailyLog();
 newObj.setDay(getTodaysDate());
 newObj.setCount(0);
 
-Collection&lt;String> uniqueIdentifier = Arrays.asList("day");
+Collection&lt;String&gt; uniqueIdentifier = Arrays.asList("day");
 
 DailyLog todaysLog = <b>InsertOrFetcher.loadAndLock</b>(
    DailyLog.class, s, newObj, uniqueIdentifier);

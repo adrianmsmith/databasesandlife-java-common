@@ -36,7 +36,7 @@ public class WebEncodingUtils {
 
     /** 
      * @param params values are either String or String[]
-     * @return "a=b&c=d" 
+     * @return "a=b&amp;c=d" 
      */
     public static CharSequence encodeGetParameters(Map<String, ?> params) {
         try {

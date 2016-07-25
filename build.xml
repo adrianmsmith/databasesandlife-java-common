@@ -61,7 +61,8 @@
         destdir="generated-javadoc"
         author="true"
         version="true"
-        access="public">
+        access="public"
+        failonerror="true">
       <link href="http://download.oracle.com/javase/6/docs/api"/>
       <link href="http://javamail.kenai.com/nonav/javadocs"/>
       <link href="http://docs.jboss.org/hibernate/core/3.5/javadocs"/>

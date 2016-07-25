@@ -89,7 +89,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * <p>Example usage:
  * <pre>
  *   DbTransaction db = new DbTransaction(
- *      "jdbc:mysql://hostname/dbName?user=x&password=x&useUnicode=true&characterEncoding=UTF-8");
+ *      "jdbc:mysql://hostname/dbName?user=x&amp;password=x&amp;useUnicode=true&amp;characterEncoding=UTF-8");
  *   try {
  *      db.execute("DELETE FROM x WHERE id=?", 9);
  *      db.commit();
@@ -659,7 +659,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     /**
      * For example, during insert in jOOQ:
      * <pre> 
-     * db.addRollbackListener(() -> { 
+     * db.addRollbackListener(() -gt; { 
      *    venue.setVid(null); 
      *    venue.changed(VENUES.VID, false);
      * } );

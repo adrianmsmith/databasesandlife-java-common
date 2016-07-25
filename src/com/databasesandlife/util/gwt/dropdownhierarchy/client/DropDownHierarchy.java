@@ -21,7 +21,7 @@ import java.util.Vector;
 
 <p>Only leaf nodes can be selected. In the above example only A, C and D can be selected. If D is selected then two drop-downs are displayed:</p>
 
-<p>&nbsp;&nbsp;&nbsp;&nbsp;<img src="doc-files/dropdowns.png" width=68 height=39></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<img src="doc-files/dropdowns.png" width=68 height=39 alt="Screenshot"></p>
 
 <p>Changing options in the drop-down:</p>
 

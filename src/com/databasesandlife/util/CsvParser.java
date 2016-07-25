@@ -35,7 +35,7 @@ import com.google.gdata.util.io.base.UnicodeReader;
  * 
  * <pre>
  *    CsvLineHandler myHandler = new CsvLineHandler() {
- *        void processCsvLine(Map&lt;String,String> line) { .. }
+ *        void processCsvLine(Map&lt;String,String&gt; line) { .. }
  *    };
  *    CsvParser csvParser = new CsvParser();
  *    csvParser.setDesiredFields("abc","def"); // field set in file must be this set
@@ -43,7 +43,7 @@ import com.google.gdata.util.io.base.UnicodeReader;
  *    csvParser.parseAndCallHandler(myHandler, aFile);
  *    csvParser.parseAndCallHandler(myHandler, aReader);
  *    csvParser.parseAndCallHandler(myHandler, aClass);  // reads "aClass.csv" from classloader
- *    List&lt;Map&lt;String,String>> contents = csvParser.parseToListOfMaps(aFile);</pre>
+ *    List&lt;Map&lt;String,String&gt;&gt; contents = csvParser.parseToListOfMaps(aFile);</pre>
  * <h3>Glossary</h3>
  * <ul>
  * <li><b>Field</b> - name of column

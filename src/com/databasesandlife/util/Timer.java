@@ -82,7 +82,7 @@ public class Timer implements AutoCloseable {
     }
 
     /**
-     * @param runnable runs this multiple times
+     * @param task runs this multiple times
      * @param minimumDurationMillis thousandths of a second
      * @see Stopwatch 
      */

@@ -36,14 +36,14 @@ import java.util.NoSuchElementException;
  * <p>
  * Usage:
  * <pre>
- * public class MyDocResultSetIterator extends ResultSetIterator&lt;MyDoc> {
+ * public class MyDocResultSetIterator extends ResultSetIterator&lt;MyDoc&gt; {
  *     protected MyDoc objectForRow(ResultSet r) throws SQLException {
  *         MyDoc result = new MyDoc();
  *         result.setVal(r.getString("val"));
  *         return result;
  *     }
  * }
- * public Iterator&lt;MyDoc> foo() {
+ * public Iterator&lt;MyDoc&gt; foo() {
  *     PreparedStatement stat = aConnection.prepareStatement(
  *         "SELECT val FROM big_table",
  *         ResultSet.TYPE_FORWARD_ONLY,

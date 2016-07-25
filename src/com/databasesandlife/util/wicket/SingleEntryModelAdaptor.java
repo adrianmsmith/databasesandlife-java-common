@@ -10,11 +10,11 @@ import org.apache.wicket.model.IModel;
  *    <p>
  * Multiple-entry text fields can allow the user to select multiple values.
  * However, if they have a "non-multiple" version, the user can only select one value.
- * The appropriate model for such a field is a Model&lt;X> but the multiple-entry text field will
- * require a Model&lt;List&lt;X>>. 
+ * The appropriate model for such a field is a Model&lt;X&gt; but the multiple-entry text field will
+ * require a Model&lt;List&lt;X&gt;&gt;. 
  *    <p>
- * An object of this class allows the application to provide a Model&lt;X> but the multiple-value
- * text field (which is operating in single-value mode) to see a Model&lt;List&lt;X>>.
+ * An object of this class allows the application to provide a Model&lt;X&gt; but the multiple-value
+ * text field (which is operating in single-value mode) to see a Model&lt;List&lt;X&gt;&gt;.
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @version $Revision$
