@@ -1,5 +1,4 @@
-*.jar
-build-tmp
-databasesandlife-java-util.zip
-generated-javadoc
-.vagrant
+/*.jar
+/build-tmp
+/generated-javadoc
+/.vagrant
