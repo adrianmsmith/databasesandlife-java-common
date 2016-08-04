@@ -76,6 +76,7 @@ public class OutOfHeapTemporaryStorage {
         public boolean isEmpty() { return byteLength==0; }
     }
     
+    /** Returns a new string container for the empty string */
     public synchronized OutOfHeapString newStringContainer() {
         try {
             OutOfHeapString result = new OutOfHeapString();
