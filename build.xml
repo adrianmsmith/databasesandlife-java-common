@@ -27,7 +27,7 @@
       <src path="src-test"/>
       <classpath>
         <fileset dir=".">
-          <include name="databasesandlife-util-incl-src-r*.jar"/>
+          <include name="databasesandlife-util-incl-src.jar"/>
           <include name="lib-compile/*.jar"/>
           <include name="lib-test/*.jar"/>
         </fileset>
@@ -39,7 +39,7 @@
         <pathelement location="src"/>
         <pathelement location="src-test"/>
         <fileset dir=".">
-          <include name="databasesandlife-util-incl-src-r*.jar"/>
+          <include name="databasesandlife-util-incl-src.jar"/>
           <include name="lib-compile/*.jar"/>
           <include name="lib-test/*.jar"/>
         </fileset>
