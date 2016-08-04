@@ -28,9 +28,9 @@ public class DomParser {
     /** @param elementNames can be "*" */
     protected static List<Element> getSubElements(Node container, String... elementNames) {
         boolean allElementsDesired = "*".equals(elementNames[0]);
-        Set<String> elementNameSet = new HashSet<String>(Arrays.asList(elementNames));
+        Set<String> elementNameSet = new HashSet<>(Arrays.asList(elementNames));
         
-        List<Element> result = new ArrayList<Element>();
+        List<Element> result = new ArrayList<>();
         NodeList children = container.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
@@ -44,7 +44,7 @@ public class DomParser {
 
     protected static void assertNoOtherElements(Node container, String... elements)
     throws ConfigurationException {
-        Set<String> elementsSet = new HashSet<String>(Arrays.asList(elements));
+        Set<String> elementsSet = new HashSet<>(Arrays.asList(elements));
         NodeList children = container.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
@@ -130,21 +130,21 @@ public class DomParser {
 
     protected static Set<String> parseSet(Element container, String elementName, String attribute)
     throws ConfigurationException {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (Element e : getSubElements(container, elementName)) result.add(getMandatoryAttribute(e, attribute));
         return result;
     }
 
     protected static Set<String> parseSet(Element container, String elementName)
     throws ConfigurationException {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (Element e : getSubElements(container, elementName)) result.add(e.getTextContent().trim());
         return result;
     }
 
     protected static Map<String, String> parseMap(Element container, String elementName, String keyAttribute, String valueAttribute)
     throws ConfigurationException {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (Element e : getSubElements(container, elementName))
             result.put(getMandatoryAttribute(e, keyAttribute), getMandatoryAttribute(e, valueAttribute));
         return result;
@@ -152,12 +152,12 @@ public class DomParser {
 
     protected static Map<String, String> parseMap(Element container, String elementName, String keyAttribute)
     throws ConfigurationException {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (Element e : getSubElements(container, elementName))
             result.put(getMandatoryAttribute(e, keyAttribute), e.getTextContent());
         return result;
     }
-
+    
     protected static Map<String, Double> parseDoubleMap(Element container, String elementName, String keyAttribute, String valueAttribute)
     throws ConfigurationException {
         Map<String, Double> result = new HashMap<>();
@@ -195,7 +195,7 @@ public class DomParser {
     }
 
     public static List<Element> toElementList(NodeList nl) {
-        List<Element> elements = new ArrayList<Element>(nl.getLength());
+        List<Element> elements = new ArrayList<>(nl.getLength());
         for (int i = 0; i < nl.getLength(); i++) {
             Node n = nl.item(i);
             if (n instanceof Element) {

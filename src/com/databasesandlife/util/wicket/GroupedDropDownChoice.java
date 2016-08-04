@@ -37,7 +37,7 @@ public class GroupedDropDownChoice<T extends Serializable> extends FormComponent
     }
 
     /** Used by wicket */ 
-    protected List<T> selectModel = new ArrayList<T>();
+    protected List<T> selectModel = new ArrayList<>();
     private Select<List<T>> select;
     
     protected void init(IModel<List<T>> model, List<DropDownChoiceGroup<T>> values, final IOptionRenderer<T> renderer, String htmlId) {

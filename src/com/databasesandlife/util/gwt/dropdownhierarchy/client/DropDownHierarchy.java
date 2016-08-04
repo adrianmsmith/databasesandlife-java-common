@@ -151,7 +151,7 @@ public class DropDownHierarchy<N> extends Composite {
     public void setSelected(N newSelectedNodeId) throws NodeNotFoundException {
         LeafNode<N> selectedNode = findLeafForId(rootNode, newSelectedNodeId);
 
-        final Vector<NonLeafNode<N>> fromRootToLeaf = new Vector<NonLeafNode<N>>();
+        final Vector<NonLeafNode<N>> fromRootToLeaf = new Vector<>();
         for (NonLeafNode<N> n = selectedNode.getParent(); n != null; n = n.getParent()) fromRootToLeaf.add(0, n);
 
         container.clear();

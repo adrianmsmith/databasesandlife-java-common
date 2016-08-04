@@ -30,7 +30,7 @@ public class PaginationWidget extends Panel {
 
         int maxPageIdxIncl = (resultCount - 1) / resultsPerPage;
         setVisible(maxPageIdxIncl > 0);
-        List<Integer> pages = new ArrayList<Integer>();
+        List<Integer> pages = new ArrayList<>();
         for (int p = pageIdx - 10; p < pageIdx + 10; p++) {
             if (p < 0) continue;
             if (p > maxPageIdxIncl) continue;

@@ -20,7 +20,7 @@ public class EmailTemplateTest extends TestCase {
     String recipient = "Mr Unit Tester <adrian.m.smith@gmail.com>";
     
     public void test() throws Exception {
-        Map<String,String> params = new HashMap<String,String>();
+        Map<String,String> params = new HashMap<>();
         params.put("NAME", "Adrian \u263c < >");
         
         EmailTransaction tx = new EmailTransaction(EmailTransaction.parseAddress("localhost"));

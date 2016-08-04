@@ -68,7 +68,7 @@ public class EmailTransaction {
     // ------------------------------------------------------------------------
     
     protected final SmtpServerConfiguration server;
-    protected final List<Message> messages = new ArrayList<Message>();
+    protected final List<Message> messages = new ArrayList<>();
 
     // ------------------------------------------------------------------------
     // Internal methods

@@ -41,7 +41,7 @@ public class ThreadPool {
     
     protected String threadNamePrefix = getClass().getSimpleName();
     protected int threadCount = Runtime.getRuntime().availableProcessors();
-    protected final Queue<Runnable> tasks = new ArrayDeque<Runnable>();
+    protected final Queue<Runnable> tasks = new ArrayDeque<>();
     protected int unfinishedTaskCount = 0;
     protected Exception exceptionOrNull = null;
     

@@ -24,7 +24,7 @@ import com.databasesandlife.util.jdbc.DbTransaction.SqlException;
 public class ReadOnlyReconnectingDbConnection implements DbQueryable {
     
     protected DbTransactionFactory fac;
-    protected ThreadLocal<DbTransaction> tx = new ThreadLocal<DbTransaction>();
+    protected ThreadLocal<DbTransaction> tx = new ThreadLocal<>();
 
     public ReadOnlyReconnectingDbConnection(DbTransactionFactory fac) {
         this.fac = fac;

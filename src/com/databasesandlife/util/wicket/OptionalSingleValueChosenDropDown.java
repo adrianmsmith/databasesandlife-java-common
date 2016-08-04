@@ -46,7 +46,7 @@ public class OptionalSingleValueChosenDropDown extends ListMultipleChoice<String
         
         setDefaultModel(new EmptyStringIntroducingModel(model));
         
-        List<String> choicesAndEmptyString = new ArrayList<String>(choices);
+        List<String> choicesAndEmptyString = new ArrayList<>(choices);
         choicesAndEmptyString.add(0, "");
         setChoices(choicesAndEmptyString);
         add(new Behavior() {

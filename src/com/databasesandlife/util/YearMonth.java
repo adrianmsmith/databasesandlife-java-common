@@ -114,7 +114,7 @@ public class YearMonth implements Serializable, Comparable<YearMonth> {
     }
 
     public static YearMonth[] rangeDownwardsIncl(YearMonth maxIncl, YearMonth minIncl) {
-        List<YearMonth> result = new ArrayList<YearMonth>();
+        List<YearMonth> result = new ArrayList<>();
         YearMonth i = minIncl;
         while (i.le(maxIncl)) {
             result.add(0, i);

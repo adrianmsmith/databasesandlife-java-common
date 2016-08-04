@@ -26,7 +26,7 @@ public class CompositeIteratorTest extends TestCase {
         Iterator<Integer> e = new Vector<Integer>().iterator();
         Iterator<Integer>[] array = (Iterator<Integer>[]) Arrays.asList(a, b, c, d, e).toArray();
         
-        Iterator<Integer> comp = new CompositeIterator<Integer>(array);
+        Iterator<Integer> comp = new CompositeIterator<>(array);
         assertTrue(comp.hasNext());
         assertEquals(1, (int) comp.next());
         assertTrue(comp.hasNext());

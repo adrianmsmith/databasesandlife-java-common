@@ -39,7 +39,7 @@ public class PerThreadLog4jAppender extends AppenderSkeleton {
     
     protected static PerThreadLog4jAppender sharedInstance = null;
     
-    protected Map<Thread, AppenderSkeleton> appenderForThread = new WeakHashMap<Thread, AppenderSkeleton>();
+    protected Map<Thread, AppenderSkeleton> appenderForThread = new WeakHashMap<>();
     
     protected PerThreadLog4jAppender() { }
     

@@ -35,7 +35,7 @@ public class InternetAddressListConverter implements IConverter<List<InternetAdd
 
     @Override
     public List<InternetAddress> convertToObject(String str, Locale arg1) {
-        ArrayList<InternetAddress> result = new ArrayList<InternetAddress>();
+        ArrayList<InternetAddress> result = new ArrayList<>();
         if (str != null)
             for (String x : str.split("[ ,;]+"))
                 if ( ! x.isEmpty())

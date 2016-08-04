@@ -167,7 +167,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             try {
                 ResultSetMetaData rsmd = rs.getMetaData();
                 int columnCount = rsmd.getColumnCount();
-                List<String> result = new ArrayList<String>(columnCount);
+                List<String> result = new ArrayList<>(columnCount);
                 for (int i = 1; i <= columnCount; i++) result.add(rsmd.getColumnName(i));
                 return result;
             }
@@ -394,7 +394,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         public <T> List<T> toObjectList(Class<T> cl, String stringColumnName) {
             try {
                 Iterator<DbQueryResultRow> i = iterator();
-                List<T> result = new ArrayList<T>();
+                List<T> result = new ArrayList<>();
                 while (i.hasNext()) {
                     String val = i.next().getString(stringColumnName);
                     T obj = cl.getConstructor(String.class).newInstance(val);
@@ -417,13 +417,13 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         }
 
         public Set<Integer> toIntegerSet(String columnName) {
-            Set<Integer> result = new HashSet<Integer>();
+            Set<Integer> result = new HashSet<>();
             for (DbQueryResultRow row : this) result.add(row.getInt(columnName));
             return result;
         }
 
         public Set<Long> toLongSet(String columnName) {
-            Set<Long> result = new HashSet<Long>();
+            Set<Long> result = new HashSet<>();
             for (DbQueryResultRow row : this) result.add(row.getLong(columnName));
             return result;
         }
@@ -764,7 +764,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             execute("INSERT INTO "+table+" DEFAULT VALUES");
         } else if (product == DbServerProduct.mysql) { // statement is easier to read, therefore easier to debug
             StringBuilder sql = new StringBuilder();
-            List<Object> params = new ArrayList<Object>();
+            List<Object> params = new ArrayList<>();
             sql.append(" INSERT INTO ");
             sql.append(table);
             appendSetClauses(sql, params, cols);
@@ -772,7 +772,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         } else {
             StringBuilder keys = new StringBuilder();
             StringBuilder questionMarks = new StringBuilder();
-            List<Object> values = new ArrayList<Object>();
+            List<Object> values = new ArrayList<>();
             for (Entry<String, ?> c : cols.entrySet()) {
                 if (keys.length() > 0) { keys.append(", "); questionMarks.append(", "); }
                 keys.append(c.getKey());
@@ -819,7 +819,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     
     public void update(String table, Map<String, ?> cols, String where, Object... whereParams) {
         StringBuilder sql = new StringBuilder();
-        List<Object> params = new ArrayList<Object>();
+        List<Object> params = new ArrayList<>();
         
         sql.append(" UPDATE ");
         sql.append(table);
@@ -865,7 +865,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         String... primaryKeyColumns
     ) {
         try {
-            Map<String, Object> newRow = new HashMap<String, Object>();
+            Map<String, Object> newRow = new HashMap<>();
             newRow.putAll(colsToUpdate);
             newRow.putAll(colsToInsert);
             insertOrThrowUniqueConstraintViolation(table, newRow);
@@ -873,7 +873,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         catch (UniqueConstraintViolation e) {
             if (colsToUpdate.isEmpty()) return;
             StringBuilder where = new StringBuilder();
-            List<Object> params = new ArrayList<Object>(primaryKeyColumns.length);
+            List<Object> params = new ArrayList<>(primaryKeyColumns.length);
             where.append(" TRUE ");
             for (String col : primaryKeyColumns) {
                 where.append(" AND ");

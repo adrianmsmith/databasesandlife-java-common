@@ -13,15 +13,14 @@ import java.util.*;
 
 public class PropertiesUtil {
 
-    protected static Hashtable<String, Properties> propertiesForResouceName
-            = new Hashtable<String, Properties>();
+    protected static Hashtable<String, Properties> propertiesForResouceName = new Hashtable<>();
 
     /** Same as splitToArray but returns a Vector.
       * @see #splitToArray
       * @deprecated use splitToArray instead, this provides type-safety */
     public static Vector<Properties> splitToVector(Properties p, String prefix) {
         if ( ! prefix.equals("")) prefix += ".";
-        Vector<Properties> propertiesForIndex = new Vector<Properties>();
+        Vector<Properties> propertiesForIndex = new Vector<>();
         for (Enumeration<?> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (! key.startsWith(prefix)) continue; // wrong prefix
@@ -60,7 +59,7 @@ public class PropertiesUtil {
       */
     public static Hashtable<String, Properties> splitToHashtable(Properties p, String prefix) {
         if ( ! prefix.equals("")) prefix += ".";
-        Hashtable<String, Properties> propertiesForName = new Hashtable<String, Properties>();
+        Hashtable<String, Properties> propertiesForName = new Hashtable<>();
         for (Enumeration<Object> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (! key.startsWith(prefix)) continue; // wrong prefix

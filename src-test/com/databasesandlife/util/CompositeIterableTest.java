@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 public class CompositeIterableTest extends TestCase {
     
     public void testHasNext() {
-        Iterator<String> i = new CompositeIterable<String>(Arrays.asList(
+        Iterator<String> i = new CompositeIterable<>(Arrays.asList(
             new ArrayList<String>(),
             Arrays.asList("a", "b"), 
             new ArrayList<String>(),
@@ -31,7 +31,7 @@ public class CompositeIterableTest extends TestCase {
     }
 
     public void testNext() {
-        Iterator<String> i = new CompositeIterable<String>(Arrays.asList(
+        Iterator<String> i = new CompositeIterable<>(Arrays.asList(
                 new ArrayList<String>(),
                 Arrays.asList("a", "b"), 
                 new ArrayList<String>(),

@@ -19,7 +19,7 @@ import com.google.common.base.Stopwatch;
 public class Timer implements AutoCloseable {
 
     static Logger logger = Logger.getLogger(Timer.class);
-    static ThreadLocal<Map<String, Long>> start = new ThreadLocal<Map<String, Long>>();
+    static ThreadLocal<Map<String, Long>> start = new ThreadLocal<>();
 
     protected static String getPrefix() {
         StringBuilder prefix = new StringBuilder();

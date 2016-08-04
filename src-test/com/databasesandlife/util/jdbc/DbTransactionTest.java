@@ -79,7 +79,7 @@ public class DbTransactionTest extends TestCase {
                 tx.execute("DROP TABLE IF EXISTS choice_table");
                 tx.execute("CREATE TABLE choice_table (choice_list choice[] NOT NULL)");
                 
-                Map<String, Object> values = new HashMap<String, Object>();
+                Map<String, Object> values = new HashMap<>();
                 values.put("choice_list", new Choice[] { Choice.a });
                 tx.insert("choice_table", values);
                 

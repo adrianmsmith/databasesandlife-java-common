@@ -68,7 +68,7 @@ public class CsvParser {
     }
 
     protected class ArrayOfMapsLineHandler implements CsvLineHandler {
-        List<Map<String,String>> result = new ArrayList<Map<String,String>>();
+        List<Map<String,String>> result = new ArrayList<>();
         public void processCsvLine(Map<String, String> line) { result.add(new HashMap<String, String>(line)); }
     }
 
@@ -110,7 +110,7 @@ public class CsvParser {
             }
 
             int lineNumber = 1;
-            Map<String, String> valueForField = new HashMap<String, String>();
+            Map<String, String> valueForField = new HashMap<>();
             while (true) {
                 try {
                     lineNumber++;

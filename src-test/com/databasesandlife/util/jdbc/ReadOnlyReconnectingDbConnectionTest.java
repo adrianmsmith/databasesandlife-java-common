@@ -27,7 +27,7 @@ public class ReadOnlyReconnectingDbConnectionTest extends TestCase {
             }
         }
         
-        List<Runner> threads = new ArrayList<Runner>();
+        List<Runner> threads = new ArrayList<>();
         for (int i = 0; i < Runtime.getRuntime().availableProcessors(); i++) threads.add(new Runner());
         for (Runner t : threads) t.start();
         for (Runner t : threads) try { t.join(); } catch (InterruptedException e) { throw new RuntimeException(e); }

@@ -36,7 +36,7 @@ public class SingleEntryModelAdaptor<T> implements IModel<List<T>> {
         // return Arrays.asList(..) doesn't work:
         // the resulting array is actually MODIFIED by Wicket's Select object before being passed to setObject
         T object = singleEntryModel.getObject();
-        List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<>();
         if (object != null) result.add(object);
         return result;
     }

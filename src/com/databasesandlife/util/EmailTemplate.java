@@ -218,7 +218,7 @@ public class EmailTemplate {
     throws FileNotFoundInEmailTemplateDirectoryException, MessagingException {
         String htmlContents = expandVelocityTemplate("body", locale, ".html", parameters);
 
-        Map<String, BodyPart> referencedFiles = new TreeMap<String, BodyPart>();
+        Map<String, BodyPart> referencedFiles = new TreeMap<>();
         StringBuffer htmlContentsWithCid = new StringBuffer();
         Matcher fileMatcher = Pattern.compile("(['\"])([\\w\\-]+)\\.(\\w{3,4})['\"]").matcher(htmlContents);
         while (fileMatcher.find()) {
