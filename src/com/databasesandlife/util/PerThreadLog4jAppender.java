@@ -60,7 +60,8 @@ public class PerThreadLog4jAppender extends AppenderSkeleton {
     /** Makes logs from subThread go to the same appender as the calling thread */
     public void registerSubThread(Thread mainThread, Thread subThread) {
         synchronized (appenderForThread) {
-            appenderForThread.put(subThread, appenderForThread.get(mainThread));
+            if (appenderForThread.get(mainThread) != null)
+                appenderForThread.put(subThread, appenderForThread.get(mainThread));
         }
     }
     
