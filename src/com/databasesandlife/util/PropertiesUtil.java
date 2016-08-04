@@ -15,12 +15,14 @@ public class PropertiesUtil {
 
     protected static Hashtable<String, Properties> propertiesForResouceName = new Hashtable<>();
 
-    /** Same as splitToArray but returns a Vector.
-      * @see #splitToArray
-      * @deprecated use splitToArray instead, this provides type-safety */
-    public static Vector<Properties> splitToVector(Properties p, String prefix) {
+    /** 
+     * Takes a prefix like "rules" and then finds "rules.0.x" etc, puts them
+     * into lots of Properties objects with keys like "x" and position 0 in
+     * the array. If prefix is "" then finds "0.x" etc.
+     */
+    public static List<Properties> splitToList(Properties p, String prefix) {
         if ( ! prefix.equals("")) prefix += ".";
-        Vector<Properties> propertiesForIndex = new Vector<>();
+        List<Properties> propertiesForIndex = new ArrayList<>();
         for (Enumeration<?> e = p.keys(); e.hasMoreElements();  ) {
             String key = (String) e.nextElement();
             if (! key.startsWith(prefix)) continue; // wrong prefix
@@ -29,10 +31,8 @@ public class PropertiesUtil {
             if (dotAfterIndex == -1) continue; // seems to have no "."
             String indexStr = indexAndSubKey.substring(0, dotAfterIndex);
             int index = Integer.parseInt(indexStr);
-            while (index >= propertiesForIndex.size())
-                propertiesForIndex.add(new Properties());
-            Properties propsThisIndex =
-                propertiesForIndex.elementAt(index);
+            while (index >= propertiesForIndex.size()) propertiesForIndex.add(new Properties());
+            Properties propsThisIndex = propertiesForIndex.get(index);
             String subKey = indexAndSubKey.substring(dotAfterIndex+1);
             String value = p.getProperty(key);
             propsThisIndex.setProperty(subKey, value);
@@ -40,14 +40,13 @@ public class PropertiesUtil {
         return propertiesForIndex;
     }
 
-    /** Takes a prefix like "rules" and then finds "rules.0.x" etc, puts them
-      * into lots of Properties objects with keys like "x" and position 0 in
-      * the array. If prefix is "" then finds "0.x" etc.
-      * @see #splitToVector
-      * @return a Vector of Properties objects */
+    /**
+     * Takes a prefix like "rules" and then finds "rules.0.x" etc, puts them
+     * into lots of Properties objects with keys like "x" and position 0 in
+     * the array. If prefix is "" then finds "0.x" etc.
+     */
     public static Properties[] splitToArray(Properties p, String prefix) {
-        Vector<Properties> vec = splitToVector(p, prefix);
-        return vec.toArray(new Properties[0]);
+        return splitToList(p, prefix).toArray(new Properties[0]);
     }
 
     /** Takes a prefix like "rules" and then finds "rules.name.key", puts

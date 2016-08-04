@@ -4,7 +4,7 @@ import com.databasesandlife.util.CompositeIterator;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.ArrayList;
 import junit.framework.TestCase;
 
 /**
@@ -19,11 +19,11 @@ public class CompositeIteratorTest extends TestCase {
     }            
     
     public void test() {
-        Iterator<Integer> a = new Vector<Integer>().iterator();
+        Iterator<Integer> a = new ArrayList<Integer>().iterator();
         Iterator<Integer> b = Arrays.asList(1, 2, 3).iterator();
-        Iterator<Integer> c = new Vector<Integer>().iterator();
+        Iterator<Integer> c = new ArrayList<Integer>().iterator();
         Iterator<Integer> d = Arrays.asList(4).iterator();
-        Iterator<Integer> e = new Vector<Integer>().iterator();
+        Iterator<Integer> e = new ArrayList<Integer>().iterator();
         Iterator<Integer>[] array = (Iterator<Integer>[]) Arrays.asList(a, b, c, d, e).toArray();
         
         Iterator<Integer> comp = new CompositeIterator<>(array);

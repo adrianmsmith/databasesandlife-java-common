@@ -5,7 +5,8 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
 <p>Displays a hierarchical choice as a series of drop-downs.
@@ -151,7 +152,7 @@ public class DropDownHierarchy<N> extends Composite {
     public void setSelected(N newSelectedNodeId) throws NodeNotFoundException {
         LeafNode<N> selectedNode = findLeafForId(rootNode, newSelectedNodeId);
 
-        final Vector<NonLeafNode<N>> fromRootToLeaf = new Vector<>();
+        final List<NonLeafNode<N>> fromRootToLeaf = new ArrayList<>();
         for (NonLeafNode<N> n = selectedNode.getParent(); n != null; n = n.getParent()) fromRootToLeaf.add(0, n);
 
         container.clear();
