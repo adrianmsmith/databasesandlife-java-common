@@ -55,7 +55,7 @@ public class ReadOnlyReconnectingDbConnection implements DbQueryable {
         };
     }
 
-    public DbQueryResultSet query(CharSequence sql, List<Object> args) {
+    public DbQueryResultSet query(CharSequence sql, List<?> args) {
         return query(sql.toString(), args.toArray());
     }
 }

@@ -714,7 +714,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     }
     
     /** @return Never retuns null (but may return an empty iterable) */
-    public DbQueryResultSet query(CharSequence sql, List<Object> args) {
+    public DbQueryResultSet query(CharSequence sql, List<?> args) {
         return query(sql.toString(), args.toArray());
     }
     
@@ -740,7 +740,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         catch (SQLException e) { throw new RuntimeException(e); }
     }
     
-    public void execute(CharSequence sql, List<Object> args) {
+    public void execute(CharSequence sql, List<?> args) {
         execute(sql.toString(), args.toArray());
     }
     
