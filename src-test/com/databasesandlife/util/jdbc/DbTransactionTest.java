@@ -133,4 +133,21 @@ public class DbTransactionTest extends TestCase {
             finally { tx.rollback(); }
         }
     }
+    
+    public void testGetSchemaQuote() {
+        for (DbTransaction tx : DatabaseConnection.newDbTransactions()) {
+            try {
+                tx.execute("DROP TABLE IF EXISTS x");
+                tx.execute("CREATE TABLE x (x INT)");
+                
+                Map<String, Object> cols = new HashMap<>();
+                cols.put("x", 4);
+                
+                tx.insert("x", cols); 
+                
+                // if the above succeeds, then quoting of column names `x` etc. has worked.
+            }
+            finally { tx.rollback(); }
+        }
+    }
 }

@@ -748,7 +748,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         sql.append(" SET ");
         for (Entry<String, ?> c : cols.entrySet()) {
             if (params.size() > 0) sql.append(", ");
-            sql.append(c.getKey());
+            sql.append(getSchemaQuote() + c.getKey() + getSchemaQuote());
             sql.append(" = ");
             sql.append(getQuestionMarkForValue(c.getValue()));
             params.add(c.getValue());
@@ -877,7 +877,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             where.append(" TRUE ");
             for (String col : primaryKeyColumns) {
                 where.append(" AND ");
-                where.append(col);
+                where.append(getSchemaQuote() + col + getSchemaQuote());
                 where.append(" = ").append(getQuestionMarkForValue(colsToInsert.get(col)));
                 params.add(colsToInsert.get(col));
             }
@@ -915,6 +915,15 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 return " FROM dual ";
             default:
                 throw new RuntimeException();
+        }
+    }
+    
+    public String getSchemaQuote() {
+        switch (product) {
+            case sqlserver: return "";
+            case postgres: return "\"";
+            case mysql: return "`";
+            default: throw new RuntimeException();
         }
     }
     
