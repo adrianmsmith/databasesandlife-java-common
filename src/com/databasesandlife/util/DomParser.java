@@ -61,11 +61,15 @@ public class DomParser {
         return attributeNode.getValue();
     }
 
+    protected static String getOptionalAttribute(Element node, String attributeName, String defaultValue) {
+        Attr attributeNode = node.getAttributeNode(attributeName); 
+        if (attributeNode == null) return defaultValue;
+        return attributeNode.getValue();
+    }
+    
     /** @return null if the attribute is not defined */
     protected static String getOptionalAttribute(Element node, String attributeName) {
-        Attr attributeNode = node.getAttributeNode(attributeName); 
-        if (attributeNode == null) return null;
-        return attributeNode.getValue();
+        return getOptionalAttribute(node, attributeName, null);
     }
     
     protected static double parseMandatoryDoubleAttribute(Element node, String attributeName)
