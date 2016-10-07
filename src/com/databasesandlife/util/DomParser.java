@@ -221,7 +221,7 @@ public class DomParser {
             return db.parse(f).getDocumentElement();
         }
         catch (ParserConfigurationException | IOException e) { throw new RuntimeException(e); }
-        catch (SAXException e) { throw new ConfigurationException(e); }
+        catch (SAXException e) { throw new ConfigurationException("File '"+f+"'", e); }
     }
 
     public static Element from(InputStream f) throws ConfigurationException {
