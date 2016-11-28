@@ -22,9 +22,15 @@ public class Timer implements AutoCloseable {
     static ThreadLocal<Map<String, Long>> start = new ThreadLocal<>();
 
     protected static String getPrefix() {
-        StringBuilder prefix = new StringBuilder();
-        for (int i = 0; i < start.get().size(); i++) prefix.append("I ");
-        return prefix.toString();
+        int count = start.get().size();
+
+        if (count >= 10) {
+            return "I x"+count+" ";
+        } else {
+            StringBuilder prefix = new StringBuilder();
+            for (int i = 0; i < count; i++) prefix.append("I ");
+            return prefix.toString();
+        }
     }
 
     /** @deprecated use <code>try (Timer t = new Timer("...")) { .. }</code> instead */
