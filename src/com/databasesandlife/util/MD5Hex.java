@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
  */
 public class MD5Hex {
 
-    public static String bytesToHex(byte[] bytes) {
+    protected static String bytesToHex(byte[] bytes) {
         StringBuffer hexString = new StringBuffer();
         for (int i=0;i<bytes.length;i++) {
             String x = "0" + Integer.toHexString(0xFF & bytes[i]);
