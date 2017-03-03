@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.log4j.Logger;
 import org.jooq.DSLContext;
@@ -387,6 +389,11 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     }
     
     public abstract static class DbQueryResultSet implements Iterable<DbQueryResultRow> {
+
+        public Stream<DbQueryResultRow> stream() {
+            return StreamSupport.stream(spliterator(), false);
+        }
+        
         /** 
          * Reads all rows in the result set, finds the string column "stringColumnName" and creates objects of type "cl" by
          * calling its constructor taking a single string argument. 
