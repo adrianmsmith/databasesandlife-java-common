@@ -272,30 +272,6 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             catch (SQLException e) { throw new RuntimeException(e); }
         }
         
-        /** @deprecated prefer {@link #getLocalDate(String)} (using java.time) rather than this method (using jodatime) */
-        public org.joda.time.LocalDate getJodatimeLocalDate(String col) {
-            try {                
-                String str = rs.getString(col);
-                if (str == null) return null;
-                
-                return org.joda.time.LocalDate.parse(str);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        /** @deprecated prefer {@link #getLocalTime(String)} (using java.time) rather than this method (using jodatime) */
-        public org.joda.time.LocalTime getJodatimeLocalTime(String col) {
-            try {                
-                String str = rs.getString(col);
-                if (str == null) return null;
-                
-                return org.joda.time.LocalTime.parse(str);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
         public LocalDate getLocalDate(String col) {
             try {                
                 String str = rs.getString(col);
@@ -499,18 +475,6 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                         default:
                             ps.setString(i+1, ((YearMonthDay) args[i]).toYYYYMMDD()); 
                     }
-                else if (args[i] instanceof org.joda.time.LocalTime)
-                    ps.setTime(i+1, new java.sql.Time(((org.joda.time.LocalTime) args[i]).toDateTimeToday().getMillis()));
-                else if (args[i] instanceof org.joda.time.LocalDate) {
-                    switch (product) {
-                        case postgres: 
-                            ps.setDate(i+1, new java.sql.Date(((org.joda.time.LocalDate) args[i]).toDateTimeAtStartOfDay(
-                                org.joda.time.DateTimeZone.forID("UTC")).toDate().getTime()), utc);
-                            break;
-                        default:
-                            ps.setString(i+1, ((org.joda.time.LocalDate) args[i]).toString()); 
-                    }
-                }
                 else if (args[i] instanceof LocalTime)
                     ps.setTime(i+1, java.sql.Time.valueOf((LocalTime) args[i]));
                 else if (args[i] instanceof LocalDate)
