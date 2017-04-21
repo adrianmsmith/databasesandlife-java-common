@@ -2,3 +2,4 @@
 /build-tmp
 /generated-javadoc
 /.vagrant
+.DS_Store
