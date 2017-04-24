@@ -3,11 +3,15 @@
 
 Vagrant.configure(2) do |config|
   config.vm.hostname = "databasesandlife-java-common"
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.synced_folder ".", "/vagrant"
-  
+  config.vm.box = "ubuntu/xenial64"
+
+  if not Vagrant::Util::Platform.windows? then
+    config.vm.synced_folder "~/.m2", "/home/ubuntu/.m2"
+    config.vm.synced_folder "~/.m2", "/root/.m2"
+  end
+
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "500"
+    vb.memory = "1000"
   end
   
   # runs as root within the VM
@@ -15,19 +19,13 @@ Vagrant.configure(2) do |config|
   
     set -e  # stop on error
 
-    echo --- General OS and Java installation
+    echo --- General OS installation
     apt-get update
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -q -y    # grub upgrade warnings mess with the terminal
-    apt-get -q -y install vim ant subversion ntp unattended-upgrades 
+    apt-get -q -y install vim subversion ntp unattended-upgrades
 
-    echo --- Install Java 8
-    echo 'Acquire::http::Proxy { download.oracle.com DIRECT; };' >> /etc/apt/apt.conf.d/01proxy
-    echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
-    echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
-    apt-get update
-    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-    apt-get -qy install oracle-java8-installer
+    echo --- Install Java 8 \(OpenJDK\) and Maven
+    apt-get -qy install openjdk-8-jdk maven
 
     echo --- MySQL
     echo "mysql-server-5.5 mysql-server/root_password password root" | sudo debconf-set-selections
@@ -40,6 +38,9 @@ Vagrant.configure(2) do |config|
     (cd /tmp && sudo -u postgres psql -c "alter user postgres password 'postgres'" postgres)  # os user postgres cannot see /root dir
     (cd /tmp && sudo -u postgres psql -c "create database databasesandlife_common" postgres)  
     # connect with: psql -hlocalhost databasesandlife_common postgres   (password postgres)
+
+#   echo --- Build the software and download all dependencies
+#   mvn -f /vagrant/pom.xml clean package    #this crashes Vagrant, don't know why
   }
   
   config.vm.provision "shell", run: "always", inline: %q{
@@ -49,8 +50,8 @@ Vagrant.configure(2) do |config|
     echo ''
     echo '-----------------------------------------------------------------'
     echo 'After "vagrant ssh", use:'
-    echo '  ant -f /vagrant/build.xml create-jar'
-    echo '  ant -f /vagrant/build.xml run-junits'
+    echo '  mvn -f /vagrant/pom.xml package  --> generates: target/*.jar '
+    echo '  mvn -f /vagrant/pom.xml site     --> generates: target/site/apidocs '
     echo '-----------------------------------------------------------------'
     echo ''
   }

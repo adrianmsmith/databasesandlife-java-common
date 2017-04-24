@@ -1,6 +1,6 @@
 This is a repository full of utility classes developed at Adrian Smith Software (A.S.S.)
 
-The master repository is Subversion but it's also on github, with a two-way bridge. Feel free to download and use, feel free to make contributions via pull requests.
+This project uses semantic versioning for its version numbers, as described at http://semver.org/
 
 Includes the following classes:
 
@@ -14,10 +14,10 @@ Includes the following classes:
 
 To develop, take the following steps:
 
-- Download Java (see build.xml for which version)
+- Download Java (latest version)
 - Download Eclipse or IntelliJ
 - Download VitualBox, Vagrant and, if on Windows, cygwin
 - Checkout this to "databasesandlife-java-common"
-- In Eclipse, "import" the project (all the ".project" files etc. are checked in); in IntelliJ there is presumably something similar.
+- In Eclipse, "import" the project (all the ".project" files etc. are checked in); in IntelliJ "new module with existing sources" and select the .iml
 - Within the directory, "vagrant up" and follow the on-screen instructions. Vagrant is used for running unit tests, and for creating the javadoc.
 
