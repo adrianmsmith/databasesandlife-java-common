@@ -140,10 +140,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         public SqlException(String x, Throwable t) { super(x, t); }
     }
     
-    /** Cannot connect to database */
-    public static class DbConnectionException extends RuntimeException {
-        public DbConnectionException(String x) { super(x); }
-        public DbConnectionException(String x, Throwable t) { super(x, t); }
+    public static class CannotConnectToDatabaseException extends RuntimeException {
+        public CannotConnectToDatabaseException(String x) { super(x); }
+        public CannotConnectToDatabaseException(String x, Throwable t) { super(x, t); }
     }
     
     @FunctionalInterface public interface RollbackListener {
@@ -598,14 +597,14 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     // Public API
     // ---------------------------------------------------------------------------------------------------------------
     
-    public DbTransaction(String jdbcUrl) throws DbConnectionException {
+    public DbTransaction(String jdbcUrl) throws CannotConnectToDatabaseException {
         try {
             Logger.getLogger(DbTransaction.class.getName() + "." + "newTransaction").info("Starting new transaction...");
             
             if (jdbcUrl.contains(":mysql")) product = DbServerProduct.mysql;
             else if (jdbcUrl.contains(":postgres")) product = DbServerProduct.postgres;
             else if (jdbcUrl.contains(":sqlserver")) product = DbServerProduct.sqlserver;
-            else throw new DbConnectionException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
+            else throw new CannotConnectToDatabaseException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
             
             switch (product) {   // load the classes so that getConnection recognizes the :mysql: etc part of JDBC url
                 case mysql: new com.mysql.jdbc.Driver(); break;
@@ -618,7 +617,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             connection.setAutoCommit(false);
         }
         catch (SQLException e) {
-            throw new DbConnectionException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
+            throw new CannotConnectToDatabaseException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
                 "connection is NOT OK: "+e.getMessage(), e);
         }
     }
