@@ -630,7 +630,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     /**
      * For example, during insert in jOOQ:
      * <pre> 
-     * db.addRollbackListener(() -gt; { 
+     * db.addRollbackListener(() -&gt; {
      *    venue.setVid(null); 
      *    venue.changed(VENUES.VID, false);
      * } );
