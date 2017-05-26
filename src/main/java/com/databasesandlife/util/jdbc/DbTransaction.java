@@ -414,6 +414,10 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     // ---------------------------------------------------------------------------------------------------------------
     // Internal methods
     // ---------------------------------------------------------------------------------------------------------------
+
+    protected void logNewTransaction() {
+        Logger.getLogger(DbTransaction.class.getName() + "." + "newTransaction").info("Starting new transaction...");
+    }
     
     protected Connection getConnection() {
         if (connection == null) throw new IllegalStateException("connection already committed or rolledback");
@@ -599,8 +603,8 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     
     public DbTransaction(String jdbcUrl) throws CannotConnectToDatabaseException {
         try {
-            Logger.getLogger(DbTransaction.class.getName() + "." + "newTransaction").info("Starting new transaction...");
-            
+            logNewTransaction();
+
             if (jdbcUrl.contains(":mysql")) product = DbServerProduct.mysql;
             else if (jdbcUrl.contains(":postgres")) product = DbServerProduct.postgres;
             else if (jdbcUrl.contains(":sqlserver")) product = DbServerProduct.sqlserver;
