@@ -73,6 +73,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *   <li>{@link #insertIgnoringUniqueConstraintViolations} and {@link #updateIgnoringUniqueConstraintViolations}
  *       perform inserts and updates, but ignore any unique constraint violations.
  *       For example using the "insert then update" pattern, for "just-in-time" creating records, can use these methods.
+ *   <li>The transaction isolation level is set to REPEATABLE READ. (This is the default in MySQL but not other databases.)
  *   <li>You can register {@link RollbackListener} objects with {@link #addRollbackListener(RollbackListener)}.
  *       When the transaction rolls back, this listener will get called.
  *       This is so that any primary keys which have been assigned and stored in Java objects,
@@ -619,6 +620,8 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             
             connection = DriverManager.getConnection(jdbcUrl);
             connection.setAutoCommit(false);
+
+            execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
         }
         catch (SQLException e) {
             throw new CannotConnectToDatabaseException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
