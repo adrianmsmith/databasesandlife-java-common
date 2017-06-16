@@ -73,6 +73,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *   <li>{@link #insertIgnoringUniqueConstraintViolations} and {@link #updateIgnoringUniqueConstraintViolations}
  *       perform inserts and updates, but ignore any unique constraint violations.
  *       For example using the "insert then update" pattern, for "just-in-time" creating records, can use these methods.
+ *   <li>{@link #attempt(Runnable)} establishes a savepoint before the runnable and rolls back to it on failure,
+ *       necessary for any operation that may fail when using PostgreSQL.</li>
  *   <li>The transaction isolation level is set to REPEATABLE READ. (This is the default in MySQL but not other databases.)
  *   <li>You can register {@link RollbackListener} objects with {@link #addRollbackListener(RollbackListener)}.
  *       When the transaction rolls back, this listener will get called.
@@ -699,7 +701,32 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         try { insertParamsToPreparedStatement(sql, args).executeUpdate(); } // returns int = row count processed; we ignore
         catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
     }
-    
+
+    /**
+     * Sets a savepoint as is necessary on PostgreSQL, runs the code,
+     * then rolls back to the savepoint on RuntimeException or discards the savepoint on success
+     */
+    public void attempt(Runnable r) {
+        try {
+            Savepoint initialState = null;
+            if (product == DbServerProduct.postgres) initialState = connection.setSavepoint();
+            try {
+                r.run();
+                if (initialState != null) {
+                    connection.releaseSavepoint(initialState);
+                }
+            }
+            catch (RuntimeException e) {
+                if (initialState != null) {
+                    connection.rollback(initialState);
+                    connection.releaseSavepoint(initialState);
+                }
+                throw e;
+            }
+        }
+        catch (SQLException e) { throw new RuntimeException(e); }
+    }
+
     /** For normal delete where you don't expect a possible foreign key constraint violation, use {@link #execute(String, Object...)} instead */
     public void deleteOrThrowForeignKeyConstraintViolation(String table, String where, Object... args) throws ForeignKeyConstraintViolation {
         try {
