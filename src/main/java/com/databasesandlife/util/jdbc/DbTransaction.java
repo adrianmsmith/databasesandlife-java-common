@@ -704,24 +704,20 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
 
     /**
      * Sets a savepoint as is necessary on PostgreSQL, runs the code,
-     * then rolls back to the savepoint on RuntimeException or discards the savepoint on success
+     * then rolls back to the savepoint on RuntimeException or discards the savepoint on success.
      */
     public void attempt(Runnable r) {
         try {
-            Savepoint initialState = null;
-            if (product == DbServerProduct.postgres) initialState = connection.setSavepoint();
+            Savepoint initialState = connection.setSavepoint();
             try {
                 r.run();
-                if (initialState != null) {
-                    connection.releaseSavepoint(initialState);
-                }
             }
             catch (RuntimeException e) {
-                if (initialState != null) {
-                    connection.rollback(initialState);
-                    connection.releaseSavepoint(initialState);
-                }
+                connection.rollback(initialState);
                 throw e;
+            }
+            finally {
+                connection.releaseSavepoint(initialState);
             }
         }
         catch (SQLException e) { throw new RuntimeException(e); }
