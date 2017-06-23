@@ -5,8 +5,8 @@
     <groupId>com.databasesandlife</groupId>
     <artifactId>java-common</artifactId>
     <version>3.1.1</version>
-    <packaging>jar</packaging>
     <name>Databases and Life Java Common</name>
+    <description>Utility classes developed at Adrian Smith Software (A.S.S.)</description>
     <url>https://github.com/adrianmsmith/databasesandlife-java-common</url>
     <inceptionYear>2003</inceptionYear>
     <licenses>
@@ -23,7 +23,9 @@
         </developer>
     </developers>
     <scm>
-        <url>https://github.com/adrianmsmith/databasesandlife-java-common</url>
+        <connection>scm:git:https://github.com/adrianmsmith/databasesandlife-java-common</connection>
+        <developerConnection>scm:git:https://github.com/adrianmsmith/databasesandlife-java-common</developerConnection>
+        <url>https://github.com/adrianmsmith/databasesandlife-java-common/tree/master</url>
     </scm>
 
     <properties>
@@ -53,6 +55,55 @@
                         <goals><goal>check</goal></goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -223,4 +274,15 @@
             <url>https://maven.tmatesoft.com/content/repositories/releases/</url>
         </repository>
     </repositories>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 </project>
