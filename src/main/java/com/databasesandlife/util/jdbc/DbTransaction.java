@@ -122,6 +122,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
 
     public enum DbServerProduct { mysql, postgres, sqlserver };
     
+    @FunctionalInterface
     public interface DbTransactionFactory {
         /** Caller must call {@link DbTransaction#commit()} or {@link DbTransaction#rollback()}. */
         public DbTransaction newDbTransaction();
@@ -239,8 +240,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 f.setTimeZone(TimeZone.getTimeZone("UTC"));
                 return f.parse(str);
             }
-            catch (SQLException e) { throw new RuntimeException(e); }
-            catch (ParseException e) { throw new RuntimeException(e); }
+            catch (SQLException | ParseException e) { throw new RuntimeException(e); }
         }
         
         public String[] getStringArray(String col) {
@@ -304,10 +304,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 Method valueOfMethod = clazz.getMethod("valueOf", String.class);
                 return (T) valueOfMethod.invoke(null, str);
             }
-            catch (SQLException e) { throw new RuntimeException(e); }
-            catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-            catch (InvocationTargetException e) { throw new RuntimeException(e); }
-            catch (IllegalAccessException e) { throw new RuntimeException(e); }
+            catch (SQLException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         /**
@@ -326,10 +325,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                     result[i] = (T) valueOfMethod.invoke(null, stringArrayFromDb[i]);
                 return result;
             }
-            catch (SQLException e) { throw new RuntimeException(e); }
-            catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-            catch (InvocationTargetException e) { throw new RuntimeException(e); }
-            catch (IllegalAccessException e) { throw new RuntimeException(e); }
+            catch (SQLException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     
@@ -387,10 +385,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 }
                 return result;
             }
-            catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-            catch (IllegalAccessException e) { throw new RuntimeException(e); }
-            catch (InstantiationException e) { throw new RuntimeException(e); }
-            catch (InvocationTargetException e) { throw new RuntimeException(e); }
+            catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
         }
         
         /** 
@@ -597,7 +594,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             connection.close();
             connection = null;
         }
-        catch (SQLException e) {  }  // ignore errors on closing
+        catch (SQLException ignored) {  }  // ignore errors on closing
     }
     
     // ---------------------------------------------------------------------------------------------------------------
@@ -747,7 +744,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     protected void appendSetClauses(StringBuilder sql, List<Object> params, Map<String, ?> cols) {
         sql.append(" SET ");
         for (Entry<String, ?> c : cols.entrySet()) {
-            if (params.size() > 0) sql.append(", ");
+            if (!params.isEmpty()) sql.append(", ");
             sql.append(getSchemaQuote() + c.getKey() + getSchemaQuote());
             sql.append(" = ");
             sql.append(getQuestionMarkForValue(c.getValue()));
@@ -797,13 +794,12 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 rollbackToSavepointAndThrowConstraintViolation(initialState, e); 
             }
         }
-        catch (ForeignKeyConstraintViolation e) { throw new RuntimeException(e); }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (ForeignKeyConstraintViolation | SQLException e) { throw new RuntimeException(e); }
     }
     
     public void insertIgnoringUniqueConstraintViolations(String table, Map<String, ?> cols) {
         try { insertOrThrowUniqueConstraintViolation(table, cols); }
-        catch (UniqueConstraintViolation e) { } // ignore
+        catch (UniqueConstraintViolation ignored) { } // ignore
     }
     
     public long insertAndFetchNewId(String table, Map<String, ?> cols) {
@@ -844,13 +840,12 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 rollbackToSavepointAndThrowConstraintViolation(initialState, e); 
             }
         }
-        catch (ForeignKeyConstraintViolation e) { throw new RuntimeException(e); }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (ForeignKeyConstraintViolation | SQLException e) { throw new RuntimeException(e); }
     }
     
     public void updateIgnoringUniqueConstraintViolations(String table, Map<String, ?> cols, String where, Object... whereParams) {
         try { updateOrThrowUniqueConstraintViolation(table, cols, where, whereParams); }
-        catch (UniqueConstraintViolation e) { } // ignore
+        catch (UniqueConstraintViolation ignored) { } // ignore
     }
     
     /**
@@ -877,7 +872,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             where.append(" TRUE ");
             for (String col : primaryKeyColumns) {
                 where.append(" AND ");
-                where.append(getSchemaQuote() + col + getSchemaQuote());
+                where.append(getSchemaQuote()).append(col).append(getSchemaQuote());
                 where.append(" = ").append(getQuestionMarkForValue(colsToInsert.get(col)));
                 params.add(colsToInsert.get(col));
             }
