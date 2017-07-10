@@ -11,7 +11,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "1000"
+    vb.memory = "2000"
   end
   
   # runs as root within the VM
