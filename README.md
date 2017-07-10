@@ -18,6 +18,7 @@ To develop, take the following steps:
 - Download Eclipse or IntelliJ
 - Download VitualBox, Vagrant and, if on Windows, cygwin
 - Checkout this to "databasesandlife-java-common"
-- In Eclipse, "import" the project (all the ".project" files etc. are checked in); in IntelliJ "new module with existing sources" and select the .iml
+- In Eclipse, "import" the project (all the ".project" files etc. are checked in)
+- In IntelliJ, create the project from the pom.xml file
 - Within the directory, "vagrant up" and follow the on-screen instructions. Vagrant is used for running unit tests, and for creating the javadoc.
 
