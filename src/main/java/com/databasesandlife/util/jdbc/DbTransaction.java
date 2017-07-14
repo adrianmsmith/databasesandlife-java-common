@@ -18,20 +18,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -40,6 +28,7 @@ import java.util.stream.StreamSupport;
 import org.apache.log4j.Logger;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.TableRecord;
 import org.jooq.impl.DSL;
 
 import com.databasesandlife.util.Timer;
@@ -779,6 +768,11 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             
             execute("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
         }
+    }
+
+    public void insert(TableRecord<?> record) {
+        record.attach(jooq().configuration());
+        record.insert();
     }
     
     public void insertOrThrowUniqueConstraintViolation(String table, Map<String, ?> cols)
