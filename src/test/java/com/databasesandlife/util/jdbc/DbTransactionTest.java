@@ -1,10 +1,8 @@
 package com.databasesandlife.util.jdbc;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
+import com.databasesandlife.util.ThreadPool;
 import junit.framework.TestCase;
 
 import com.databasesandlife.util.YearMonthDay;
@@ -160,6 +158,41 @@ public class DbTransactionTest extends TestCase {
                 assertEquals("foo", tx.query("SELECT * FROM i").iterator().next().getString("pk"));
                 assertEquals(123, (int)tx.query("SELECT * FROM i").iterator().next().getInt("val"));
             }
+        }
+    }
+
+    public void testInsertOrUpdate_Concurrency() {
+        Random rand = new Random();
+
+        for (String jdbc : new String[] { DatabaseConnection.mysql, DatabaseConnection.postgresql }) {
+            try (DbTransaction tx = new DbTransaction(jdbc)) {
+                tx.execute("DROP TABLE IF EXISTS insert_or_update");
+                tx.execute("CREATE TABLE insert_or_update(pk VARCHAR(10) PRIMARY KEY, val INT NOT NULL)");
+                tx.commit();
+            }
+
+            ThreadPool threads = new ThreadPool();
+            threads.setThreadCount(10);
+            for (int i = 0; i < 100; i++) {
+                threads.addTask(() -> {
+                    try (DbTransaction tx = new DbTransaction(jdbc)) {
+                        Map<String, Object> colsToInsert = new HashMap<>();
+                        colsToInsert.put("pk", "foo");
+
+                        Map<String, Object> colsToUpdate = new HashMap<>();
+                        colsToUpdate.put("val", rand.nextInt(1000));
+
+                        tx.insertOrUpdate("insert_or_update", colsToUpdate, colsToInsert, "pk");
+                        tx.commit();
+                    }
+                    catch (RuntimeException e) {
+                        if ( ! e.getMessage().contains("could not serialize access due to concurrent update"))
+                            throw e;
+                    }
+                });
+            }
+
+            threads.execute();
         }
     }
 }

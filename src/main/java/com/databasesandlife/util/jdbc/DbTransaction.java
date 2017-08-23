@@ -731,43 +731,47 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     }
     
     protected void appendSetClauses(StringBuilder sql, List<Object> params, Map<String, ?> cols) {
-        sql.append(" SET ");
+        boolean first = true;
         for (Entry<String, ?> c : cols.entrySet()) {
-            if (!params.isEmpty()) sql.append(", ");
+            if (first) first = false; else sql.append(", ");
             sql.append(getSchemaQuote() + c.getKey() + getSchemaQuote());
             sql.append(" = ");
             sql.append(getQuestionMarkForValue(c.getValue()));
             params.add(c.getValue());
         }
     }
-    
-    @SuppressFBWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
-    public void insert(String table, Map<String, ?> cols) {
+
+    protected void appendInsertStatement(StringBuilder sql, List<Object> params, String table, Map<String, ?> cols) {
         if (cols.isEmpty() && product == DbServerProduct.postgres) {
             // if no columns:
             //     MySQL:      INSERT INTO mytable () VALUES ();
             //     PostgreSQL: INSERT INTO mytable DEFAULT VALUES;
-            execute("INSERT INTO "+table+" DEFAULT VALUES");
+            sql.append("INSERT INTO "+table+" DEFAULT VALUES");
         } else if (product == DbServerProduct.mysql) { // statement is easier to read, therefore easier to debug
-            StringBuilder sql = new StringBuilder();
-            List<Object> params = new ArrayList<>();
             sql.append(" INSERT INTO ");
             sql.append(table);
+            sql.append(" SET ");
             appendSetClauses(sql, params, cols);
-            execute(sql, params);
         } else {
             StringBuilder keys = new StringBuilder();
             StringBuilder questionMarks = new StringBuilder();
-            List<Object> values = new ArrayList<>();
             for (Entry<String, ?> c : cols.entrySet()) {
                 if (keys.length() > 0) { keys.append(", "); questionMarks.append(", "); }
                 keys.append(c.getKey());
                 questionMarks.append(getQuestionMarkForValue(c.getValue()));
-                values.add(c.getValue());
+                params.add(c.getValue());
             }
-            
-            execute("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")", values.toArray());
+
+            sql.append("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")");
         }
+    }
+    
+    @SuppressFBWarnings("SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING")
+    public void insert(String table, Map<String, ?> cols) {
+        StringBuilder sql = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+        appendInsertStatement(sql, params, table, cols);
+        execute(sql, params);
     }
 
     public void insert(TableRecord<?> record) {
@@ -813,6 +817,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         
         sql.append(" UPDATE ");
         sql.append(table);
+        sql.append(" SET ");
         appendSetClauses(sql, params, cols);
         sql.append(" WHERE ");
         sql.append(where);
@@ -841,36 +846,47 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         try { updateOrThrowUniqueConstraintViolation(table, cols, where, whereParams); }
         catch (UniqueConstraintViolation ignored) { } // ignore
     }
-    
+
     /**
      * Inserts (colsToInsert + colsToUpdate) and, if that fails because the row already exists,
      * updates (colsToUpdate) where (primaryKeyColumns out of colsToInsert).
      * @see <a href="http://www.databasesandlife.com/jit-inserting-rows-into-a-db/">"Just-in-time" inserting rows into a database (Databases &amp; Life)</a> 
      */
     public void insertOrUpdate(
-        String table, 
-        Map<String, ?> colsToUpdate, 
+        String table,
+        Map<String, ?> colsToUpdate,
         Map<String, ?> colsToInsert,
         String... primaryKeyColumns
     ) {
-        try {
-            Map<String, Object> newRow = new HashMap<>();
-            newRow.putAll(colsToUpdate);
-            newRow.putAll(colsToInsert);
-            insertOrThrowUniqueConstraintViolation(table, newRow);
-        }
-        catch (UniqueConstraintViolation e) {
-            if (colsToUpdate.isEmpty()) return;
-            StringBuilder where = new StringBuilder();
-            List<Object> params = new ArrayList<>(primaryKeyColumns.length);
-            where.append(" TRUE ");
-            for (String col : primaryKeyColumns) {
-                where.append(" AND ");
-                where.append(getSchemaQuote()).append(col).append(getSchemaQuote());
-                where.append(" = ").append(getQuestionMarkForValue(colsToInsert.get(col)));
-                params.add(colsToInsert.get(col));
-            }
-            update(table, colsToUpdate, where.toString(), params.toArray());
+        Map<String, Object> newRow = new HashMap<>();
+        newRow.putAll(colsToUpdate);
+        newRow.putAll(colsToInsert);
+
+        switch (product) {
+            case mysql: // Deadlock if multiple sessions attempt the "default" way
+                StringBuilder sql = new StringBuilder();
+                List<Object> params = new ArrayList<>(primaryKeyColumns.length);
+                appendInsertStatement(sql, params, table, newRow);
+                sql.append(" ON DUPLICATE KEY UPDATE ");
+                appendSetClauses(sql, params, colsToUpdate);
+                execute(sql, params);
+                break;
+
+            default:
+                try { insertOrThrowUniqueConstraintViolation(table, newRow); }
+                catch (UniqueConstraintViolation e) {
+                    if (colsToUpdate.isEmpty()) return;
+                    StringBuilder where = new StringBuilder();
+                    List<Object> whereParams = new ArrayList<>(primaryKeyColumns.length);
+                    where.append(" TRUE ");
+                    for (String col : primaryKeyColumns) {
+                        where.append(" AND ");
+                        where.append(getSchemaQuote()).append(col).append(getSchemaQuote());
+                        where.append(" = ").append(getQuestionMarkForValue(colsToInsert.get(col)));
+                        whereParams.add(colsToInsert.get(col));
+                    }
+                    update(table, colsToUpdate, where.toString(), whereParams.toArray());
+                }
         }
     }
     

@@ -4,7 +4,7 @@
 
     <groupId>com.databasesandlife</groupId>
     <artifactId>java-common</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
     <name>Databases and Life Java Common</name>
     <description>Utility classes developed at Adrian Smith Software (A.S.S.)</description>
     <url>https://github.com/adrianmsmith/databasesandlife-java-common</url>
