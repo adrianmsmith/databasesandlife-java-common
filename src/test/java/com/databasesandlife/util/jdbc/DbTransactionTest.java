@@ -143,4 +143,23 @@ public class DbTransactionTest extends TestCase {
             finally { tx.rollback(); }
         }
     }
+
+    public void testInsert() {
+        for (String jdbc : new String[] { DatabaseConnection.mysql, DatabaseConnection.postgresql }) {
+            try (DbTransaction tx = new DbTransaction(jdbc)) {
+                tx.execute("DROP TABLE IF EXISTS i");
+                tx.execute("CREATE TABLE i(pk VARCHAR(10) PRIMARY KEY, val INT NOT NULL)");
+
+                Map<String, Object> colsToInsert = new HashMap<>();
+                colsToInsert.put("pk", "foo");
+                colsToInsert.put("val", 123);
+
+                tx.insert("i", colsToInsert);
+
+                assertEquals(1, (int)tx.query("SELECT COUNT(*) c FROM i").iterator().next().getInt("c"));
+                assertEquals("foo", tx.query("SELECT * FROM i").iterator().next().getString("pk"));
+                assertEquals(123, (int)tx.query("SELECT * FROM i").iterator().next().getInt("val"));
+            }
+        }
+    }
 }
