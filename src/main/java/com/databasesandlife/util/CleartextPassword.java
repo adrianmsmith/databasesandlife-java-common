@@ -1,5 +1,8 @@
 package com.databasesandlife.util;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -13,9 +16,13 @@ public class CleartextPassword {
 
     public final @Nonnull String cleartext;
 
+    @JsonCreator
     public CleartextPassword(@Nonnull String c) {
         cleartext = c;
     }
+
+    @JsonValue
+    public @Nonnull String getCleartext() { return cleartext; }
 
     @Override
     public boolean equals(Object o) {
