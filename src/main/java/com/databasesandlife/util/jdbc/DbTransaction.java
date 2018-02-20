@@ -82,13 +82,11 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * 
  * <p>Example usage:
  * <pre>
- *   DbTransaction db = new DbTransaction(
- *      "jdbc:mysql://hostname/dbName?user=x&amp;password=x&amp;useUnicode=true&amp;characterEncoding=UTF-8");
- *   try {
+ *   String jdbc = "jdbc:mysql://hostname/dbName?user=x&amp;password=x&amp;useUnicode=true&amp;characterEncoding=UTF-8";
+ *   try (DbTransaction db = new DbTransaction(jdbc)) {
  *      db.execute("DELETE FROM x WHERE id=?", 9);
  *      db.commit();
  *   }
- *   finally { db.rollbackIfConnectionStillOpen(); }
  * </pre>
  * 
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
