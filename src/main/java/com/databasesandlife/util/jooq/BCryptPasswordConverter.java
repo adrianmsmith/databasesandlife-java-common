@@ -3,8 +3,6 @@ package com.databasesandlife.util.jooq;
 import com.databasesandlife.util.BCryptPassword;
 import org.jooq.Converter;
 
-import java.time.ZoneId;
-
 @SuppressWarnings("serial")
 public class BCryptPasswordConverter implements Converter<String, BCryptPassword> {
 

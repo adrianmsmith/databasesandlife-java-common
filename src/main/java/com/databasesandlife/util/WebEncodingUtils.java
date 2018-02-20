@@ -26,7 +26,6 @@ public class WebEncodingUtils {
         return x;
     }
 
-    @SuppressWarnings("unchecked")
     public static Map<String, String> getHttpRequestParameterMap(HttpServletRequest request) {
         Map<String, String> result = new HashMap<>();
         for (Entry<String,String[]> paramEntry : ((Map<String,String[]>) request.getParameterMap()).entrySet())

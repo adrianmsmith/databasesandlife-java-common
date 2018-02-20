@@ -1,7 +1,5 @@
 package com.databasesandlife.util;
 
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.base.Stopwatch;
 
 import junit.framework.TestCase;
