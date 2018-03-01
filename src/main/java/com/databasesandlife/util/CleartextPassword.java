@@ -2,9 +2,12 @@ package com.databasesandlife.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.apache.commons.lang.RandomStringUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Wraps a string containing a cleartext password.
@@ -24,6 +27,41 @@ public class CleartextPassword implements Serializable {
 
     @JsonValue
     public @Nonnull String getCleartext() { return cleartext; }
+
+    /**
+     * Generates a random password.
+     * <p>A-Z, a-z, 0-9 characters are used, with the exception confusing characters such as uppercase O and digit 0 are not used.</p>
+     * <p>The objective is that:
+     * <ul>
+     *     <li>the passwords can be written down (thus confusing characters are removed)</li>
+     *     <li>and also that the password can be used in situations where special encoding is needed for example GET requests
+     *          (thus there are no special characters.)</li>
+     * </ul></p>
+     * <p>Make up for "lack of randomness" by making the password longer.</p>
+     */
+    public static @Nonnull CleartextPassword newRandom(int length) {
+        Set<Character> chars = new HashSet<>();
+        for (char c = 'A'; c <= 'Z'; c++) chars.add(c);
+        for (char c = 'a'; c <= 'a'; c++) chars.add(c);
+        for (char c = '0'; c <= '9'; c++) chars.add(c);
+
+        chars.remove('O');
+        chars.remove('I');
+        chars.remove('l');
+        chars.remove('0');
+        chars.remove('1');
+
+        StringBuilder result = new StringBuilder();
+        for (char c : chars) result.append(c);
+
+        String password = RandomStringUtils.random(length, result.toString());
+        return new CleartextPassword(password);
+    }
+
+    /** Generates a new password of a reasonable length; see {@link #newRandom(int)} */
+    public static @Nonnull CleartextPassword newRandom() {
+        return newRandom(15);
+    }
 
     @Override
     public boolean equals(Object o) {
