@@ -41,8 +41,9 @@ public class CleartextPassword implements Serializable {
      */
     public static @Nonnull CleartextPassword newRandom(int length) {
         Set<Character> chars = new HashSet<>();
+
         for (char c = 'A'; c <= 'Z'; c++) chars.add(c);
-        for (char c = 'a'; c <= 'a'; c++) chars.add(c);
+        for (char c = 'a'; c <= 'z'; c++) chars.add(c);
         for (char c = '0'; c <= '9'; c++) chars.add(c);
 
         chars.remove('O');
