@@ -78,4 +78,9 @@ public class CleartextPassword implements Serializable {
     public int hashCode() {
         return 3458 + cleartext.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()+"("+cleartext+")";
+    }
 }
