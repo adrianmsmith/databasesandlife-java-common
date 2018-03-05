@@ -6,8 +6,11 @@ import org.apache.commons.lang.RandomStringUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 /**
  * Wraps a string containing a cleartext password.
@@ -46,11 +49,10 @@ public class CleartextPassword implements Serializable {
         for (char c = 'a'; c <= 'z'; c++) chars.add(c);
         for (char c = '0'; c <= '9'; c++) chars.add(c);
 
-        chars.remove('O');
-        chars.remove('I');
-        chars.remove('l');
-        chars.remove('0');
-        chars.remove('1');
+        chars.removeAll(asList('O', '0'));
+        chars.removeAll(asList('I', 'l', '1'));
+        chars.removeAll(asList('S', '5'));
+        chars.removeAll(asList('2', 'Z'));
 
         StringBuilder result = new StringBuilder();
         for (char c : chars) result.append(c);
