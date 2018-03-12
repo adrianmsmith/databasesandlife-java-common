@@ -32,11 +32,17 @@ public class DateTextField<T> extends TextField<T> {
         super(id, model);
     }
 
+    // Wicket <= 6
     @Override
     protected String getInputType() {
         return "date";
     }
-    
+
+    // Wicket >= 7
+    protected String[] getInputTypes() {
+        return new String[] { getInputType() };
+    }
+
     protected LocalDate parse(String str) {
         try {
             if (str == null) return null;

@@ -32,11 +32,17 @@ public class TimeTextField<T> extends TextField<T> {
         super(id, model);
     }
 
+    // Wicket <= 6
     @Override
     protected String getInputType() {
         return "time";
     }
-    
+
+    // Wicket >= 7
+    protected String[] getInputTypes() {
+        return new String[] { getInputType() };
+    }
+
     protected LocalTime parse(String str) {
         try {
             if (str == null) return null;
