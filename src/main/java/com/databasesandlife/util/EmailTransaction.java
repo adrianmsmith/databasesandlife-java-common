@@ -186,7 +186,6 @@ public class EmailTransaction {
     public int getEmailCountForTesting() { return messages.size(); }
     public String getEmailBodyForTesting(int idx) {
         try { return (String) messages.get(idx).getContent(); }
-        catch (IOException e) { throw new RuntimeException(e); }
-        catch (MessagingException e) { throw new RuntimeException(e); }
+        catch (IOException | MessagingException e) { throw new RuntimeException(e); }
     }
 }
