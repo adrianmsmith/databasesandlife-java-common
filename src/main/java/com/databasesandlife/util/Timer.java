@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
  * Times a calculation.
  *    <p>
  * Usage:
- * <pre>try (Timer t = new Timer("doing something")) { ... }</pre>
+ * <pre>try (Timer ignored = new Timer("doing something")) { ... }</pre>
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
@@ -31,7 +31,7 @@ public class Timer implements AutoCloseable {
         }
     }
 
-    /** @deprecated use <code>try (Timer t = new Timer("...")) { .. }</code> instead */
+    /** @deprecated use <code>try (Timer ignored = new Timer("...")) { .. }</code> instead */
     public static void start(String name) {
         if (start.get() == null) start.set(new HashMap<String, Long>());
 
@@ -59,7 +59,7 @@ public class Timer implements AutoCloseable {
         return String.format("%s%s%.3f sec", hoursStr, minutesStr, seconds);
     }
 
-    /** @deprecated use <code>try (Timer t = new Timer("...")) { .. }</code> instead */
+    /** @deprecated use <code>try (Timer ignored = new Timer("...")) { .. }</code> instead */
     public static void end(String name) {
         if (start.get() == null) start.set(new HashMap<String, Long>());
 

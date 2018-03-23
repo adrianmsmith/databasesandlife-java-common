@@ -666,7 +666,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     public DbQueryResultSet query(final String sql, final Object... args) {
         return new DbQueryResultSet() {
             public Iterator<DbQueryResultRow> iterator() {
-                try (Timer t = new Timer("SQL: " + getSqlForLog(sql, args))) {
+                try (Timer ignored = new Timer("SQL: " + getSqlForLog(sql, args))) {
                     PreparedStatement ps = insertParamsToPreparedStatement(sql, args);
                     ResultSet rs = ps.executeQuery();
                     return new DbQueryResultRowIterator(rs);

@@ -168,12 +168,12 @@ public class EmailTransaction {
     }
     
     public void commit() {
-        try (Timer t = new Timer(getClass().getSimpleName()+".commit")) {
+        try (Timer ignored = new Timer(getClass().getSimpleName()+".commit")) {
             ThreadPool threads = new ThreadPool();
             threads.setThreadCount(3); // Have some parallelism but do not overload the remote SMTP server
             for (Message msg : messages) {
                 threads.addTask(() -> {
-                    try (Timer t2 = new Timer("Send email to '" + msg.getRecipients(RecipientType.TO)[0]+"'")) {
+                    try (Timer ignored2 = new Timer("Send email to '" + msg.getRecipients(RecipientType.TO)[0]+"'")) {
                         Transport.send(msg);
                     }
                     catch (MessagingException e) { throw new RuntimeException(e); }
