@@ -37,7 +37,7 @@ public class ThreadPoolTest extends TestCase {
         long expectedMillis = taskCount * durationMillis / threadCount;
         String msg = "expectedMillis="+expectedMillis+", elapsedMillis="+elapsedMillis;
         assertTrue(msg, elapsedMillis > 0.9*expectedMillis);
-        assertTrue(msg, elapsedMillis < 1.1*expectedMillis);  // This sometimes fails, don't know why, just run it again then.
+        assertTrue(msg, elapsedMillis < 1.5*expectedMillis);
     }
     
     public void testException() {
