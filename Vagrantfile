@@ -6,9 +6,9 @@ Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/xenial64"
 
   if not Vagrant::Util::Platform.windows? then
-    config.vm.synced_folder "~/.m2", "/home/ubuntu/.m2"
+    config.vm.synced_folder "~/.m2", "/home/vagrant/.m2"
     config.vm.synced_folder "~/.m2", "/root/.m2"
-    config.vm.synced_folder "~/.gnupg", "/home/ubuntu/.gnupg"
+    config.vm.synced_folder "~/.gnupg", "/home/vagrant/.gnupg"
   end
 
   config.vm.provider "virtualbox" do |vb|
