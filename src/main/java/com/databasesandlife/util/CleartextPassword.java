@@ -39,7 +39,7 @@ public class CleartextPassword implements Serializable {
      *     <li>the passwords can be written down (thus confusing characters are removed)</li>
      *     <li>and also that the password can be used in situations where special encoding is needed for example GET requests
      *          (thus there are no special characters.)</li>
-     * </ul></p>
+     * </ul>
      * <p>Make up for "lack of randomness" by making the password longer.</p>
      */
     public static @Nonnull CleartextPassword newRandom(int length) {
