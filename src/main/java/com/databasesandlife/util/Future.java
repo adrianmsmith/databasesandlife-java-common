@@ -4,6 +4,8 @@ import java.util.Iterator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import javax.annotation.Nonnull;
+
 /**
  * A future is the response of a calculation which is done in the background (in a thread).
  *     <p>
@@ -26,6 +28,11 @@ public abstract class Future<T> {
     protected abstract T populate();
     
     public static class FutureComputationTimedOutException extends Exception { }
+
+    /** An exception occurred during the population of this future */
+    public static class FuturePopulationException extends RuntimeException {
+        FuturePopulationException(@Nonnull Throwable t) { super(t); }
+    }
     
     @SuppressFBWarnings("SC_START_IN_CTOR")
     public Future() {
@@ -49,14 +56,14 @@ public abstract class Future<T> {
     }
     
     /** Same as {@link #get()} but times out after 'seconds' seconds. */
-    public T getOrTimeoutAfterSeconds(float seconds) throws FutureComputationTimedOutException {
+    public T getOrTimeoutAfterSeconds(float seconds) throws FutureComputationTimedOutException, FuturePopulationException {
         try { thread.join((int) (1000000 * seconds)); }
         catch (InterruptedException e) { throw new RuntimeException(e); }
         
         synchronized (this) {
             if (result == null && exception == null) throw new FutureComputationTimedOutException();
-            
-            if (exception != null) throw new RuntimeException(exception); // wrap exception to preserve its stack backtrace
+
+            if (exception != null) throw new FuturePopulationException(exception); // wrap exception to preserve its stack backtrace
             return result;
         }
     }
