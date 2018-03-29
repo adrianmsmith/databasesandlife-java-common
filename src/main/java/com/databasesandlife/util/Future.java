@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 public abstract class Future<T> {
 
     T result = null;
-    RuntimeException exception = null;
+    Exception exception = null;
     Thread thread;
     
     /** Calculate the result and return it. Must not return null. */
@@ -31,7 +31,7 @@ public abstract class Future<T> {
 
     /** An exception occurred during the population of this future */
     public static class FuturePopulationException extends RuntimeException {
-        FuturePopulationException(@Nonnull Throwable t) { super(t); }
+        FuturePopulationException(@Nonnull Exception cause) { super(cause); }
     }
     
     @SuppressFBWarnings("SC_START_IN_CTOR")
@@ -42,7 +42,7 @@ public abstract class Future<T> {
                     T localResult = populate();
                     synchronized (Future.this) { result = localResult; }
                 }
-                catch (RuntimeException e) {
+                catch (Exception e) {
                     synchronized (Future.this) { exception = e; } 
                 }
             }
