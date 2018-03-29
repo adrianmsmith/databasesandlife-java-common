@@ -2,6 +2,7 @@ package com.databasesandlife.util;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -192,7 +193,7 @@ public class EmailTemplate {
         velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, Log4JLogChute.class.getName());
         velocity.setProperty(Log4JLogChute.RUNTIME_LOG_LOG4J_LOGGER, getClass().getName());
 
-        Template template = velocity.getTemplate(findFile(leafNameStem, locale, ".velocity.utf8" + extension), "UTF-8");
+        Template template = velocity.getTemplate(findFile(leafNameStem, locale, ".velocity.utf8" + extension), StandardCharsets.UTF_8.name());
         VelocityContext ctx = new VelocityContext();
         for (Entry<String, ? extends Object> p : parameters.entrySet()) ctx.put(p.getKey(), p.getValue());
         ctx.put("esc", new EscapeTool());
@@ -369,7 +370,7 @@ public class EmailTemplate {
         try {
             String body = expandVelocityTemplate("body", locale, ".html", parameters);
             body = replaceImagesWithBaseURL(imageBaseUrl, body);
-            FileUtils.writeStringToFile(file, body, "UTF-8");
+            FileUtils.writeStringToFile(file, body, StandardCharsets.UTF_8.name());
             Logger.getLogger(getClass()).info("Successfully wrote email template to '"+file+"'");
         }
         catch (IOException e) { throw new RuntimeException(e); }

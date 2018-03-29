@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -47,8 +48,7 @@ public class MD5Hex {
     }
 
     public static String md5(String stuff) {
-        try { return md5(stuff.getBytes("UTF-8")); }
-        catch (UnsupportedEncodingException e) { throw new RuntimeException(e); }
+        return md5(stuff.getBytes(StandardCharsets.UTF_8));
     }
 
     public static String md5(CharSequence stuff) {

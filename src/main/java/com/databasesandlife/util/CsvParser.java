@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class CsvParser {
         public void processCsvLine(Map<String, String> line) { result.add(new HashMap<String, String>(line)); }
     }
 
-    protected Charset defaultCharset = Charset.forName("UTF-8");
+    protected Charset defaultCharset = StandardCharsets.UTF_8;
     protected Pattern fieldSeparatorRegexp = Pattern.compile(Pattern.quote(","));
     protected String fieldSeparator = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
     protected Set<String> desiredFields = null;

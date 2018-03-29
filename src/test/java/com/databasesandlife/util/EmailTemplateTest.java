@@ -1,6 +1,7 @@
 package com.databasesandlife.util;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class EmailTemplateTest extends TestCase {
         
         EmailTemplate.setLastBodyForTestingInsteadOfSendingEmails();
         new MyEmailTemplate().send(tx, new InternetAddress(recipient), new Locale("de"),
-            params, new ByteArrayAttachment("attachment.txt", "text/plain", "Hello".getBytes(Charset.forName("UTF-8"))));
+            params, new ByteArrayAttachment("attachment.txt", "text/plain", "Hello".getBytes(StandardCharsets.UTF_8)));
         assertTrue(EmailTemplate.getLastBodyForTesting().contains("alternative"));
         
         tx.commit();

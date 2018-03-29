@@ -16,6 +16,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import javax.xml.transform.OutputKeys;
@@ -88,7 +89,7 @@ public class InputOutputStreamUtil {
     throws IOException {
         FileOutputStream o = new FileOutputStream(f);
         try {
-            OutputStreamWriter w = new OutputStreamWriter(o, "UTF-8");
+            OutputStreamWriter w = new OutputStreamWriter(o, StandardCharsets.UTF_8);
             w.write(str, 0, str.length());
             w.close();
         }
@@ -128,19 +129,19 @@ public class InputOutputStreamUtil {
         InputStream stream = c.getClassLoader().getResourceAsStream(name + ".yaml");
         if (stream == null) throw new IllegalArgumentException("No '.yaml' file for class '" + c.getName() + "'");
         try {
-            BufferedReader yamlCharacterReader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            BufferedReader yamlCharacterReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             YamlReader yamlParser = new YamlReader(yamlCharacterReader);
             return yamlParser.read();
         }
         catch (IOException e) { throw new RuntimeException(e); }
-        finally { 
+        finally {
             try { stream.close(); }
-            catch (IOException e) { } 
+            catch (IOException e) { }
         }
     }
 
     public static void writeXmlToFile(File out, Element xml) {
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(out), "UTF-8")) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(out), StandardCharsets.UTF_8)) {
             prettyPrintXml(writer, xml);
         }
         catch (IOException e) { throw new RuntimeException(e); }

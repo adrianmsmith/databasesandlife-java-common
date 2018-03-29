@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -97,7 +98,7 @@ public class OutOfHeapTemporaryStorage {
         try {
             if (s.offset + s.byteLength != file.length()) throw new IllegalStateException("String is not at end of file");
             file.seek(file.length());
-            byte[] suffixBytes = suffix.getBytes("UTF-8");
+            byte[] suffixBytes = suffix.getBytes(StandardCharsets.UTF_8);
             file.write(suffixBytes);
             s.byteLength += suffixBytes.length;
         }
@@ -110,7 +111,7 @@ public class OutOfHeapTemporaryStorage {
             byte[] resultBytes = new byte[s.byteLength];
             int bytesRead = file.read(resultBytes);
             if (bytesRead != s.byteLength) throw new RuntimeException("Could not read entire string");
-            return new String(resultBytes, "UTF-8");
+            return new String(resultBytes, StandardCharsets.UTF_8);
         }
         catch (IOException e) { throw new RuntimeException(e); }
     }

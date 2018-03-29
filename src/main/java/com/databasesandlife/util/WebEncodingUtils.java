@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,9 +49,9 @@ public class WebEncodingUtils {
                 
                 for (String value : values) {
                     if (result.length() > 0) result.append("&");
-                    result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                    result.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name()));
                     result.append("=");
-                    result.append(URLEncoder.encode(value, "UTF-8"));
+                    result.append(URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
                 }
             }
             return result;
