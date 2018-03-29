@@ -87,13 +87,11 @@ public class InputOutputStreamUtil {
     /** @deprecated use Apache Commons, {@link FileUtils#writeStringToFile(File, String, String)} instead */
     public static void writeStringToFileUtf8(File f, String str)
     throws IOException {
-        FileOutputStream o = new FileOutputStream(f);
-        try {
+        try (FileOutputStream o = new FileOutputStream(f)) {
             OutputStreamWriter w = new OutputStreamWriter(o, StandardCharsets.UTF_8);
             w.write(str, 0, str.length());
             w.close();
         }
-        finally { o.close(); }
     }
 
     public static void writeBytesToOutputStream(OutputStream out, byte[] src) throws IOException {
@@ -126,18 +124,13 @@ public class InputOutputStreamUtil {
     /** If class is "X.java" then parse the "X.yaml" */
     public static Object parseYamlConfig(Class<?> c) {
         String name = c.getName().replaceAll("\\.", "/"); // e.g. "com/mypkg/MyClass"
-        InputStream stream = c.getClassLoader().getResourceAsStream(name + ".yaml");
-        if (stream == null) throw new IllegalArgumentException("No '.yaml' file for class '" + c.getName() + "'");
-        try {
+        try (InputStream stream = c.getClassLoader().getResourceAsStream(name + ".yaml")) {
+            if (stream == null) throw new IllegalArgumentException("No '.yaml' file for class '" + c.getName() + "'");
             BufferedReader yamlCharacterReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
             YamlReader yamlParser = new YamlReader(yamlCharacterReader);
             return yamlParser.read();
         }
         catch (IOException e) { throw new RuntimeException(e); }
-        finally {
-            try { stream.close(); }
-            catch (IOException e) { }
-        }
     }
 
     public static void writeXmlToFile(File out, Element xml) {

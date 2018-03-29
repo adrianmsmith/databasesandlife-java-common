@@ -21,14 +21,12 @@ import org.apache.log4j.PatternLayout;
 public class PerThreadLog4jAppenderTest extends TestCase {
     
     private static String readFile(File path) throws IOException {
-        FileInputStream stream = new FileInputStream(path);
-        try {
+        try (FileInputStream stream = new FileInputStream(path)) {
             FileChannel fc = stream.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
             /* Instead of using default, pass in a decoder. */
             return Charset.defaultCharset().decode(bb).toString();
-        } 
-        finally { stream.close(); }
+        }
     }
 
     public void test() throws Exception {

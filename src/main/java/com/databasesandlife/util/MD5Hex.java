@@ -69,15 +69,9 @@ public class MD5Hex {
 
     public static String md5(File stuff) {
        try {
-            FileInputStream fileStr = new FileInputStream(stuff);
-            try {
-                BufferedInputStream str = new BufferedInputStream(fileStr);
-                try {
-                    return MD5Hex.md5(str);
-                }
-                finally { str.close(); }
-            }
-            finally { fileStr.close(); }
+           try (BufferedInputStream str = new BufferedInputStream(new FileInputStream(stuff))) {
+               return MD5Hex.md5(str);
+           }
         }
         catch (IOException e) { throw new RuntimeException(e); }
     }

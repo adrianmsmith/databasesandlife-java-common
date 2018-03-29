@@ -139,13 +139,11 @@ public class CsvParser {
 
     public void parseAndCallHandler(CsvLineHandler lineHandler, File f) throws MalformedCsvException {
         try {
-            FileInputStream is = new FileInputStream(f);
-            try {
+            try (FileInputStream is = new FileInputStream(f)) {
                 Reader r = new UnicodeReader(is, defaultCharset.name());
                 BufferedReader br = new BufferedReader(r);
                 parseAndCallHandler(lineHandler, br);
             }
-            finally { is.close(); }
         }
         catch (FileNotFoundException e) { throw new MalformedCsvException("CSV file '"+f+"' doesn't exist"); }
         catch (IOException e) { throw new RuntimeException("CSV file '" + f + "': " + e.getMessage(), e); }
@@ -153,12 +151,10 @@ public class CsvParser {
     }
     
     public void parseAndCallHandler(CsvLineHandler lineHandler, Class<?> cl) throws MalformedCsvException {
-        try {
-            String name = cl.getName().replaceAll("\\.", "/"); // e.g. "com/offerready/MyClass"
-            InputStream csvStream = cl.getClassLoader().getResourceAsStream(name + ".csv");
+        String name = cl.getName().replaceAll("\\.", "/"); // e.g. "com/offerready/MyClass"
+        try (InputStream csvStream = cl.getClassLoader().getResourceAsStream(name + ".csv")) {
             if (csvStream == null) throw new IllegalArgumentException("No CSV file for class '" + cl.getName() + "'");
-            try { parseAndCallHandler(lineHandler, new BufferedReader(new InputStreamReader(csvStream, defaultCharset))); }
-            finally { csvStream.close(); }
+            parseAndCallHandler(lineHandler, new BufferedReader(new InputStreamReader(csvStream, defaultCharset)));
         }
         catch (IOException e) { throw new RuntimeException("CSV file for class " + cl + ": " + e.getMessage(), e); }
         catch (MalformedCsvException e) { throw new MalformedCsvException("CSV file for class " + cl + ": " + e.getMessage()); }
