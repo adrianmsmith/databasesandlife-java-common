@@ -9,7 +9,7 @@ import org.w3c.dom.NamedNodeMap;
  * Takes a DOM and an element name; 
  * each time that element name is found it is replaced with a specified other element (which may contain other elements).
  *    <p>
- * The element name, that is seached for, may exist in any namespace.
+ * The element name, that is searched for, may exist in any namespace.
  * The replaced element is changed to be within the namespace of the found element, before insertion
  * in the destination document.
  *

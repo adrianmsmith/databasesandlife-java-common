@@ -191,7 +191,7 @@ public class PropertiesUtil {
     public static String getPropertyOrThrow(String resourceBundleName, String key) {
         Properties p = getCachedPropertiesForResourceName(resourceBundleName);
         try { return getPropertyOrThrow(p, key); }
-        catch (RuntimeException e) { throw new RuntimeException("Exception occured while reading '" +
+        catch (RuntimeException e) { throw new RuntimeException("Exception occurred while reading '" +
                 resourceBundleName + "' properties file"); }
     }
 }
