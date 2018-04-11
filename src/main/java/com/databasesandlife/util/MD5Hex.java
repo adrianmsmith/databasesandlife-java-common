@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -85,5 +86,14 @@ public class MD5Hex {
             return md5(str.toString());
         }
         catch (TransformerException e) { throw new RuntimeException(e); }
+    }
+
+    public static String sha256hex(String stuff) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(stuff.getBytes(StandardCharsets.UTF_8));
+            return DatatypeConverter.printHexBinary(md.digest()).toLowerCase();
+        }
+        catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); }
     }
 }
