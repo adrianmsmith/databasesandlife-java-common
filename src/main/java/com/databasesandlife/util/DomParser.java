@@ -26,7 +26,7 @@ import javax.xml.xpath.*;
 public class DomParser {
 
     /** @param elementNames can be "*" */
-    protected static List<Element> getSubElements(Node container, String... elementNames) {
+    public static List<Element> getSubElements(Node container, String... elementNames) {
         boolean allElementsDesired = "*".equals(elementNames[0]);
         Set<String> elementNameSet = new HashSet<>(Arrays.asList(elementNames));
         
@@ -42,7 +42,7 @@ public class DomParser {
         return result;
     }
 
-    protected static void assertNoOtherElements(Node container, String... elements)
+    public static void assertNoOtherElements(Node container, String... elements)
     throws ConfigurationException {
         Set<String> elementsSet = new HashSet<>(Arrays.asList(elements));
         NodeList children = container.getChildNodes();
@@ -54,25 +54,25 @@ public class DomParser {
         }
     }
 
-    protected static String getMandatoryAttribute(Element node, String attributeName) throws ConfigurationException {
+    public static String getMandatoryAttribute(Element node, String attributeName) throws ConfigurationException {
         Attr attributeNode = node.getAttributeNode(attributeName); 
         if (attributeNode == null)
             throw new ConfigurationException("<" + node.getNodeName() + "> expects mandatory attribute '" + attributeName + "'");
         return attributeNode.getValue();
     }
 
-    protected static String getOptionalAttribute(Element node, String attributeName, String defaultValue) {
+    public static String getOptionalAttribute(Element node, String attributeName, String defaultValue) {
         Attr attributeNode = node.getAttributeNode(attributeName); 
         if (attributeNode == null) return defaultValue;
         return attributeNode.getValue();
     }
     
     /** @return null if the attribute is not defined */
-    protected static String getOptionalAttribute(Element node, String attributeName) {
+    public static String getOptionalAttribute(Element node, String attributeName) {
         return getOptionalAttribute(node, attributeName, null);
     }
     
-    protected static double parseMandatoryDoubleAttribute(Element node, String attributeName)
+    public static double parseMandatoryDoubleAttribute(Element node, String attributeName)
     throws ConfigurationException {
         String str = getMandatoryAttribute(node, attributeName);
         try { return Double.parseDouble(str); }
@@ -81,7 +81,7 @@ public class DomParser {
     }
 
     /** @return null if attribute not found */
-    protected static Integer parseOptionalIntegerAttribute(Element node, String attributeName)
+    public static Integer parseOptionalIntegerAttribute(Element node, String attributeName)
     throws ConfigurationException {
         String str = node.getAttribute(attributeName);
         if (str.equals("")) return null;
@@ -90,7 +90,7 @@ public class DomParser {
                 "='" + str + "'>: couldn't parse integer attribute"); }
     }
 
-    protected static int parseOptionalIntAttribute(Element node, String attributeName, int defaultValue)
+    public static int parseOptionalIntAttribute(Element node, String attributeName, int defaultValue)
     throws ConfigurationException {
         Integer result = parseOptionalIntegerAttribute(node, attributeName);
         if (result == null) return defaultValue;
@@ -101,7 +101,7 @@ public class DomParser {
      * @param subNodeName can be "*" 
      * @throws ConfigurationException if more than one element found
      */
-    protected static Element getMandatorySingleSubElement(Node node, String subNodeName) throws ConfigurationException {
+    public static Element getMandatorySingleSubElement(Node node, String subNodeName) throws ConfigurationException {
         List<Element> resultList = getSubElements(node, subNodeName);
         if (resultList.size() != 1) throw new ConfigurationException("<" + node.getNodeName() + ">: found " +
             resultList.size() + ("*".equals(subNodeName) ? " sub-elements" : (" <" + subNodeName + "> sub-elements")));
@@ -113,7 +113,7 @@ public class DomParser {
      * @return null if element not found 
      * @throws ConfigurationException if more than one element found
      */
-    protected static Element getOptionalSingleSubElement(Element node, String subNodeName) throws ConfigurationException {
+    public static Element getOptionalSingleSubElement(Element node, String subNodeName) throws ConfigurationException {
         List<Element> resultList = getSubElements(node, subNodeName);
         if (resultList.size() == 0) return null;
         else if (resultList.size() == 1) return resultList.get(0);
@@ -126,27 +126,27 @@ public class DomParser {
      * @return null if element not found 
      * @throws ConfigurationException if more than one element found
      */
-    protected static String getOptionalSingleSubElementTextContent(Element node, String subNodeName) throws ConfigurationException {
+    public static String getOptionalSingleSubElementTextContent(Element node, String subNodeName) throws ConfigurationException {
         Element el = getOptionalSingleSubElement(node, subNodeName);
         if (el == null) return null;
         else return el.getTextContent();
     }
 
-    protected static Set<String> parseSet(Element container, String elementName, String attribute)
+    public static Set<String> parseSet(Element container, String elementName, String attribute)
     throws ConfigurationException {
         Set<String> result = new HashSet<>();
         for (Element e : getSubElements(container, elementName)) result.add(getMandatoryAttribute(e, attribute));
         return result;
     }
 
-    protected static Set<String> parseSet(Element container, String elementName)
+    public static Set<String> parseSet(Element container, String elementName)
     throws ConfigurationException {
         Set<String> result = new HashSet<>();
         for (Element e : getSubElements(container, elementName)) result.add(e.getTextContent().trim());
         return result;
     }
 
-    protected static Map<String, String> parseMap(Element container, String elementName, String keyAttribute, String valueAttribute)
+    public static Map<String, String> parseMap(Element container, String elementName, String keyAttribute, String valueAttribute)
     throws ConfigurationException {
         Map<String, String> result = new HashMap<>();
         for (Element e : getSubElements(container, elementName))
@@ -154,7 +154,7 @@ public class DomParser {
         return result;
     }
 
-    protected static Map<String, String> parseMap(Element container, String elementName, String keyAttribute)
+    public static Map<String, String> parseMap(Element container, String elementName, String keyAttribute)
     throws ConfigurationException {
         Map<String, String> result = new HashMap<>();
         for (Element e : getSubElements(container, elementName))
@@ -162,7 +162,7 @@ public class DomParser {
         return result;
     }
     
-    protected static Map<String, Double> parseDoubleMap(Element container, String elementName, String keyAttribute, String valueAttribute)
+    public static Map<String, Double> parseDoubleMap(Element container, String elementName, String keyAttribute, String valueAttribute)
     throws ConfigurationException {
         Map<String, Double> result = new HashMap<>();
         for (Element e : getSubElements(container, elementName))
