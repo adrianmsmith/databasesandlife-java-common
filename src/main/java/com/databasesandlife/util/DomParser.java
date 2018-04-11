@@ -132,18 +132,28 @@ public class DomParser {
         else return el.getTextContent();
     }
 
+    public static List<String> parseList(Element container, String elementName, String attribute)
+        throws ConfigurationException {
+        List<String> result = new ArrayList<>();
+        for (Element e : getSubElements(container, elementName)) result.add(getMandatoryAttribute(e, attribute));
+        return result;
+    }
+
     public static Set<String> parseSet(Element container, String elementName, String attribute)
     throws ConfigurationException {
-        Set<String> result = new HashSet<>();
-        for (Element e : getSubElements(container, elementName)) result.add(getMandatoryAttribute(e, attribute));
+        return new HashSet<>(parseList(container, elementName, attribute));
+    }
+
+    public static List<String> parseList(Element container, String elementName)
+        throws ConfigurationException {
+        List<String> result = new ArrayList<>();
+        for (Element e : getSubElements(container, elementName)) result.add(e.getTextContent().trim());
         return result;
     }
 
     public static Set<String> parseSet(Element container, String elementName)
     throws ConfigurationException {
-        Set<String> result = new HashSet<>();
-        for (Element e : getSubElements(container, elementName)) result.add(e.getTextContent().trim());
-        return result;
+        return new HashSet<>(parseList(container, elementName));
     }
 
     public static Map<String, String> parseMap(Element container, String elementName, String keyAttribute, String valueAttribute)
