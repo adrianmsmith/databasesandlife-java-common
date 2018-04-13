@@ -231,19 +231,26 @@ public class DomParser {
 
     public static Element from(File f) throws ConfigurationException {
         try {
-            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            return db.parse(f).getDocumentElement();
+            return newDocumentBuilder().parse(f).getDocumentElement();
         }
-        catch (ParserConfigurationException | IOException e) { throw new RuntimeException(e); }
+        catch (IOException e) { throw new RuntimeException(e); }
         catch (SAXException e) { throw new ConfigurationException("File '"+f+"'", e); }
     }
 
     public static Element from(InputStream f) throws ConfigurationException {
         try {
-            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            return db.parse(f).getDocumentElement();
+            return newDocumentBuilder().parse(f).getDocumentElement();
         }
-        catch (ParserConfigurationException | IOException e) { throw new RuntimeException(e); }
+        catch (IOException e) { throw new RuntimeException(e); }
         catch (SAXException e) { throw new ConfigurationException(e); }
+    }
+
+    public static DocumentBuilder newDocumentBuilder() {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);     // See https://stackoverflow.com/a/49800040
+            return dbf.newDocumentBuilder();
+        }
+        catch (ParserConfigurationException e) { throw new RuntimeException(e); }
     }
 }

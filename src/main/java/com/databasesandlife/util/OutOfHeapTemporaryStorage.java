@@ -8,8 +8,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -155,14 +153,11 @@ public class OutOfHeapTemporaryStorage {
     
     protected synchronized Element readXml(OutOfHeapXml inFile) {
         try {
-            DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
-            dbfac.setNamespaceAware(true);
-            DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+            DocumentBuilder docBuilder = DomParser.newDocumentBuilder();
             InputSource inputSource = new InputSource(new StringReader(inFile.stringRepresentation.toString()));
             Document doc = docBuilder.parse(inputSource);
             return doc.getDocumentElement();
         }
-        catch (ParserConfigurationException e) { throw new RuntimeException(e); }
         catch (IOException e) { throw new RuntimeException(e); }
         catch (SAXException e) { throw new RuntimeException(e); }
     }
