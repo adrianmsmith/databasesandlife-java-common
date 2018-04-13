@@ -33,7 +33,7 @@ Vagrant.configure(2) do |config|
     echo "mysql-server-5.5 mysql-server/root_password_again password root" | sudo debconf-set-selections
     apt-get -qy install mysql-client mysql-server
     mysql -uroot -proot -e 'create database databasesandlife_common'
-    
+
     echo --- PostgreSQL
     apt-get -qy install postgresql postgresql-contrib
     (cd /tmp && sudo -u postgres psql -c "alter user postgres password 'postgres'" postgres)  # os user postgres cannot see /root dir
@@ -42,6 +42,7 @@ Vagrant.configure(2) do |config|
 
 #   echo --- Build the software and download all dependencies
 #   mvn -f /vagrant/pom.xml clean package    #this crashes Vagrant, don't know why
+    echo 'mvn -f /vagrant/pom.xml package' >> ~vagrant/.bash_history
   }
   
   config.vm.provision "shell", run: "always", inline: %q{
