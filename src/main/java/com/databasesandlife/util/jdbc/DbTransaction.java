@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -17,6 +18,7 @@ import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.Map.Entry;
@@ -445,6 +447,8 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                     ps.setLong(i+1, ((Long) args[i]).longValue());
                 else if (args[i] instanceof Double)
                     ps.setDouble(i+1, ((Double) args[i]).doubleValue());
+                else if (args[i] instanceof BigDecimal)
+                    ps.setBigDecimal(i+1, (BigDecimal) args[i]);
                 else if (args[i] instanceof java.util.Date)
                     switch (product) {
                         case mysql:
@@ -468,7 +472,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 else if (args[i] instanceof LocalTime)
                     ps.setTime(i+1, java.sql.Time.valueOf((LocalTime) args[i]));
                 else if (args[i] instanceof LocalDate)
-                    ps.setDate(i+1, java.sql.Date.valueOf((LocalDate) args[i])); 
+                    ps.setDate(i+1, java.sql.Date.valueOf((LocalDate) args[i]));
+                else if (args[i] instanceof LocalDateTime)
+                    ps.setTimestamp(i+1, java.sql.Timestamp.valueOf((LocalDateTime) args[i]));
                 else if (args[i] instanceof byte[])
                     ps.setBytes(i+1, (byte[]) args[i]);
                 else if (args[i] instanceof Enum<?>)
