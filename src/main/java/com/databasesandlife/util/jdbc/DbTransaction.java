@@ -39,6 +39,8 @@ import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static com.databasesandlife.util.gwtsafe.ConfigurationException.prefixExceptionMessage;
+
 /**
  * Represents a transaction against a database.
  *     <p>
@@ -129,8 +131,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     }
     
     public static class SqlException extends RuntimeException {
+        public SqlException(Throwable x) { super(x); }
         public SqlException(String x) { super(x); }
-        public SqlException(String x, Throwable t) { super(x, t); }
+        public SqlException(String prefix, Throwable t) { super(prefixExceptionMessage(prefix, t), t); }
     }
     
     public static class CannotConnectToDatabaseException extends RuntimeException {
@@ -520,7 +523,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             rs.close();
             return result;
         }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (SQLException e) { throw new SqlException(e); }
     }
     
     protected String getQuestionMarkForValue(Object value) {
@@ -677,7 +680,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                     ResultSet rs = ps.executeQuery();
                     return new DbQueryResultRowIterator(rs);
                 }
-                catch (SQLException e) { throw new SqlException(getSqlForLog(sql, args) + ": " + e.getMessage(), e); }
+                catch (SQLException e) { throw new SqlException(getSqlForLog(sql, args), e); }
             }
         };
     }
@@ -687,9 +690,9 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         return query(sql.toString(), args.toArray());
     }
     
-    public void execute(String sql, Object... args) {
+    public void execute(String sql, Object... args) throws SqlException {
         try { insertParamsToPreparedStatement(sql, args).executeUpdate(); } // returns int = row count processed; we ignore
-        catch (SQLException e) { throw new RuntimeException("database error ("+ getSqlForLog(sql, args)+"): " + e.getMessage(), e); }
+        catch (SQLException e) { throw new SqlException("database error ("+ getSqlForLog(sql, args)+")", e); }
     }
 
     /**
@@ -710,7 +713,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 connection.releaseSavepoint(initialState);
             }
         }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (SQLException e) { throw new SqlException(e); }
     }
 
     /** For normal delete where you don't expect a possible foreign key constraint violation, use {@link #execute(String, Object...)} instead */
@@ -727,7 +730,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             }
         }
         catch (UniqueConstraintViolation e) { throw new RuntimeException("Unreachable", e); }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        catch (SQLException e) { throw new SqlException(e); }
     }
     
     public void execute(CharSequence sql, List<?> args) {
@@ -796,7 +799,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 rollbackToSavepointAndThrowConstraintViolation(initialState, e); 
             }
         }
-        catch (ForeignKeyConstraintViolation | SQLException e) { throw new RuntimeException(e); }
+        catch (ForeignKeyConstraintViolation | SQLException e) { throw new SqlException(e); }
     }
     
     public void insertIgnoringUniqueConstraintViolations(String table, Map<String, ?> cols) {
@@ -843,7 +846,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 rollbackToSavepointAndThrowConstraintViolation(initialState, e); 
             }
         }
-        catch (ForeignKeyConstraintViolation | SQLException e) { throw new RuntimeException(e); }
+        catch (ForeignKeyConstraintViolation | SQLException e) { throw new SqlException(e); }
     }
     
     public void updateIgnoringUniqueConstraintViolations(String table, Map<String, ?> cols, String where, Object... whereParams) {
@@ -900,7 +903,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             for (RollbackListener l : rollbackListeners) l.transactionHasRolledback();
             closeConnection();
         }
-        catch (SQLException e) { throw new RuntimeException("Can't rollback: " + e.getMessage(), e); }
+        catch (SQLException e) { throw new SqlException("Can't rollback", e); }
     }
     
     public void commit() {
@@ -908,7 +911,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             getConnection().commit();
             closeConnection();
         }
-        catch (SQLException e) { throw new RuntimeException("Can't commit: " + e.getMessage(), e); }
+        catch (SQLException e) { throw new SqlException("Can't commit", e); }
     }
     
     public void rollbackIfConnectionStillOpen() {
