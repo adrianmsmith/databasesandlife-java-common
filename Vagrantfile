@@ -4,6 +4,7 @@
 Vagrant.configure(2) do |config|
   config.vm.hostname = "databasesandlife-java-common"
   config.vm.box = "ubuntu/xenial64"
+  config.vm.network "forwarded_port", guest: 9999, host: 3262   # Java debugging
 
   if not Vagrant::Util::Platform.windows? then
     config.vm.synced_folder "~/.m2", "/home/vagrant/.m2"
@@ -27,6 +28,7 @@ Vagrant.configure(2) do |config|
 
     echo --- Install Java 8 \(OpenJDK\) and Maven
     apt-get -qy install openjdk-8-jdk maven
+    echo 'export MAVEN_OPTS="-ea -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999"' >> /etc/environment
 
     echo --- MySQL
     echo "mysql-server-5.5 mysql-server/root_password password root" | sudo debconf-set-selections
