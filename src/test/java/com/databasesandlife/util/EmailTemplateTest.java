@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
 
+import com.databasesandlife.util.EmailTransaction.EmailSendingConfiguration;
 import junit.framework.TestCase;
 
 import com.databasesandlife.util.EmailTemplate.ByteArrayAttachment;
@@ -24,8 +25,8 @@ public class EmailTemplateTest extends TestCase {
     public void test() throws Exception {
         Map<String,String> params = new HashMap<>();
         params.put("NAME", "Adrian \u263c < >");
-        
-        EmailTransaction tx = new EmailTransaction(EmailTransaction.parseAddress("localhost"));
+
+        EmailTransaction tx = new EmailTransaction(new EmailSendingConfiguration(EmailTransaction.parseAddress("localhost")));
         
 //        new MyEmailTemplate().send(tx, new InternetAddress(recipient), new Locale("de"),
 //            params, new ByteArrayAttachment("attachment.txt", "text/plain", "Hello".getBytes()));

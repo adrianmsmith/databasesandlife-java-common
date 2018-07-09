@@ -1,13 +1,11 @@
 package com.databasesandlife.util;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -44,7 +42,7 @@ import com.databasesandlife.util.gwtsafe.ConfigurationException;
 public class EmailTransaction {
     
     // ------------------------------------------------------------------------
-    // Configuration classes
+    // SmtpServerConfiguration
     // ------------------------------------------------------------------------
     
     public static abstract class SmtpServerConfiguration { }
@@ -62,12 +60,22 @@ public class EmailTransaction {
         public String username, password;
         public TlsSmtpServerAddress() { port = 587; }
     }
+
+    // ------------------------------------------------------------------------
+    // EmailSendingConfiguration
+    // ------------------------------------------------------------------------
+
+    public static class EmailSendingConfiguration {
+        public @Nonnull SmtpServerConfiguration server;
+        public @Nonnull Map<String, String> extraHeaders = new HashMap<>();
+        public EmailSendingConfiguration(SmtpServerConfiguration server) { this.server = server; }
+    }
     
     // ------------------------------------------------------------------------
     // State
     // ------------------------------------------------------------------------
     
-    protected final SmtpServerConfiguration server;
+    protected final @Nonnull EmailSendingConfiguration config;
     protected final List<Message> messages = new ArrayList<>();
 
     // ------------------------------------------------------------------------
@@ -89,14 +97,14 @@ public class EmailTransaction {
         Properties props = new Properties();
         props.put("mail.transport.protocol", "smtp");
         
-        if (server instanceof MxSmtpConfiguration) {
-            props.put("mail.smtp.host", getHostForMxRecord(((MxSmtpConfiguration)server).mxAddress));
+        if (config.server instanceof MxSmtpConfiguration) {
+            props.put("mail.smtp.host", getHostForMxRecord(((MxSmtpConfiguration)config.server).mxAddress));
         }
-        if (server instanceof SmtpServerAddress) {
-            props.put("mail.smtp.host", ((SmtpServerAddress)server).host);
-            props.put("mail.smtp.port", ((SmtpServerAddress)server).port);
+        if (config.server instanceof SmtpServerAddress) {
+            props.put("mail.smtp.host", ((SmtpServerAddress)config.server).host);
+            props.put("mail.smtp.port", ((SmtpServerAddress)config.server).port);
         }
-        if (server instanceof TlsSmtpServerAddress) {
+        if (config.server instanceof TlsSmtpServerAddress) {
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
         }
@@ -104,10 +112,10 @@ public class EmailTransaction {
     }
 
     protected Session newSession() throws ConfigurationException {
-        if (server instanceof TlsSmtpServerAddress) {
+        if (config.server instanceof TlsSmtpServerAddress) {
             Authenticator auth = new Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    TlsSmtpServerAddress c = (TlsSmtpServerAddress) server;
+                    TlsSmtpServerAddress c = (TlsSmtpServerAddress) config.server;
                     return new PasswordAuthentication(c.username, c.password);
                 }
             };
@@ -122,13 +130,13 @@ public class EmailTransaction {
     // Public methods
     // ------------------------------------------------------------------------
     
-    public EmailTransaction(SmtpServerConfiguration server) throws ConfigurationException {
-        this.server = server;
+    public EmailTransaction(@Nonnull EmailSendingConfiguration config) throws ConfigurationException {
+        this.config = config;
         newSessionProperties(); // do MX lookup to check it works
     }
     
     /** Can be "foo" or "foo:123" or "foo:123|adrian|password" or "MX:foo.com" */
-    public static SmtpServerConfiguration parseAddress(String str) throws ConfigurationException {
+    public static @Nonnull SmtpServerConfiguration parseAddress(@Nonnull String str) throws ConfigurationException {
         Matcher m;
         
         m = Pattern.compile("^MX:(.+)$").matcher(str);
@@ -158,9 +166,14 @@ public class EmailTransaction {
         throw new ConfigurationException("SMTP config '"+str+"' not understood");
     }
 
-    public MimeMessage newMimeMessage() {
-        try { return new MimeMessage(newSession()); }
-        catch (ConfigurationException e) { throw new RuntimeException(e); }
+    public @Nonnull MimeMessage newMimeMessage() {
+        try {
+            MimeMessage result = new MimeMessage(newSession());
+            for (Map.Entry<String, String> header : config.extraHeaders.entrySet())
+                result.setHeader(header.getKey(), header.getValue());
+            return result;
+        }
+        catch (MessagingException | ConfigurationException e) { throw new RuntimeException(e); }
     }
     
     public void send(Message msg) {
