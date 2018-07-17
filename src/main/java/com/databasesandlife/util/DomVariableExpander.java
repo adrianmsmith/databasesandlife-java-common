@@ -27,10 +27,17 @@ import org.xml.sax.helpers.AttributesImpl;
  *    <p>
  * Usage:
  * <pre>
- *    Map&lt;String, String&gt; variables = ...
- *    Element elementWithVariables = ...
- *    Document elementExpanded = DomVariableExpander.expand(
- *       variableStyle, variables, elementWithVariables);</pre>
+ * try {
+ *     Map&lt;String, String&gt; variables = new Map&lt;&gt;() {{ put("foo", "value"); }};
+ *
+ *     // for example &lt;element attr="${foo}">${foo}&lt;/element>
+ *     Element elementWithVariables = ...
+ *
+ *     Document elementExpanded = DomVariableExpander.expand(
+ *       variableStyle, variables, elementWithVariables);
+ * }
+ * catch (VariableNotFoundException e) { .. }
+ * </pre>
  *   <p>
  * For the syntax of variables, see the {@link VariableSyntax} enum.
  *   <p>
@@ -52,12 +59,21 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
     }
     
     public enum VariableSyntax {
-        /** Accepts variables like ${foo} but not $foo */ 
+        /** Accepts variables like ${foo} but NOT $foo. */
         dollarThenBraces {
+            protected Pattern variablePattern = Pattern.compile("\\$\\{([\\w-]+)\\}");
             @Override public CharSequence expand(Map<String, String> variables, CharSequence template) throws VariableNotFoundException {
-                for (Entry<String,String> paramEntry : variables.entrySet())
-                    template = template.toString().replace("${" + paramEntry.getKey() + "}", paramEntry.getValue());
-                return template;
+                Matcher matcher = variablePattern.matcher(template);
+                StringBuffer result = new StringBuffer();
+                while (matcher.find()) {
+                    String variable = matcher.group(1);                   // ${xyz}
+                    String expansion = variables.get(variable);
+                    if (expansion == null) throw new VariableNotFoundException(
+                        "Variable '${" + variable + "}' is used in XML template, but is missing from map of variables");
+                    matcher.appendReplacement(result, Matcher.quoteReplacement(expansion));
+                }
+                matcher.appendTail(result);
+                return result;
             }
         },
         
@@ -78,7 +94,6 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
                 matcher.appendTail(result);
                 return result;
             }
-            
         };
         
         public abstract CharSequence expand(Map<String, String> variables, CharSequence template) throws VariableNotFoundException;
