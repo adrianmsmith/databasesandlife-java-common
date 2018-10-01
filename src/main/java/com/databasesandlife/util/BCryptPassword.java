@@ -3,6 +3,7 @@ package com.databasesandlife.util;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 
 /**
  * Wraps a string containing a BCrypt encrypted password.
@@ -11,7 +12,7 @@ import javax.annotation.Nonnull;
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
-public class BCryptPassword {
+public class BCryptPassword implements Serializable {
 
     public final @Nonnull String bcrypt;
 
