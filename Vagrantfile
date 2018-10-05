@@ -24,7 +24,7 @@ Vagrant.configure(2) do |config|
     echo --- General OS installation
     apt-get update
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -q -y    # grub upgrade warnings mess with the terminal
-    apt-get -q -y install vim subversion ntp unattended-upgrades
+    apt-get -q -y install vim ntp unattended-upgrades
 
     echo --- Install Java 8 \(OpenJDK\) and Maven
     apt-get -qy install openjdk-8-jdk maven
