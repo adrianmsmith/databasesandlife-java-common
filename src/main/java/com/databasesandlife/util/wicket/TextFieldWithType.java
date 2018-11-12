@@ -15,12 +15,11 @@ public class TextFieldWithType<T> extends TextField<T> {
     }
 
     // Wicket <= 6
-    @Override
     protected String getInputType() {
         return type;
     }
 
-    // Wicket >= 7
+    @Override
     protected String[] getInputTypes() {
         return new String[] { getInputType() };
     }

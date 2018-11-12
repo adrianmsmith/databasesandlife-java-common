@@ -4,7 +4,7 @@
 
     <groupId>com.databasesandlife</groupId>
     <artifactId>java-common</artifactId>
-    <version>6.1.0</version>
+    <version>7.0.0</version>
     <name>Databases and Life Java Common</name>
     <description>Utility classes developed at Adrian Smith Software (A.S.S.)</description>
     <url>https://github.com/adrianmsmith/databasesandlife-java-common</url>
@@ -129,7 +129,7 @@
                         <link>https://javamail.java.net/nonav/docs/api/</link>
                         <link>https://docs.jboss.org/hibernate/orm/3.3/api/</link>
                         <link>http://www.gwtproject.org/javadoc/latest/</link>
-                        <link>https://ci.apache.org/projects/wicket/apidocs/6.x/</link>
+                        <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
                     </links>
                     <show>public</show>
                     <nohelp>true</nohelp>
@@ -161,13 +161,13 @@
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-core</artifactId>
-            <version>6.6.0</version>
+            <version>8.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
-            <version>6.6.0</version>
+            <version>8.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -96,7 +96,7 @@ public class GroupedDropDownChoice<T extends Serializable> extends FormComponent
     }
     
     @Override
-    protected void convertInput(){
+    public void convertInput(){
         setConvertedInput(select.getConvertedInput());
     }
     

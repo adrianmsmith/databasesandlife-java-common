@@ -26,21 +26,10 @@ import org.apache.wicket.util.convert.IConverter;
  * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
 @SuppressWarnings("serial")
-public class TimeTextField<T> extends TextField<T> {
+public class TimeTextField<T> extends TextFieldWithType<T> {
 
     public TimeTextField(String id, IModel<T> model) {
-        super(id, model);
-    }
-
-    // Wicket <= 6
-    @Override
-    protected String getInputType() {
-        return "time";
-    }
-
-    // Wicket >= 7
-    protected String[] getInputTypes() {
-        return new String[] { getInputType() };
+        super(id, "time", model);
     }
 
     protected LocalTime parse(String str) {

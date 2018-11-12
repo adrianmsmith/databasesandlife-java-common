@@ -4,6 +4,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.model.Model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
@@ -19,7 +21,7 @@ public class ErrorAttributeAppender extends AttributeAppender {
     }
 
     @Override
-    protected String newValue(String currentValue, String appendValue) {
+    protected Serializable newValue(String currentValue, String appendValue) {
         if (componentHasError) {
             return super.newValue(currentValue, appendValue);
         }else{
