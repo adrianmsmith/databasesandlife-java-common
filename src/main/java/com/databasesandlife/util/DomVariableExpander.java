@@ -30,7 +30,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * try {
  *     Map&lt;String, String&gt; variables = new Map&lt;&gt;() {{ put("foo", "value"); }};
  *
- *     // for example &lt;element attr="${foo}">${foo}&lt;/element>
+ *     // for example &lt;element attr="${foo}"&gt;${foo}&lt;/element&gt;
  *     Element elementWithVariables = ...
  *
  *     Document elementExpanded = DomVariableExpander.expand(
