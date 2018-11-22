@@ -16,29 +16,46 @@ import com.databasesandlife.util.CsvParser.MalformedCsvException;
 public class CsvParserTest extends TestCase {
 
     public void testParse() throws MalformedCsvException {
-        CsvParser parser = new CsvParser();
-        parser.setDesiredFields("A", "B", "C");
-        parser.setNonEmptyFields("A");
-
         // Test normal case
-        List<Map<String,String>> x = parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B,C\na,b,c\nx,y,z\n")));
+        List<Map<String,String>> x = new CsvParser().parseToListOfMaps(new BufferedReader(new StringReader(
+            "A,B,C\n" +
+            "a,b,c\n" +
+            "x,y,z\n")));
         assertEquals(2, x.size());
         assertEquals("a", x.get(0).get("A"));
 
         // Wrong number of fields
-        try { parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B,C\na,b"))); fail(); }
+        try { new CsvParser().parseToListOfMaps(new BufferedReader(new StringReader("A,B,C\na,b"))); fail(); }
         catch (MalformedCsvException e) { assertTrue(e.getMessage().contains("Expected")); }
+    }
 
-        // Too many columns
-        try { parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B,C,WRONG\na,b,c,d"))); fail(); }
-        catch (MalformedCsvException e) { assertTrue(e.getMessage().contains("WRONG")); }
-
-        // Too few columns
-        try { parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B\na,b"))); fail(); }
+    public void testSetMandatoryFields() {
+        try {
+            CsvParser parser = new CsvParser();
+            parser.setMandatoryFields("C");
+            parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B\na,b")));
+            fail();
+        }
         catch (MalformedCsvException e) { assertTrue(e.getMessage().contains("C")); }
+    }
 
-        // Empty field
-        try { parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B,C\n,b,c"))); fail(); }
+    public void testSetAllowedFields() {
+        try {
+            CsvParser parser = new CsvParser();
+            parser.setAllowedFields("A", "B", "C");
+            parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B,C,WRONG\na,b,c,d")));
+            fail();
+        }
+        catch (MalformedCsvException e) { assertTrue(e.getMessage().contains("WRONG")); }
+    }
+
+    public void testSetNonEmptyFields() {
+        try {
+            CsvParser parser = new CsvParser();
+            parser.setNonEmptyFields("A");
+            parser.parseToListOfMaps(new BufferedReader(new StringReader("A,B,C\n,b,c"))); 
+            fail(); 
+        }
         catch (MalformedCsvException e) { assertTrue(e.getMessage().contains("A")); }
     }
 }
