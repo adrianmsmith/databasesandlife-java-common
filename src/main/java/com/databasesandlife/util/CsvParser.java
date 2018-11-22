@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 
 import com.google.gdata.util.io.base.UnicodeReader;
 
+import javax.annotation.Nonnull;
+
 /**
  * Parses CSV files.
  *
@@ -76,10 +78,10 @@ public class CsvParser {
     protected Charset defaultCharset = StandardCharsets.UTF_8;
     protected Pattern fieldSeparatorRegexp = Pattern.compile(Pattern.quote(","));
     protected String fieldSeparator = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
-    protected Set<String> desiredFields = null;
+    protected Set<String> mandatoryFields = null;
+    protected Set<String> allowedFields = null;
     protected Set<String> nonEmptyFields = null;
     protected Pattern endOfDataRegex = null;
-    protected boolean ignoreNotDesiredColumns = false;
     protected Pattern skipLinePattern = null;
 
     public void setEndOfDataRegex(Pattern p){ this.endOfDataRegex = p;}
@@ -87,28 +89,35 @@ public class CsvParser {
     public void setDefaultCharset(Charset c) { defaultCharset = c; }
     public void setFieldSeparatorRegexp(Pattern p) { fieldSeparatorRegexp = Pattern.compile(fieldSeparator.replace(",", p.toString()));}
     public void setFieldSeparator(String x) { setFieldSeparatorRegexp(Pattern.compile(Pattern.quote(x))); }
-    public void setIgnoreNotDesiredColumns(boolean b){ this.ignoreNotDesiredColumns = b;}
-    
-    /** Any fields found outside of this list cause an error */ 
-    public void setDesiredFields(String... f) { desiredFields = new HashSet<String>(Arrays.asList(f)); }
-    
+
+    /** If the CSV file is missing any columns from this list, that's an error */
+    public void setMandatoryFields(@Nonnull String... f) { mandatoryFields = new HashSet<>(Arrays.asList(f)); }
+
+    /** If the CSV file contains any columns not on this list, that's an error */
+    public void setAllowedFields(@Nonnull String... f) { allowedFields = new HashSet<>(Arrays.asList(f)); }
+
+    /** CSV header row must contain exactly these columns (not necessarily in this order) */
+    public void setDesiredFields(@Nonnull String... f) {
+        setMandatoryFields(f);
+        setAllowedFields(f);
+    }
+
     /** Any fields here must be present and have non-empty values */ 
-    public void setNonEmptyFields(String... f) { nonEmptyFields = new HashSet<String>(Arrays.asList(f)); }
+    public void setNonEmptyFields(@Nonnull String... f) { nonEmptyFields = new HashSet<>(Arrays.asList(f)); }
 
     public void parseAndCallHandler(CsvLineHandler lineHandler, BufferedReader r) throws MalformedCsvException {
         try {
             String headerLine = r.readLine();
             if (headerLine == null) throw new MalformedCsvException("File was empty (header line is mandatory)");
             String[] fieldForColIdx = fieldSeparatorRegexp.split(headerLine);
-            if (desiredFields != null) {
-                for (String desiredField : desiredFields)
-                    if ( ! containsField(Arrays.asList(fieldForColIdx),desiredField))
-                        throw new MalformedCsvException("Column '" + desiredField + "' is missing");
-                if(!ignoreNotDesiredColumns)
-                        for (String foundField : fieldForColIdx)
-                            if ( ! desiredFields.contains(foundField))
-                                throw new MalformedCsvException("Column '" + foundField + "' unexpected");
-            }
+            if (mandatoryFields != null)
+                for (String f : mandatoryFields)
+                    if ( ! containsField(Arrays.asList(fieldForColIdx),f))
+                        throw new MalformedCsvException("Column '" + f + "' is missing");
+            if (allowedFields != null)
+                for (String csvField : fieldForColIdx)
+                    if ( ! allowedFields.contains(csvField))
+                        throw new MalformedCsvException("Column '" + csvField + "' unexpected");
 
             int lineNumber = 1;
             Map<String, String> valueForField = new HashMap<>();
