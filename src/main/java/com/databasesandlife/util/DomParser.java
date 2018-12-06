@@ -133,7 +133,7 @@ public class DomParser {
     }
 
     public static List<String> parseList(Element container, String elementName, String attribute)
-        throws ConfigurationException {
+    throws ConfigurationException {
         List<String> result = new ArrayList<>();
         for (Element e : getSubElements(container, elementName)) result.add(getMandatoryAttribute(e, attribute));
         return result;
