@@ -16,15 +16,11 @@ import java.io.Serializable;
  */
 abstract public class CachingFutureModel<T extends Serializable> implements IModel<T> {
 
-    protected transient final @CheckForNull Future<T> future;
+    protected transient @CheckForNull Future<T> future;
     protected @CheckForNull T contents;
 
     public CachingFutureModel() {
-        future = new Future<T>() {
-            @Override protected T populate() {
-                return CachingFutureModel.this.populate();
-            }
-        };
+        refresh();
     }
 
     abstract protected @Nonnull T populate();
@@ -33,5 +29,13 @@ abstract public class CachingFutureModel<T extends Serializable> implements IMod
         if (future != null) contents = future.get();
         if (contents != null) return contents;
         throw new RuntimeException("Object serialized before future executed");
+    }
+    
+    public void refresh() {
+        future = new Future<T>() {
+            @Override protected T populate() {
+                return CachingFutureModel.this.populate();
+            }
+        };
     }
 }
