@@ -25,7 +25,7 @@ public abstract class Future<T> {
     Thread thread;
     
     /** Calculate the result and return it. Must not return null. */
-    protected abstract T populate();
+    protected abstract @Nonnull T populate();
     
     public static class FutureComputationTimedOutException extends Exception { }
 
@@ -56,7 +56,7 @@ public abstract class Future<T> {
     }
     
     /** Same as {@link #get()} but times out after 'seconds' seconds. */
-    public T getOrTimeoutAfterSeconds(float seconds) throws FutureComputationTimedOutException, FuturePopulationException {
+    public @Nonnull T getOrTimeoutAfterSeconds(float seconds) throws FutureComputationTimedOutException, FuturePopulationException {
         try { thread.join((int) (1000000 * seconds)); }
         catch (InterruptedException e) { throw new RuntimeException(e); }
         
@@ -69,7 +69,7 @@ public abstract class Future<T> {
     }
     
     /** Returns the object, waiting for its computation to be completed if necessary. */
-    public T get() {
+    public @Nonnull T get() {
         try { return getOrTimeoutAfterSeconds(0); }
         catch (FutureComputationTimedOutException e) { throw new RuntimeException("impossible", e); }
     }

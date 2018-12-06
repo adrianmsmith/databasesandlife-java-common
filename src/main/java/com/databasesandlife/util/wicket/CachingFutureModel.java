@@ -13,12 +13,11 @@ import java.io.Serializable;
  * Futures have the problem that they are not serializable.
  * Wicket only needs to serialize things after they've been displayed, i.e. after the future has delivered its results.
  * </p>
- * @param <T>
  */
 abstract public class CachingFutureModel<T extends Serializable> implements IModel<T> {
 
-    @CheckForNull protected transient final Future<T> future;
-    @CheckForNull protected T contents;
+    protected transient final @CheckForNull Future<T> future;
+    protected @CheckForNull T contents;
 
     public CachingFutureModel() {
         future = new Future<T>() {
@@ -30,7 +29,7 @@ abstract public class CachingFutureModel<T extends Serializable> implements IMod
 
     abstract protected @Nonnull T populate();
 
-    @Override public T getObject() {
+    @Override public @Nonnull T getObject() {
         if (future != null) contents = future.get();
         if (contents != null) return contents;
         throw new RuntimeException("Object serialized before future executed");
