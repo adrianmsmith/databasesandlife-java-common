@@ -624,6 +624,11 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         }
     }
 
+    public DbTransaction(DbServerProduct product, Connection connection) {
+        this.product = product;
+        this.connection = connection;
+    }
+
     public void addPostgresTypeForEnum(Class<? extends Enum<?>> enumClass, String postgresType) {
         postgresTypeForEnum.put(enumClass, postgresType);
     }
