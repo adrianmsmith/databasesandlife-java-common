@@ -1,6 +1,7 @@
 package com.databasesandlife.util;
 
 import java.util.Iterator;
+import java.util.function.Supplier;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -51,6 +52,18 @@ public abstract class Future<T> {
         thread.start();
     }
     
+    public static <Q> Future<Q> of(@Nonnull Supplier<Q> task) {
+        return new Future<Q>() {
+            protected Q populate() { return task.get(); }
+        };
+    }
+
+    public static Future<Integer> of(@Nonnull Runnable task) {
+        return new Future<Integer>() {
+            protected Integer populate() { task.run(); return 0; }
+        };
+    }
+
     protected String getThreadName() {
         return "Future-" + getClass().getSimpleName();
     }
