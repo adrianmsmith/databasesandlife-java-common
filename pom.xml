@@ -4,7 +4,7 @@
 
     <groupId>com.databasesandlife</groupId>
     <artifactId>java-common</artifactId>
-    <version>8.6.0</version>
+    <version>8.7.0</version>
     <name>Databases and Life Java Common</name>
     <description>Utility classes developed at Adrian Smith Software (A.S.S.)</description>
     <url>https://github.com/adrianmsmith/databasesandlife-java-common</url>
@@ -294,6 +294,18 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.8.11.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-core</artifactId>
+            <version>2.4.2.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.soap</groupId>
+            <artifactId>javax.xml.soap-api</artifactId>
+            <version>1.4.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
