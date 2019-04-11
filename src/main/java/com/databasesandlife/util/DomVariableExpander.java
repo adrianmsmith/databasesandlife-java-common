@@ -2,7 +2,7 @@ package com.databasesandlife.util;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +19,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -125,7 +126,8 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
         super.characters(expandedCharacters.toString().toCharArray(), 0, expandedCharacters.length());
     }
     
-    public static Document expand(VariableSyntax syntax, Map<String, String> variables, Node prototypeElement) throws VariableNotFoundException {
+    public static Document expand(Node prototypeElement, Function<TransformerHandler, ContentHandler> expander) 
+    throws TransformerException {
         try {
             Properties systemProperties = System.getProperties();
             systemProperties.remove("javax.xml.transform.TransformerFactory");
@@ -139,8 +141,7 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
             toResult.setResult(result);
             
             // Our transformer which expands variables into the above identity transformer
-            DomVariableExpander expander = new DomVariableExpander(syntax, variables, toResult);
-            SAXResult intoExpander = new SAXResult(expander);
+            SAXResult intoExpander = new SAXResult(expander.apply(toResult));
             
             // Perform the chain of transformations, and populate "result"
             DOMSource source = new DOMSource(prototypeElement);
@@ -150,9 +151,16 @@ public class DomVariableExpander extends IdentityForwardingSaxHandler {
             return (Document) result.getNode();
         }
         catch (TransformerConfigurationException e) { throw new RuntimeException(e); }
+    }
+
+    public static Document expand(VariableSyntax syntax, Map<String, String> variables, Node prototypeElement) throws VariableNotFoundException {
+        try {
+            return expand(prototypeElement, toResult -> new DomVariableExpander(syntax, variables, toResult));
+        }
+        catch (TransformerConfigurationException e) { throw new RuntimeException(e); }
         catch (TransformerException e) {
             if (e.getCause() instanceof VariableNotFoundException) throw (VariableNotFoundException) e.getCause();
-            throw new RuntimeException(e); 
+            throw new RuntimeException(e);
         }
     }
 }
