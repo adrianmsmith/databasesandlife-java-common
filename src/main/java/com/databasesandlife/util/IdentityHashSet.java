@@ -13,7 +13,7 @@ import java.util.Iterator;
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
-class IdentityHashSet<T> {
+public class IdentityHashSet<T> {
 
     protected final IdentityHashMap<T, Object> map = new IdentityHashMap<>();
 
@@ -23,6 +23,8 @@ class IdentityHashSet<T> {
 
     // Mutators
     public void add(T obj) { map.put(obj, null); }
+    public void addAll(Collection<T> objects) { for (T o : objects) add(o); }
+    public void addAll(T[] objects) { for (T o : objects) add(o); }
     public void remove(T obj) { map.remove(obj); }
 
     // Query

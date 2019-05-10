@@ -31,11 +31,16 @@ import static java.util.stream.Collectors.toMap;
  * In the case that any task throws an exception, this exception is thrown by the {@link #execute()} method.
  * If all tasks run to completion, the {@link #execute()} method returns with no value.
  *    <p>
- * Tasks can depend on other tasks. Use the {@link #addTaskWithDependencies(List, Runnable)} method to add a new task,
+ * Tasks can depend on other tasks. Use the {@link #addTaskWithDependencies(List, Runnable...)} method to add a new task,
  * which will only start in the first parameter after all the tasks in the second parameter have run to completion. All tasks in the List should have been
- * previously added using the normal {@link #addTask(Runnable...)} method, or themselves with {@link #addTaskWithDependencies(List, Runnable)}.
- *    </p>
+ * previously added using the normal {@link #addTask(Runnable...)} method, or themselves with {@link #addTaskWithDependencies(List, Runnable...)}.
  *    <p>
+ * Tasks can run "off pool". For example, in a thread pool doing CPU-intensive tasks, a long-running HTTP request should not 
+ * block the threads from performing their CPU-intensive tasks. An "off pool" task runs in its own thread (not a thread that's
+ * a member of the thread pool). The thread may still participate in dependency relationships, that is to say it's possible
+ * to schedule a normal task to occur after an "off pool" task has completed. See {@link #addTaskOffPool(Runnable...)} 
+ * and {@link #addTaskWithDependenciesOffPool(List, Runnable...)}.
+ *    <p>    
  * The difference to an {@link ExecutorService} is:
  * <ul>
  * <li>The processing of tasks can
@@ -54,6 +59,7 @@ import static java.util.stream.Collectors.toMap;
 public class ThreadPool {
 
     protected static class TaskWithDependencies {
+        boolean offPool;
         @Nonnull Runnable task;
         @Nonnull IdentityHashSet<Runnable> dependencies;
     }
@@ -63,7 +69,24 @@ public class ThreadPool {
     protected final IdentityHashSet<Runnable> readyTasks = new IdentityHashSet<>();
     protected final IdentityHashSet<Runnable> executingTasks = new IdentityHashSet<>();
     protected final Map<Runnable, List<TaskWithDependencies>> blockerTasks = new IdentityHashMap<>();
+    protected final IdentityHashSet<Runnable> blockedTasks = new IdentityHashSet<>();
     protected @CheckForNull Exception exceptionOrNull = null;
+    
+    protected synchronized void onTaskCompleted(Runnable nextTaskOrNull) {
+        executingTasks.remove(nextTaskOrNull);
+        for (TaskWithDependencies d : blockerTasks.getOrDefault(nextTaskOrNull, emptyList())) {
+            d.dependencies.remove(nextTaskOrNull);
+            if (d.dependencies.isEmpty()) {
+                if (d.offPool) {
+                    addTaskOffPool(d.task);
+                } else {
+                    readyTasks.add(d.task);
+                }
+                blockedTasks.remove(d.task);
+            }
+        }
+        blockerTasks.remove(nextTaskOrNull);
+    }
     
     protected class RunnerRunnable implements Runnable {
         @Override public void run() {
@@ -86,14 +109,7 @@ public class ThreadPool {
                         }
                     }
                     finally {
-                        synchronized (ThreadPool.this) {
-                            executingTasks.remove(nextTaskOrNull);
-                            for (TaskWithDependencies d : blockerTasks.getOrDefault(nextTaskOrNull, emptyList())) {
-                                d.dependencies.remove(nextTaskOrNull);
-                                if (d.dependencies.isEmpty()) readyTasks.add(d.task);
-                            }
-                            blockerTasks.remove(nextTaskOrNull);
-                        }
+                        onTaskCompleted(nextTaskOrNull);
                     }
                 } else {
                     // it might be that other tasks are running, and they will produce lots more tasks
@@ -108,24 +124,25 @@ public class ThreadPool {
     public void setThreadCount(int count) { threadCount = count; }
     public void setThreadNamePrefix(String prefix) { threadNamePrefix = prefix; }
     
-    public synchronized void addTaskWithDependencies(List<Runnable> dependencies, Runnable r) {
-        for (Iterator<Runnable> i = dependencies.iterator(); i.hasNext(); ) {
-            Runnable dep = i.next();
-            if (executingTasks.contains(dep)) continue;
-            if (readyTasks.contains(dep)) continue;
-            i.remove();
-        }
+    public synchronized void addTaskWithDependencies(List<? extends Runnable> dependencies, Runnable... after) {
+        List<Runnable> stillScheduledDependencies = dependencies.stream()
+            .filter(dep -> executingTasks.contains(dep) || readyTasks.contains(dep) || blockedTasks.contains(dep))
+            .collect(Collectors.toList());
 
-        if (dependencies.isEmpty()) {
-            readyTasks.add(r);
+        if (stillScheduledDependencies.isEmpty()) {
+            readyTasks.addAll(after);
         } else {
-            TaskWithDependencies d = new TaskWithDependencies();
-            d.task = r;
-            d.dependencies = new IdentityHashSet<>(dependencies);
+            for (Runnable job : after) {
+                blockedTasks.add(job);
 
-            for (Runnable dep : dependencies) {
-                blockerTasks.putIfAbsent(dep, new ArrayList<>());
-                blockerTasks.get(dep).add(d);
+                TaskWithDependencies d = new TaskWithDependencies();
+                d.task = job;
+                d.dependencies = new IdentityHashSet<>(stillScheduledDependencies);
+
+                for (Runnable dep : stillScheduledDependencies) {
+                    blockerTasks.putIfAbsent(dep, new ArrayList<>());
+                    blockerTasks.get(dep).add(d);
+                }
             }
         }
     }
@@ -137,6 +154,54 @@ public class ThreadPool {
 
     public void addTasks(Collection<Runnable> tasks) {
         addTask(tasks.toArray(new Runnable[0]));
+    }
+
+    /**
+     * Add a task which runs in its own thread. 
+     * Intended for CPU-bound thread pools which require a task to be completed which does not 
+     * consume CPU for example an HTTP request.
+     */
+    public synchronized void addTaskOffPool(Runnable... tasks) {
+        for (Runnable t : tasks) {
+            executingTasks.add(t);
+            new Thread(() -> {
+                try {
+                    t.run();
+                }
+                catch (Exception e) {
+                    synchronized (ThreadPool.this) {
+                        exceptionOrNull = e;
+                    }
+                }
+                finally {
+                    onTaskCompleted(t);
+                }
+            }).start();
+        }
+    }
+
+    public synchronized void addTaskWithDependenciesOffPool(List<? extends Runnable> dependencies, Runnable... after) {
+        List<Runnable> stillScheduledDependencies = dependencies.stream()
+            .filter(dep -> executingTasks.contains(dep) || readyTasks.contains(dep) || blockedTasks.contains(dep))
+            .collect(Collectors.toList());
+
+        if (stillScheduledDependencies.isEmpty()) {
+            addTaskOffPool(after);
+        } else {
+            for (Runnable job : after) {
+                blockedTasks.add(job);
+
+                TaskWithDependencies d = new TaskWithDependencies();
+                d.offPool = true;
+                d.task = job;
+                d.dependencies = new IdentityHashSet<>(stillScheduledDependencies);
+
+                for (Runnable dep : stillScheduledDependencies) {
+                    blockerTasks.putIfAbsent(dep, new ArrayList<>());
+                    blockerTasks.get(dep).add(d);
+                }
+            }
+        }
     }
 
     public void execute() {
