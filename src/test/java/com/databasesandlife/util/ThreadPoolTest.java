@@ -14,7 +14,7 @@ import static java.util.Arrays.asList;
  */
 public class ThreadPoolTest extends TestCase {
 
-    public void testException() {
+    public void testExecute_exception() {
         Runnable throwException = new Runnable() {
             @Override public void run() {
                 throw new RuntimeException("foo");
@@ -51,11 +51,33 @@ public class ThreadPoolTest extends TestCase {
         catch (InterruptedException e) { throw new RuntimeException(e); }
     }
 
+    public void testAddTask_fromOtherTask() {
+        StringBuffer output = new StringBuffer();
+
+        ThreadPool threads = new ThreadPool();
+        threads.setThreadCount(10);
+        
+        // 0 -> 11 -> 2222 -> 33333333 (8x)
+        class Task implements Runnable {
+            int value;
+            public Task(int v) { value = v; }
+
+            @Override public void run() {
+                if (value == 3) output.append(value);
+                else threads.addTask(new Task(value + 1), new Task(value + 1));
+            }
+        }
+        
+        threads.addTask(new Task(0));
+        threads.execute();
+        assertEquals("33333333", output.toString());
+    }
+
     public void testAddTaskWithDependencies() {
         ThreadPool runTests = new ThreadPool();
         runTests.setThreadCount(10);
 
-         for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 10; i++) {
             int threadCount = i;
             runTests.addTask(() -> {
                 StringBuffer output = new StringBuffer();
