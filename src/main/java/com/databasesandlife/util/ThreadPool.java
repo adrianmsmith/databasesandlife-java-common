@@ -74,6 +74,9 @@ public class ThreadPool {
     
     protected synchronized void onTaskCompleted(Runnable nextTaskOrNull) {
         executingTasks.remove(nextTaskOrNull);
+        
+        if (exceptionOrNull != null) return;
+        
         for (TaskWithDependencies d : blockerTasks.getOrDefault(nextTaskOrNull, emptyList())) {
             d.dependencies.remove(nextTaskOrNull);
             if (d.dependencies.isEmpty()) {
@@ -210,7 +213,6 @@ public class ThreadPool {
             .collect(Collectors.toList());
         for (Thread t : threads) t.start();
         for (Thread t : threads) try { t.join(); } catch (InterruptedException e) { exceptionOrNull = e; }
-        if (exceptionOrNull instanceof RuntimeException) throw (RuntimeException)exceptionOrNull;
-        else if (exceptionOrNull != null) throw new RuntimeException(exceptionOrNull);
+        if (exceptionOrNull != null) throw new RuntimeException(exceptionOrNull);
     }
 }
