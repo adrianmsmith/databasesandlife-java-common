@@ -29,7 +29,7 @@ public class ThreadPoolTest extends TestCase {
                 fail("No exception thrown");
             }
             catch (RuntimeException e) {
-                assertEquals("foo", e.getMessage());
+                assertEquals("foo", e.getCause().getMessage());
             }
         }
 
@@ -41,7 +41,7 @@ public class ThreadPoolTest extends TestCase {
                 fail("No exception thrown");
             }
             catch (RuntimeException e) {
-                assertEquals("foo", e.getMessage());
+                assertEquals("foo", e.getCause().getMessage());
             }
         }
     }
