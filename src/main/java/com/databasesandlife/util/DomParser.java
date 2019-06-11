@@ -12,11 +12,19 @@ import java.util.Set;
 import org.w3c.dom.*;
 
 import com.databasesandlife.util.gwtsafe.ConfigurationException;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.*;
 
 /**
@@ -245,6 +253,17 @@ public class DomParser {
         catch (SAXException e) { throw new ConfigurationException(e); }
     }
 
+    public static @Nonnull Element from(@Nonnull String xmlValue) throws ConfigurationException {
+        try {
+            DocumentBuilder docBuilder = newDocumentBuilder();
+            InputSource inputSource = new InputSource(new StringReader(xmlValue));
+            Document doc = docBuilder.parse(inputSource);
+            return doc.getDocumentElement();
+        }
+        catch (IOException e) { throw new RuntimeException(e); }
+        catch (SAXException e) { throw new ConfigurationException(e); }
+    }
+
     public static DocumentBuilder newDocumentBuilder() {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -252,5 +271,18 @@ public class DomParser {
             return dbf.newDocumentBuilder();
         }
         catch (ParserConfigurationException e) { throw new RuntimeException(e); }
+    }
+
+    public static @Nonnull String formatXml(@Nonnull Element element) {
+        try {
+            StringWriter str = new StringWriter();
+
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty("omit-xml-declaration","yes");
+            transformer.transform(new DOMSource(element), new StreamResult(str));
+
+            return str.toString();
+        }
+        catch (TransformerException e) { throw new RuntimeException(e); }
     }
 }
