@@ -147,7 +147,6 @@ public class OutOfHeapTemporaryStorage {
             
             xml.stringRepresentation.append(str.toString());
         }
-        catch (TransformerConfigurationException e) { throw new RuntimeException(e); }
         catch (TransformerException e) { throw new RuntimeException(e); }
     }
     
@@ -158,7 +157,6 @@ public class OutOfHeapTemporaryStorage {
             Document doc = docBuilder.parse(inputSource);
             return doc.getDocumentElement();
         }
-        catch (IOException e) { throw new RuntimeException(e); }
-        catch (SAXException e) { throw new RuntimeException(e); }
+        catch (IOException | SAXException e) { throw new RuntimeException(e); }
     }
 }
