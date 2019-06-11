@@ -207,6 +207,7 @@ public class ThreadPool {
         }
     }
 
+    /** See {@link #unwrapException(RuntimeException, Class)} to how to handle checked exceptions */
     public void execute() {
         List<Thread> threads = IntStream.range(0, threadCount)
             .mapToObj(i -> new Thread(new RunnerRunnable(), threadNamePrefix+"-thread"+i))
@@ -214,5 +215,33 @@ public class ThreadPool {
         for (Thread t : threads) t.start();
         for (Thread t : threads) try { t.join(); } catch (InterruptedException e) { exceptionOrNull = e; }
         if (exceptionOrNull != null) throw new RuntimeException(exceptionOrNull);
+    }
+    
+    /** 
+     * After {@link #execute()} runs, use this method, once per checked exception that your Runnables might throw.
+     * This can handle the case that you wrap your exception in a RuntimeException, or the case that you use @SneakyThrows.
+     * <p>
+     * For example:
+     * <pre>
+     * catch (RuntimeException e) {
+     *     unwrapException(e, RequestInvalidException.class);
+     *     unwrapException(e, TransformationFailedException.class);
+     *     throw e;
+     * }
+     * </pre>
+     * </p>
+     */
+    @SuppressWarnings("unchecked")
+    public static <E extends Exception> void unwrapException(@Nonnull RuntimeException e, @Nonnull Class<E> exceptionClass) throws E {
+        // runnable must wrap checked exception, then threads.execute wraps it again
+        if (e.getCause() != null
+            && e.getCause().getCause() != null
+            && exceptionClass.isAssignableFrom(e.getCause().getCause().getClass()))
+            throw (E) e.getCause().getCause();
+
+        // @SneakyThrows doesn't wrap, then threads.execute wraps it
+        if (e.getCause() != null
+            && exceptionClass.isAssignableFrom(e.getCause().getClass()))
+            throw (E) e.getCause();
     }
 }
