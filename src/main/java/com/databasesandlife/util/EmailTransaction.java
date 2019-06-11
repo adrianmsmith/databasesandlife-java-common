@@ -183,6 +183,7 @@ public class EmailTransaction {
     public void commit() {
         try (Timer ignored = new Timer(getClass().getSimpleName()+".commit")) {
             ThreadPool threads = new ThreadPool();
+            threads.setThreadNamePrefix(getClass().getSimpleName() + ".commit");
             threads.setThreadCount(3); // Have some parallelism but do not overload the remote SMTP server
             for (Message msg : messages) {
                 threads.addTask(() -> {
