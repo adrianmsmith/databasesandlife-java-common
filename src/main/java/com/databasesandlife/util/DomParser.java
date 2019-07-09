@@ -19,10 +19,7 @@ import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.*;
@@ -278,7 +275,22 @@ public class DomParser {
             StringWriter str = new StringWriter();
 
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty("omit-xml-declaration","yes");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,"yes");
+            transformer.transform(new DOMSource(element), new StreamResult(str));
+
+            return str.toString();
+        }
+        catch (TransformerException e) { throw new RuntimeException(e); }
+    }
+    
+    public static @Nonnull String formatXmlPretty(@Nonnull Element element) {
+        try {
+            StringWriter str = new StringWriter();
+            
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,"yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(new DOMSource(element), new StreamResult(str));
 
             return str.toString();
