@@ -72,13 +72,13 @@ public class ThreadPool {
     protected final IdentityHashSet<Runnable> blockedTasks = new IdentityHashSet<>();
     protected @CheckForNull Exception exceptionOrNull = null;
     
-    protected synchronized void onTaskCompleted(Runnable nextTaskOrNull) {
-        executingTasks.remove(nextTaskOrNull);
+    protected synchronized void onTaskCompleted(Runnable task) {
+        executingTasks.remove(task);
         
         if (exceptionOrNull != null) return;
         
-        for (TaskWithDependencies d : blockerTasks.getOrDefault(nextTaskOrNull, emptyList())) {
-            d.dependencies.remove(nextTaskOrNull);
+        for (TaskWithDependencies d : blockerTasks.getOrDefault(task, emptyList())) {
+            d.dependencies.remove(task);
             if (d.dependencies.isEmpty()) {
                 if (d.offPool) {
                     addTaskOffPool(d.task);
@@ -88,7 +88,7 @@ public class ThreadPool {
                 blockedTasks.remove(d.task);
             }
         }
-        blockerTasks.remove(nextTaskOrNull);
+        blockerTasks.remove(task);
     }
     
     protected class RunnerRunnable implements Runnable {
