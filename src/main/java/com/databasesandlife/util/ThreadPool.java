@@ -1,5 +1,7 @@
 package com.databasesandlife.util;
 
+import org.apache.log4j.Logger;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -85,6 +87,8 @@ public class ThreadPool {
     protected @CheckForNull Throwable exceptionOrNull = null;
     
     protected synchronized void onTaskCompleted(Runnable task) {
+        Logger.getLogger(getClass()).debug("--- Processing removal of " + task + ":");
+        
         executingTasks.remove(task);
         
         if (exceptionOrNull != null) return;
@@ -96,14 +100,18 @@ public class ThreadPool {
             d.dependencies.remove(task);
             if (d.dependencies.isEmpty()) {
                 if (d.offPool) {
+                    Logger.getLogger(getClass()).debug("Will add "+d.task+" (off pool)");
                     addTaskOffPool(d.task);
                 } else {
+                    Logger.getLogger(getClass()).debug("Will add "+d.task+" to ready tasks");
                     readyTasks.add(d.task);
                 }
                 blockedTasks.remove(d.task);
             }
         }
         blockerTasks.remove(task);
+
+        Logger.getLogger(getClass()).debug(this);
     }
     
     protected class RunnerRunnable implements Runnable {
@@ -264,5 +272,22 @@ public class ThreadPool {
         if (e.getCause() != null
             && exceptionClass.isAssignableFrom(e.getCause().getClass()))
             throw (E) e.getCause();
+    }
+
+    protected void addTasksToString(StringBuilder result, String indent, Runnable task, int blockedByCount) {
+        result.append(indent).append(task.toString());
+        List<TaskWithDependencies> dependents = blockerTasks.getOrDefault(task, emptyList());
+        if (blockedByCount > 0) result.append(" (blocked by ").append(blockedByCount).append(" tasks)");
+        if ( ! dependents.isEmpty()) result.append(", and thereafter:");
+        result.append("\n");
+        for (TaskWithDependencies dependent : dependents)
+            addTasksToString(result, indent+"  ", dependent.task, dependent.dependencies.size());
+    }
+
+    @Override public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (Runnable r : executingTasks) addTasksToString(result, "", r, 0);
+        for (Runnable r : readyTasks)     addTasksToString(result, "", r, 0);
+        return result.toString();
     }
 }

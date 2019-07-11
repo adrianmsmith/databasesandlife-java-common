@@ -13,7 +13,7 @@ import java.util.Iterator;
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
-public class IdentityHashSet<T> {
+public class IdentityHashSet<T> implements Iterable<T> {
 
     protected final IdentityHashMap<T, Object> map = new IdentityHashMap<>();
 
@@ -30,5 +30,6 @@ public class IdentityHashSet<T> {
     // Query
     public boolean contains(T obj) { return map.containsKey(obj); }
     public Iterator<T> iterator() { return map.keySet().iterator(); }
+    public int size() { return map.size(); }
     public boolean isEmpty() { return map.isEmpty(); }
 }
