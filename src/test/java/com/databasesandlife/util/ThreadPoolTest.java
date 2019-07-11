@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import com.databasesandlife.util.ThreadPool.SynchronizationPoint;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
@@ -121,6 +123,39 @@ public class ThreadPoolTest extends TestCase {
         }
 
         runTests.execute();
+    }
+
+    public void testAddTaskWithDependencies_ScheduleDependencyInAnyOrder_AthenB() {
+        StringBuilder result = new StringBuilder();
+        ThreadPool threads = new ThreadPool();
+        threads.setThreadCount(2);
+
+        threads.addTask(() -> {
+            SynchronizationPoint sl = new SynchronizationPoint();
+            threads.addTask(() -> { result.append("a"); threads.addTask(sl); });
+            sleep(0.3); // presumably now sl will be done, but we can still depend on it
+            threads.addTaskWithDependencies(singletonList(sl), () -> result.append("b"));
+        });
+
+        threads.execute();
+
+        assertEquals("ab", result.toString());
+    }
+
+    public void testAddTaskWithDependencies_ScheduleDependencyInAnyOrder_BthenA() {
+        StringBuilder result = new StringBuilder();
+        ThreadPool threads = new ThreadPool();
+        threads.setThreadCount(2);
+        
+        threads.addTask(() -> {
+            SynchronizationPoint sl = new SynchronizationPoint();
+            threads.addTaskWithDependencies(singletonList(sl), () -> result.append("b"));
+            threads.addTask(() -> { result.append("a"); sleep(0.3); threads.addTask(sl); });
+        });
+        
+        threads.execute();
+        
+        assertEquals("ab", result.toString());
     }
 
     public void testAddTaskOffPool() {

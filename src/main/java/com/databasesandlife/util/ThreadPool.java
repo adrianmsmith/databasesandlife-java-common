@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Runs a number of {@link Runnable} tasks in a number of threads (over a number of CPU cores).
@@ -35,6 +34,10 @@ import static java.util.stream.Collectors.toMap;
  * which will only start in the first parameter after all the tasks in the second parameter have run to completion. All tasks in the List should have been
  * previously added using the normal {@link #addTask(Runnable...)} method, or themselves with {@link #addTaskWithDependencies(List, Runnable...)}.
  *    <p>
+ * If task A must be executed before task B, normally task A is added first, and B (with dependency on A) is added afterwards.
+ * Therefore, when B is added, if A cannot be found, it is assumed to be already finished and B is scheduled immediately.
+ * However, if it is unknown in which order tasks will be added, then A can implement {@link ScheduleDependencyInAnyOrder}.
+ *    <p>
  * Tasks can run "off pool". For example, in a thread pool doing CPU-intensive tasks, a long-running HTTP request should not 
  * block the threads from performing their CPU-intensive tasks. An "off pool" task runs in its own thread (not a thread that's
  * a member of the thread pool). The thread may still participate in dependency relationships, that is to say it's possible
@@ -58,6 +61,14 @@ import static java.util.stream.Collectors.toMap;
  */
 public class ThreadPool {
 
+    /** A dependency which implements this can be added before or after the task that depends on it */
+    public interface ScheduleDependencyInAnyOrder extends Runnable { }
+
+    /** A task that performs no work, but upon which can be waited, and which can be added when some other work is finished. */
+    public static class SynchronizationPoint implements ScheduleDependencyInAnyOrder {
+        @Override public void run() { }
+    }
+    
     protected static class TaskWithDependencies {
         boolean offPool;
         @Nonnull Runnable task;
@@ -70,12 +81,16 @@ public class ThreadPool {
     protected final IdentityHashSet<Runnable> executingTasks = new IdentityHashSet<>();
     protected final Map<Runnable, List<TaskWithDependencies>> blockerTasks = new IdentityHashMap<>();
     protected final IdentityHashSet<Runnable> blockedTasks = new IdentityHashSet<>();
+    protected final IdentityHashSet<ScheduleDependencyInAnyOrder> doneAnyOrderDependencies = new IdentityHashSet<>();
     protected @CheckForNull Throwable exceptionOrNull = null;
     
     protected synchronized void onTaskCompleted(Runnable task) {
         executingTasks.remove(task);
         
         if (exceptionOrNull != null) return;
+        
+        if (task instanceof ScheduleDependencyInAnyOrder) 
+            doneAnyOrderDependencies.add((ScheduleDependencyInAnyOrder) task);
         
         for (TaskWithDependencies d : blockerTasks.getOrDefault(task, emptyList())) {
             d.dependencies.remove(task);
@@ -131,7 +146,9 @@ public class ThreadPool {
     
     public synchronized void addTaskWithDependencies(List<? extends Runnable> dependencies, Runnable... after) {
         List<Runnable> stillScheduledDependencies = dependencies.stream()
-            .filter(dep -> executingTasks.contains(dep) || readyTasks.contains(dep) || blockedTasks.contains(dep))
+            .filter(dep -> dep instanceof ScheduleDependencyInAnyOrder ||
+                executingTasks.contains(dep) || readyTasks.contains(dep) || blockedTasks.contains(dep))
+            .filter(dep -> ! (dep instanceof ScheduleDependencyInAnyOrder && doneAnyOrderDependencies.contains((ScheduleDependencyInAnyOrder) dep)))
             .collect(Collectors.toList());
 
         if (stillScheduledDependencies.isEmpty()) {
@@ -187,7 +204,9 @@ public class ThreadPool {
 
     public synchronized void addTaskWithDependenciesOffPool(List<? extends Runnable> dependencies, Runnable... after) {
         List<Runnable> stillScheduledDependencies = dependencies.stream()
-            .filter(dep -> executingTasks.contains(dep) || readyTasks.contains(dep) || blockedTasks.contains(dep))
+            .filter(dep -> dep instanceof ScheduleDependencyInAnyOrder || 
+                executingTasks.contains(dep) || readyTasks.contains(dep) || blockedTasks.contains(dep))
+            .filter(dep -> ! (dep instanceof ScheduleDependencyInAnyOrder && doneAnyOrderDependencies.contains((ScheduleDependencyInAnyOrder) dep)))
             .collect(Collectors.toList());
 
         if (stillScheduledDependencies.isEmpty()) {
