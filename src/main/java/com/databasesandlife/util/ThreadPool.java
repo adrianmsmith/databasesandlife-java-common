@@ -70,7 +70,7 @@ public class ThreadPool {
     protected final IdentityHashSet<Runnable> executingTasks = new IdentityHashSet<>();
     protected final Map<Runnable, List<TaskWithDependencies>> blockerTasks = new IdentityHashMap<>();
     protected final IdentityHashSet<Runnable> blockedTasks = new IdentityHashSet<>();
-    protected @CheckForNull Exception exceptionOrNull = null;
+    protected @CheckForNull Throwable exceptionOrNull = null;
     
     protected synchronized void onTaskCompleted(Runnable task) {
         executingTasks.remove(task);
@@ -106,7 +106,9 @@ public class ThreadPool {
                     try {
                         nextTaskOrNull.run(); 
                     }
-                    catch (Exception e) { 
+                    // Also catch e.g. StackOverflowExceptions here, 
+                    // otherwise ThreadPool.execute appears to "succeed" but stuff that should have happened has not happened.
+                    catch (Throwable e) {
                         synchronized (ThreadPool.this) {
                             exceptionOrNull = e;
                         }
