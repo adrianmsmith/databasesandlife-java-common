@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 
-import com.databasesandlife.util.YouTubeVideoId;
+import com.databasesandlife.util.gwtsafe.YouTubeVideoId;
 
 /**
  * Allows user to enter YouTube Video URLs.

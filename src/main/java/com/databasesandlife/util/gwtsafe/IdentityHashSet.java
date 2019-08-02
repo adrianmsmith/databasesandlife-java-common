@@ -1,4 +1,4 @@
-package com.databasesandlife.util;
+package com.databasesandlife.util.gwtsafe;
 
 import java.util.Collection;
 import java.util.IdentityHashMap;

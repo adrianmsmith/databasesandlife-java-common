@@ -1,8 +1,6 @@
 package com.databasesandlife.util;
 
 import com.databasesandlife.util.gwtsafe.ConfigurationException;
-import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNURL;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
