@@ -90,9 +90,9 @@ public class Timer implements AutoCloseable {
      * @param minimumDurationMillis thousandths of a second
      * @see com.google.common.base.Stopwatch
      */
-    public static TimerResult measureWallclockTime(Runnable task, long minimumDurationMillis) {
-        // Ignore the first iteration, e.g. on one unit test it took 0.7 seconds one-time to do class loading of the class under test
-        task.run();
+    public static TimerResult measureWallclockTime(Runnable task, long minimumDurationMillis, int warmupIterations) {
+        // Ignore the first iterations, e.g. on one unit test it took 0.7 seconds one-time to do class loading of the class under test
+        for (int i = 0; i < warmupIterations; i++) task.run();
         
         long startTime = System.currentTimeMillis();
         long endTime = startTime + minimumDurationMillis;
@@ -109,6 +109,10 @@ public class Timer implements AutoCloseable {
         return result;
     }
 
+    public static TimerResult measureWallclockTime(Runnable task, long minimumDurationMillis) {
+        return measureWallclockTime(task, minimumDurationMillis, 0);
+    }
+    
     // ------------------------------------------------------------------------------------------------------------------------
     
     protected String name;
