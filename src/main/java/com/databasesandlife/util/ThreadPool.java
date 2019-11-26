@@ -177,9 +177,21 @@ public class ThreadPool {
         }
     }
 
+    /** @return the runnable that's been scheduled for execution, as convenience */
+    public @Nonnull <R extends Runnable> R addTaskWithDependencies(@Nonnull List<? extends Runnable> dependencies, @Nonnull R after) {
+        addTaskWithDependencies(dependencies, new Runnable[] { after });
+        return after;
+    }
+
     public void addTask(Runnable... tasks) {
         for (Runnable r : tasks)
             addTaskWithDependencies(emptyList(), r);
+    }
+
+    /** @return the runnable that's been scheduled for execution, as convenience */
+    public @Nonnull <R extends Runnable> R addTask(@Nonnull R after) {
+        addTask(new Runnable[] { after });
+        return after;
     }
 
     public void addTasks(Collection<Runnable> tasks) {
@@ -210,6 +222,12 @@ public class ThreadPool {
         }
     }
 
+    /** @return the runnable that's been scheduled for execution, as convenience */
+    public @Nonnull <R extends Runnable> R addTaskOffPool(@Nonnull R task) {
+        addTaskOffPool(new Runnable[] { task });
+        return task;
+    }
+    
     public synchronized void addTaskWithDependenciesOffPool(List<? extends Runnable> dependencies, Runnable... after) {
         List<Runnable> stillScheduledDependencies = dependencies.stream()
             .filter(dep -> dep instanceof ScheduleDependencyInAnyOrder || 
@@ -234,6 +252,11 @@ public class ThreadPool {
                 }
             }
         }
+    }
+
+    public @Nonnull <R extends Runnable> R addTaskWithDependenciesOffPool(List<? extends Runnable> dependencies, R after) {
+        addTaskWithDependenciesOffPool(dependencies, new Runnable[] { after });
+        return after;
     }
 
     /** See {@link #unwrapException(RuntimeException, Class)} to how to handle checked exceptions */
