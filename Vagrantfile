@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
   config.vm.hostname = "databasesandlife-java-common"
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "ubuntu/bionic64"   # 18.04
   config.vm.network "forwarded_port", guest: 9999, host: 3262   # Java debugging
 
   if not Vagrant::Util::Platform.windows? then
@@ -28,12 +28,19 @@ Vagrant.configure(2) do |config|
 
     echo --- Install Java 8 \(OpenJDK\) and Maven
     apt-get -qy install openjdk-8-jdk maven
+    update-java-alternatives -s java-1.8.0-openjdk-amd64
     echo 'export MAVEN_OPTS="-ea -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=9999"' >> /etc/environment
 
     echo --- MySQL
-    echo "mysql-server-5.5 mysql-server/root_password password root" | sudo debconf-set-selections
-    echo "mysql-server-5.5 mysql-server/root_password_again password root" | sudo debconf-set-selections
-    apt-get -qy install mysql-client mysql-server
+    apt-get install -qy mysql-server mysql-client
+    echo "bind-address = 0.0.0.0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+    mysql -e 'CREATE USER '"'"'root'"'"'@'"'"'%'"'"' IDENTIFIED BY '"'"'root'"'"''
+    mysql -e 'GRANT ALL ON *.* TO '"'"'root'"'"'@'"'"'%'"'"''
+    mysql -e 'UPDATE mysql.user SET plugin="mysql_native_password" WHERE User="root"'
+    mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('root')  WHERE  User='root';"
+    mysql -e 'FLUSH PRIVILEGES'
+    /etc/init.d/mysql restart
+    echo 'mysql -uroot -proot databasesandlife_common' >> ~vagrant/.bash_history
     mysql -uroot -proot -e 'create database databasesandlife_common'
 
     echo --- PostgreSQL
