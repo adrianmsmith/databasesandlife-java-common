@@ -19,9 +19,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.databasesandlife.util.gwtsafe.ConfigurationException;
 import com.google.gdata.util.io.base.UnicodeReader;
 
 import javax.annotation.Nonnull;
+
+import static com.databasesandlife.util.gwtsafe.ConfigurationException.prefixExceptionMessage;
 
 /**
  * Parses CSV files.
@@ -67,6 +70,7 @@ public class CsvParser {
 
     public static class MalformedCsvException extends Exception {  // checked ex. because it's always possible CSV invalid, must handle it
         public MalformedCsvException(String msg) { super(msg); }
+        public MalformedCsvException(String prefix, Throwable e) { super(prefixExceptionMessage(prefix, e), e); }
         public MalformedCsvException(Throwable e) { super(e); }
     }
 
@@ -140,7 +144,7 @@ public class CsvParser {
                     }
                     lineHandler.processCsvLine(valueForField);
                 }
-                catch (MalformedCsvException e) { throw new MalformedCsvException(getLineNumberText(lineNumber) + e.getMessage()); }
+                catch (MalformedCsvException e) { throw new MalformedCsvException(getLineNumberText(lineNumber), e); }
             }
         }
         catch (IOException e) { throw new RuntimeException(e); }
@@ -155,8 +159,8 @@ public class CsvParser {
             }
         }
         catch (FileNotFoundException e) { throw new MalformedCsvException("CSV file '"+f+"' doesn't exist"); }
-        catch (IOException e) { throw new RuntimeException("CSV file '" + f + "': " + e.getMessage(), e); }
-        catch (MalformedCsvException e) { throw new MalformedCsvException("CSV file '" + f + "': " + e.getMessage()); }
+        catch (IOException e) { throw new RuntimeException(prefixExceptionMessage("CSV file '" + f + "'", e), e); }
+        catch (MalformedCsvException e) { throw new MalformedCsvException("CSV file '" + f + "'", e); }
     }
     
     public void parseAndCallHandler(CsvLineHandler lineHandler, Class<?> cl) throws MalformedCsvException {
@@ -165,8 +169,8 @@ public class CsvParser {
             if (csvStream == null) throw new IllegalArgumentException("No CSV file for class '" + cl.getName() + "'");
             parseAndCallHandler(lineHandler, new BufferedReader(new InputStreamReader(csvStream, defaultCharset)));
         }
-        catch (IOException e) { throw new RuntimeException("CSV file for class " + cl + ": " + e.getMessage(), e); }
-        catch (MalformedCsvException e) { throw new MalformedCsvException("CSV file for class " + cl + ": " + e.getMessage()); }
+        catch (IOException e) { throw new RuntimeException(prefixExceptionMessage("CSV file for class " + cl, e), e); }
+        catch (MalformedCsvException e) { throw new MalformedCsvException("CSV file for class " + cl, e); }
     }
 
     public List<Map<String, String>> parseToListOfMaps(BufferedReader r) throws MalformedCsvException {
