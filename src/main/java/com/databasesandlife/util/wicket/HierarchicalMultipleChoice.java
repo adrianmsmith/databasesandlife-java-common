@@ -1,6 +1,7 @@
 package com.databasesandlife.util.wicket;
 
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.lang.System.arraycopy;
 import static java.util.stream.Collectors.toList;
@@ -52,10 +54,10 @@ public class HierarchicalMultipleChoice<T> extends ListMultipleChoice<Hierarchic
         }
     }
     
-    protected class Model implements IModel<Collection<Choice<T>>> {
+    protected class SelectionModel implements IModel<Collection<Choice<T>>> {
         protected IModel<List<T>> underlyingModel;
         
-        public Model(IModel<List<T>> u) { this.underlyingModel = u; }
+        public SelectionModel(IModel<List<T>> u) { this.underlyingModel = u; }
 
         @Override public List<Choice<T>> getObject() {
             List<T> individuals = new ArrayList<>(underlyingModel.getObject());
@@ -82,7 +84,20 @@ public class HierarchicalMultipleChoice<T> extends ListMultipleChoice<Hierarchic
         }
     }
     
-    List<Choice<T>> choices;
+    protected class ChoicesModel extends AbstractReadOnlyModel<List<Choice<T>>> {
+        @Override public List<Choice<T>> getObject() {
+            if (hideChildrenOfSelection)
+                return choices.stream()
+                    .filter(c -> selectionModel.getObject().stream().noneMatch(sel -> c.path.startsWith(sel.path + ":")))
+                    .collect(Collectors.toList());
+            else 
+                return choices;
+        }
+    }
+
+    protected SelectionModel selectionModel;
+    protected List<Choice<T>> choices;
+    protected boolean hideChildrenOfSelection;
     
     /** For example with "a:b" and maxLevel=1 returns "a" */
     protected @Nonnull String getLevel(@Nonnull String[] pathComponents, int maxLevel) {
@@ -110,8 +125,21 @@ public class HierarchicalMultipleChoice<T> extends ListMultipleChoice<Hierarchic
             .collect(toList());
 
         setChoiceRenderer(null);
-        setChoices(this.choices);
-        setModel(new Model(model));
+        setChoices(new ChoicesModel());
+        setModel(selectionModel = new SelectionModel(model));
+    }
+
+    /**
+     * Remove children of selected entries.
+     *    <p>
+     * The Chosen JS library removes selected elements from the drop-down.
+     * This means that when a parent is selected, the children remain, which makes them appear visually under other parents.
+     * This option removes children of selected parents.
+     * This requires the page to be refreshed every time the selection changes.
+     */
+    public @Nonnull HierarchicalMultipleChoice<T> setHideChildrenOfSelection(boolean hide) {
+        this.hideChildrenOfSelection = hide;
+        return this;
     }
 
     @Override protected void setOptionAttributes(AppendingStringBuffer buffer, Choice<T> choice, int index, String selected) {
