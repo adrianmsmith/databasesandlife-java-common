@@ -68,7 +68,6 @@ public class HierarchicalMultipleChoice<T> extends ListMultipleChoice<Hierarchic
                     individuals.removeAll(c.items);
                 }
             }
-            if ( ! individuals.isEmpty()) throw new RuntimeException();
             return result;
         }
 
