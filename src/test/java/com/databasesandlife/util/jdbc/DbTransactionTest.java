@@ -1,14 +1,12 @@
 package com.databasesandlife.util.jdbc;
 
-import java.util.*;
-
-import com.databasesandlife.util.ThreadPool;
-import junit.framework.TestCase;
-
-import com.databasesandlife.util.YearMonthDay;
+import com.databasesandlife.util.*;
 import com.databasesandlife.util.jdbc.DbTransaction.DbQueryResultRow;
 import com.databasesandlife.util.jdbc.DbTransaction.DbServerProduct;
 import com.databasesandlife.util.jdbc.testutil.DatabaseConnection;
+import junit.framework.TestCase;
+
+import java.util.*;
 
 /**
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.

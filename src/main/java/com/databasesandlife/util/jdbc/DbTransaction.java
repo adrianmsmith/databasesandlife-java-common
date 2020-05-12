@@ -33,8 +33,8 @@ import org.jooq.SQLDialect;
 import org.jooq.TableRecord;
 import org.jooq.impl.DSL;
 
+import com.databasesandlife.util.*;
 import com.databasesandlife.util.Timer;
-import com.databasesandlife.util.YearMonthDay;
 import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -97,7 +97,7 @@ import static com.databasesandlife.util.gwtsafe.ConfigurationException.prefixExc
  * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
 
-@SuppressWarnings({ "serial", "deprecation" })
+@SuppressWarnings({ "serial", "deprecation", "UseOfObsoleteDateTimeApi" })
 public class DbTransaction implements DbQueryable, AutoCloseable {
     
     public final DbServerProduct product;
@@ -445,11 +445,11 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 else if (args[i] instanceof String) // setXx 1st param: first arg is 1 not 0
                     ps.setString(i+1, (String) args[i]);
                 else if (args[i] instanceof Integer)
-                    ps.setInt(i+1, ((Integer) args[i]).intValue());
+                    ps.setInt(i+1, (Integer) args[i]);
                 else if (args[i] instanceof Long)
-                    ps.setLong(i+1, ((Long) args[i]).longValue());
+                    ps.setLong(i+1, (Long) args[i]);
                 else if (args[i] instanceof Double)
-                    ps.setDouble(i+1, ((Double) args[i]).doubleValue());
+                    ps.setDouble(i+1, (Double) args[i]);
                 else if (args[i] instanceof BigDecimal)
                     ps.setBigDecimal(i+1, (BigDecimal) args[i]);
                 else if (args[i] instanceof java.util.Date)
@@ -529,12 +529,14 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
     protected String getQuestionMarkForValue(Object value) {
         if (product == DbServerProduct.postgres) {
             if (value instanceof Enum<?>) {
+                @SuppressWarnings("SuspiciousMethodCalls") 
                 String type = postgresTypeForEnum.get(value.getClass());
                 if (type == null) throw new RuntimeException("Cannot convert Java Enum '" + value.getClass() + "' to " +
                     "Postgres ENUM type: use addPostgresTypeForEnum method after DbTransaction constructor");
                 return "?::" + type;
             }
             if (value instanceof Enum<?>[]) {
+                @SuppressWarnings("SuspiciousMethodCalls")
                 String type = postgresTypeForEnum.get(value.getClass().getComponentType());
                 if (type == null) throw new RuntimeException("Cannot convert Java Enum '" + value.getClass() + "' to " +
                     "Postgres ENUM type: use addPostgresTypeForEnum method after DbTransaction constructor");
@@ -746,7 +748,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         boolean first = true;
         for (Entry<String, ?> c : cols.entrySet()) {
             if (first) first = false; else sql.append(", ");
-            sql.append(getSchemaQuote() + c.getKey() + getSchemaQuote());
+            sql.append(getSchemaQuote()).append(c.getKey()).append(getSchemaQuote());
             sql.append(" = ");
             sql.append(getQuestionMarkForValue(c.getValue()));
             params.add(c.getValue());
@@ -758,7 +760,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             // if no columns:
             //     MySQL:      INSERT INTO mytable () VALUES ();
             //     PostgreSQL: INSERT INTO mytable DEFAULT VALUES;
-            sql.append("INSERT INTO "+table+" DEFAULT VALUES");
+            sql.append("INSERT INTO ").append(table).append(" DEFAULT VALUES");
         } else if (product == DbServerProduct.mysql) { // statement is easier to read, therefore easier to debug
             sql.append(" INSERT INTO ");
             sql.append(table);
@@ -774,7 +776,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
                 params.add(c.getValue());
             }
 
-            sql.append("INSERT INTO "+table+" ("+keys+") VALUES ("+questionMarks+")");
+            sql.append("INSERT INTO ").append(table).append(" (").append(keys).append(") VALUES (").append(questionMarks).append(")");
         }
     }
     
