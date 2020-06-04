@@ -1,13 +1,11 @@
-package com.databasesandlife.util;
+package com.databasesandlife.util.gwtsafe;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.apache.commons.lang.RandomStringUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 
@@ -20,7 +18,7 @@ import static java.util.Arrays.asList;
  */
 public class CleartextPassword implements Serializable {
 
-    public final @Nonnull String cleartext;
+    protected @Nonnull String cleartext;
 
     @JsonCreator
     public CleartextPassword(@Nonnull String c) {
@@ -29,6 +27,9 @@ public class CleartextPassword implements Serializable {
 
     @JsonValue
     public @Nonnull String getCleartext() { return cleartext; }
+    
+    /** @deprecated Do not use, required for GWT */
+    private CleartextPassword() { }
 
     /**
      * Generates a random password.
@@ -42,7 +43,7 @@ public class CleartextPassword implements Serializable {
      * <p>Make up for "lack of randomness" by making the password longer.</p>
      */
     public static @Nonnull CleartextPassword newRandom(int length) {
-        Set<Character> chars = new HashSet<>();
+        List<Character> chars = new ArrayList<>();
 
         for (char c = 'A'; c <= 'Z'; c++) chars.add(c);
         for (char c = 'a'; c <= 'z'; c++) chars.add(c);
@@ -53,11 +54,14 @@ public class CleartextPassword implements Serializable {
         chars.removeAll(asList('S', '5'));
         chars.removeAll(asList('2', 'Z'));
 
-        StringBuilder result = new StringBuilder();
-        for (char c : chars) result.append(c);
+        Random random = new Random();
+        StringBuilder result = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int charIdx = random.nextInt(chars.size());
+            result.append(chars.get(charIdx));
+        }
 
-        String password = RandomStringUtils.random(length, result.toString());
-        return new CleartextPassword(password);
+        return new CleartextPassword(result.toString());
     }
 
     /** Generates a new password of a reasonable length; see {@link #newRandom(int)} */

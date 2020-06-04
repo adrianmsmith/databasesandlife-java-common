@@ -1,6 +1,6 @@
 package com.databasesandlife.util.spring;
 
-import com.databasesandlife.util.CleartextPassword;
+import com.databasesandlife.util.gwtsafe.CleartextPassword;
 import org.springframework.ws.WebServiceMessage;
 import org.springframework.ws.client.core.WebServiceMessageCallback;
 import org.springframework.ws.soap.saaj.SaajSoapMessage;
@@ -58,7 +58,7 @@ public class SoapClientSecurityHeaderWriter implements WebServiceMessageCallback
             SOAPElement passwordElement = usernameToken.addChildElement("Password", "wsse");
 
             usernameElement.setTextContent(username);
-            passwordElement.setTextContent(password.cleartext);
+            passwordElement.setTextContent(password.getCleartext());
         }
         catch (SOAPException e) { throw new RuntimeException(e); }
     }

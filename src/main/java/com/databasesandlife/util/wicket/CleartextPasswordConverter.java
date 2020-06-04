@@ -1,6 +1,6 @@
 package com.databasesandlife.util.wicket;
 
-import com.databasesandlife.util.CleartextPassword;
+import com.databasesandlife.util.gwtsafe.CleartextPassword;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 
@@ -22,6 +22,6 @@ public class CleartextPasswordConverter implements IConverter<CleartextPassword>
 
     @Override public String convertToString(CleartextPassword value, Locale locale) {
         if (value == null) return null;
-        return value.cleartext;
+        return value.getCleartext();
     }
 }

@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import com.databasesandlife.util.gwtsafe.CleartextPassword;
 import com.databasesandlife.util.gwtsafe.ConfigurationException;
 
 import javax.annotation.CheckForNull;

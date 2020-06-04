@@ -1,5 +1,6 @@
 package com.databasesandlife.util;
 
+import com.databasesandlife.util.gwtsafe.CleartextPassword;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.annotation.Nonnull;
@@ -21,11 +22,11 @@ public class BCryptPassword implements Serializable {
     }
 
     public BCryptPassword(@Nonnull CleartextPassword b) {
-        bcrypt = BCrypt.hashpw(b.cleartext, BCrypt.gensalt());
+        bcrypt = BCrypt.hashpw(b.getCleartext(), BCrypt.gensalt());
     }
 
     public boolean is(@Nonnull CleartextPassword b) {
-        return BCrypt.checkpw(b.cleartext, bcrypt);
+        return BCrypt.checkpw(b.getCleartext(), bcrypt);
     }
 
     @Override
