@@ -6,7 +6,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 @SuppressWarnings("serial")
-public class InternetAddressConverter implements Converter<String, InternetAddress> {
+public class InternetAddressLowerConverter implements Converter<String, InternetAddress> {
 
     @Override public Class<String> fromType() { return String.class; }
     @Override public Class<InternetAddress> toType() { return InternetAddress.class; }
@@ -23,6 +23,6 @@ public class InternetAddressConverter implements Converter<String, InternetAddre
     @Override
     public String to(InternetAddress x) {
         if (x == null) return null;
-        return x.getAddress();
+        return x.getAddress().toLowerCase();
     }
 }
