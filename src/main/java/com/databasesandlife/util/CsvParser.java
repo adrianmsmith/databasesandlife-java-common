@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import com.databasesandlife.util.gwtsafe.ConfigurationException;
@@ -76,7 +77,11 @@ public class CsvParser {
 
     protected class ArrayOfMapsLineHandler implements CsvLineHandler {
         List<Map<String,String>> result = new ArrayList<>();
-        public void processCsvLine(Map<String, String> line) { result.add(new HashMap<String, String>(line)); }
+        public void processCsvLine(Map<String, String> line) {
+            Map<String, String> mapCopy = mapProducer.get();
+            mapCopy.putAll(line);
+            result.add(mapCopy);
+        }
     }
 
     protected Charset defaultCharset = StandardCharsets.UTF_8;
@@ -87,6 +92,8 @@ public class CsvParser {
     protected Set<String> nonEmptyFields = null;
     protected Pattern endOfDataRegex = null;
     protected Pattern skipLinePattern = null;
+    
+    protected Supplier<Map<String, String>> mapProducer = HashMap::new;
 
     public void setEndOfDataRegex(Pattern p){ this.endOfDataRegex = p;}
     public void setSkipLinePattern(Pattern p){ this.skipLinePattern = p;}
@@ -109,6 +116,9 @@ public class CsvParser {
     /** Any fields here must be present and have non-empty values */ 
     public void setNonEmptyFields(@Nonnull String... f) { nonEmptyFields = new HashSet<>(Arrays.asList(f)); }
 
+    /** By default use a fast map, but the client may require other maps for example one that preserves the field order */
+    public void setMapProducer(@Nonnull Supplier<Map<String, String>> mapProducer) { this.mapProducer = mapProducer; }
+
     public void parseAndCallHandler(CsvLineHandler lineHandler, BufferedReader r) throws MalformedCsvException {
         try {
             String headerLine = r.readLine();
@@ -124,7 +134,7 @@ public class CsvParser {
                         throw new MalformedCsvException("Column '" + csvField + "' unexpected");
 
             int lineNumber = 1;
-            Map<String, String> valueForField = new HashMap<>();
+            Map<String, String> valueForField = mapProducer.get();
             while (true) {
                 try {
                     lineNumber++;
