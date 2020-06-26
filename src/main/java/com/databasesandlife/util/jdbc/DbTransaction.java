@@ -416,23 +416,20 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         return connection;
     }
     
-    protected PreparedStatement getPreparedStatement(String sql) {
+    protected PreparedStatement getPreparedStatement(String sql) throws SQLException {
         Connection c = getConnection(); // throws if already committed/rolledback
         
         PreparedStatement ps = (PreparedStatement) preparedStatements.get(sql);
         if (ps != null) return ps;
         
-        try {
-            ps = c.prepareStatement(sql);
-            ps.setFetchSize(50);
-        }
-        catch (SQLException e) { throw new RuntimeException(e); }
+        ps = c.prepareStatement(sql);
+        ps.setFetchSize(50);
         
         preparedStatements.put(sql, ps);
         return ps;
     }
     
-    protected PreparedStatement insertParamsToPreparedStatement(String sql, Object... args) {
+    protected PreparedStatement insertParamsToPreparedStatement(String sql, Object... args) throws SQLException {
         Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         
         PreparedStatement ps = getPreparedStatement(sql);
