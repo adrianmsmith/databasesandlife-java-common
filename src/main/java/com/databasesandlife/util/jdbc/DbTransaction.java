@@ -44,7 +44,7 @@ import static com.databasesandlife.util.gwtsafe.ConfigurationException.prefixExc
 /**
  * Represents a transaction against a database.
  *     <p>
- * MySQL, PostgreSQL and SQL Server are supported.
+ * MySQL, PostgreSQL and SQL Server and SQLite are supported.
  *     <p>
  * An object is created with the JDBC URL to the database.
  * There is no factory for this type of object, simply store the string JDBC URL as opposed to a DbConnectionFactory.
@@ -111,7 +111,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         rollbackIfConnectionStillOpen();
     }
 
-    public enum DbServerProduct { mysql, postgres, sqlserver };
+    public enum DbServerProduct { mysql, postgres, sqlserver, sqlite };
     
     @FunctionalInterface
     public interface DbTransactionFactory {
@@ -601,19 +601,22 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             if (jdbcUrl.contains(":mysql")) product = DbServerProduct.mysql;
             else if (jdbcUrl.contains(":postgres")) product = DbServerProduct.postgres;
             else if (jdbcUrl.contains(":sqlserver")) product = DbServerProduct.sqlserver;
-            else throw new CannotConnectToDatabaseException("Unrecognized server product (mysql or postgres?): " + jdbcUrl);
+            else if (jdbcUrl.contains(":sqlite")) product = DbServerProduct.sqlite;
+            else throw new CannotConnectToDatabaseException("Unrecognized server product: " + jdbcUrl);
             
             switch (product) {   // load the classes so that getConnection recognizes the :mysql: etc part of JDBC url
                 case mysql: new com.mysql.jdbc.Driver(); break;
                 case postgres: new org.postgresql.Driver(); break;
                 case sqlserver: new SQLServerDriver(); break;
+                case sqlite: break;
                 default: throw new RuntimeException("Unreachable");
             }
             
             connection = DriverManager.getConnection(jdbcUrl);
             connection.setAutoCommit(false);
 
-            execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
+            if (product != DbServerProduct.sqlite) 
+                execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
         }
         catch (SQLException e) {
             throw new CannotConnectToDatabaseException("cannot connect to database '"+jdbcUrl+"': JBDC driver is OK, "+
@@ -919,6 +922,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         switch (product) {
             case sqlserver:
             case postgres:
+            case sqlite:
                 return "";
             case mysql:
                 return " FROM dual ";
@@ -931,7 +935,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
         switch (product) {
             case sqlserver: return "";
             case postgres: return "\"";
-            case mysql: return "`";
+            case mysql: case sqlite: return "`";
             default: throw new RuntimeException();
         }
     }
