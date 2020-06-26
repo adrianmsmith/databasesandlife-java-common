@@ -771,7 +771,7 @@ public class DbTransaction implements DbQueryable, AutoCloseable {
             StringBuilder questionMarks = new StringBuilder();
             for (Entry<String, ?> c : cols.entrySet()) {
                 if (keys.length() > 0) { keys.append(", "); questionMarks.append(", "); }
-                keys.append(c.getKey());
+                keys.append(getSchemaQuote()).append(c.getKey()).append(getSchemaQuote());
                 questionMarks.append(getQuestionMarkForValue(c.getValue()));
                 params.add(c.getValue());
             }
