@@ -1,6 +1,7 @@
 package com.databasesandlife.util.jdbc;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +41,11 @@ public class ReadOnlyReconnectingDbConnectionTest extends TestCase {
                 return new DbTransaction(DatabaseConnection.postgresql) {
                     int count = 0;
                     @Override protected PreparedStatement insertParamsToPreparedStatement( String sql, Object... args) {
-                        if (++count % 2 == 0) throw new SqlException("test fail");
-                        else return super.insertParamsToPreparedStatement(sql, args);
+                        try {
+                            if (++count % 2 == 0) throw new SqlException("test fail");
+                            else return super.insertParamsToPreparedStatement(sql, args);
+                        } 
+                        catch (SQLException e) { throw new RuntimeException(e); }
                     }
                 };
             }
