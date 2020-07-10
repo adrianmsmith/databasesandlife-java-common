@@ -209,6 +209,6 @@ public class CsvParser {
     }
     
     protected String getLineNumberText(int lineNumber) {
-        return "Line " + lineNumber + ": ";
+        return "Line " + lineNumber;
     }
 }
