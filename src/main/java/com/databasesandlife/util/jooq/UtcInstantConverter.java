@@ -6,6 +6,10 @@ import java.time.ZoneOffset;
 
 import org.jooq.Converter;
 
+/**
+ * @deprecated Prefer TIMEZONETZ type in PostgreSQL which jOOQ automatically recognizes as Instant.
+ * And note that this class has issues in jOOQ 3.13 when using .update(..., val(..)). (but 3.11 is OK)
+ */
 @SuppressWarnings("serial")
 public class UtcInstantConverter implements Converter<LocalDateTime, Instant> {
 
