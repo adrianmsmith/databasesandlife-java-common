@@ -1,5 +1,6 @@
 package com.databasesandlife.util.gwtsafe;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -13,7 +14,7 @@ import java.util.Iterator;
  * @author This source is copyright <a href="http://www.databasesandlife.com">Adrian Smith</a> and licensed under the LGPL 3.
  * @see <a href="https://github.com/adrianmsmith/databasesandlife-java-common">Project on GitHub</a>
  */
-public class IdentityHashSet<T> implements Iterable<T> {
+public class IdentityHashSet<T> implements Iterable<T>, Serializable {
 
     protected final IdentityHashMap<T, Object> map = new IdentityHashMap<>();
 
