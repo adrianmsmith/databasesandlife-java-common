@@ -1,7 +1,6 @@
 package com.databasesandlife.util.wicket;
 
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
@@ -83,7 +82,7 @@ public class HierarchicalMultipleChoice<T> extends ListMultipleChoice<Hierarchic
         }
     }
     
-    protected class ChoicesModel extends AbstractReadOnlyModel<List<Choice<T>>> {
+    protected class ChoicesModel implements IModel<List<Choice<T>>> {
         @Override public List<Choice<T>> getObject() {
             if (hideChildrenOfSelection)
                 return choices.stream()
